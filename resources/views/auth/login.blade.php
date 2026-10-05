@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <title>Login - Direktori Guru SMP Negeri 2 Purwakarta</title>
 
@@ -199,6 +200,11 @@
 
         .password-input {
             padding-right: 52px;
+        }
+
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear {
+            display: none;
         }
 
         .toggle-password {
@@ -546,9 +552,9 @@
                             <button
                                 type="button"
                                 class="toggle-password"
-                                id="togglePassword"
+                                onclick="togglePassword()"
                                 aria-label="Tampilkan password">
-                                Tampilkan
+                                <i id="eyeIcon" class="bi bi-eye-slash-fill"></i>
                             </button>
 
                         </div>
@@ -562,7 +568,8 @@
 
                             <input
                                 type="checkbox"
-                                name="remember">
+                                name="remember"
+                                id="remember">
 
                             <span>Ingat Saya</span>
 
@@ -589,33 +596,41 @@
 
     </div>
 
-
     <script>
-        const passwordInput = document.getElementById('password');
-        const togglePassword = document.getElementById('togglePassword');
+        function togglePassword() {
+            const password = document.getElementById("password");
+            const icon = document.getElementById("eyeIcon");
 
-        togglePassword.addEventListener('click', function() {
-
-            if (passwordInput.type === 'password') {
-
-                passwordInput.type = 'text';
-                togglePassword.textContent = 'Sembunyikan';
-                togglePassword.setAttribute(
-                    'aria-label',
-                    'Sembunyikan password'
-                );
-
+            if (password.type === "password") {
+                password.type = "text";
+                icon.classList.remove("bi-eye-slash-fill");
+                icon.classList.add("bi-eye-fill");
             } else {
-
-                passwordInput.type = 'password';
-                togglePassword.textContent = 'Tampilkan';
-                togglePassword.setAttribute(
-                    'aria-label',
-                    'Tampilkan password'
-                );
-
+                password.type = "password";
+                icon.classList.remove("bi-eye-fill");
+                icon.classList.add("bi-eye-slash-fill");
             }
+        }
 
+        const loginForm = document.querySelector('form');
+        const nipInput = document.getElementById('nip');
+        const rememberCheckbox = document.getElementById('remember');
+
+        // Saat halaman login dibuka
+        const savedNip = localStorage.getItem('remembered_nip');
+
+        if (savedNip) {
+            nipInput.value = savedNip;
+            rememberCheckbox.checked = true;
+        }
+
+        // Saat form login dikirim
+        loginForm.addEventListener('submit', function() {
+            if (rememberCheckbox.checked) {
+                localStorage.setItem('remembered_nip', nipInput.value);
+            } else {
+                localStorage.removeItem('remembered_nip');
+            }
         });
     </script>
 

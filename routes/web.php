@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\GuruProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login', function () {
@@ -14,5 +15,10 @@ Route::post('/logout', [LoginController::class, 'logout'])
     ->name('logout');
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('dashboard');
 })->middleware('auth')->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profil', [GuruProfileController::class, 'index'])
+        ->name('profil');
+});
