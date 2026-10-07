@@ -94,28 +94,25 @@
             </div>
             <!--end::Profil-->
 
-            <!--begin::Dokumen-->
-            <div class="menu-item">
+            <!--begin::Menu item - Dokumen-->
+<div class="menu-item">
+    <a class="menu-link {{ request()->routeIs('dokumen.index') ? 'active' : '' }}"
+       href="{{ route('dokumen.index') }}">
 
-                <a
-                    class="menu-link"
-                    href="#">
+        <span class="menu-icon">
+            <i class="ki-duotone ki-folder fs-2">
+                <span class="path1"></span>
+                <span class="path2"></span>
+            </i>
+        </span>
 
-                    <span class="menu-icon">
-                        <i class="ki-duotone ki-folder fs-2">
-                            <span class="path1"></span>
-                            <span class="path2"></span>
-                        </i>
-                    </span>
+        <span class="menu-title">
+            Dokumen
+        </span>
 
-                    <span class="menu-title">
-                        Dokumen
-                    </span>
-
-                </a>
-
-            </div>
-            <!--end::Dokumen-->
+    </a>
+</div>
+<!--end::Menu item - Dokumen-->
 
 
             <!--begin::Supervisi-->
@@ -149,37 +146,41 @@
                 style="height: 3px; background-color: #e1e3ea;"></div>
             <!--end::Separator-->
 
-            <!--begin::Logout-->
-            <div class="menu-item">
+           
+<!--begin::Logout-->
+<div class="menu-item">
 
-                <form
-                    action="{{ route('logout') }}"
-                    method="POST"
-                    class="w-100">
+    <form
+        id="logout-form"
+        action="{{ route('logout') }}"
+        method="POST"
+        class="w-100">
 
-                    @csrf
+        @csrf
 
-                    <button
-                        type="submit"
-                        class="menu-link border-0 bg-transparent w-100 text-start">
+        <button
+            type="button"
+            id="logout-button"
+            class="menu-link border-0 bg-transparent w-100 text-start">
 
-                        <span class="menu-icon">
-                            <i class="ki-duotone ki-exit-right fs-2">
-                                <span class="path1"></span>
-                                <span class="path2"></span>
-                            </i>
-                        </span>
+            <span class="menu-icon">
+                <i class="ki-duotone ki-exit-right fs-2">
+                    <span class="path1"></span>
+                    <span class="path2"></span>
+                </i>
+            </span>
 
-                        <span class="menu-title">
-                            Logout
-                        </span>
+            <span class="menu-title">
+                Logout
+            </span>
 
-                    </button>
+        </button>
 
-                </form>
+    </form>
 
-            </div>
-            <!--end::Logout-->
+</div>
+<!--end::Logout-->
+
 
 
         </div>
