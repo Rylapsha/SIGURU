@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Dashboard - SIGURU')
+@section('page_title', 'Dashboard',)
 
 @section('content')
 
@@ -8,14 +9,13 @@
     <div class="container-fluid">
 
         {{-- Page Heading --}}
-        <div class="d-flex flex-wrap flex-stack mb-8">
+        <div class="d-flex flex-wrap flex-stack m-8">
             <div>
                 <h1 class="fw-bold text-gray-900 mb-2">
                     Selamat Datang, {{ Auth::user()->nama_lengkap ?? 'Guru' }}!
                 </h1>
-
-                <span class="text-gray-500 fs-5">
-                    di Sistem Informasi Direktori Guru SMP Negeri 2 Purwakarta
+                <span class="text-gray-400 fw-semibold fs-6">
+                    Kelola administrasi anda secara mudah dan sistematis melalui Sistem Informasi Direktori Guru SMP Negeri 2 Purwakarta.
                 </span>
             </div>
         </div>
@@ -44,7 +44,7 @@
                         </div>
 
                         <div class="card-toolbar">
-                            <a href="#" class="btn btn-sm btn-light-primary">
+                            <a href="{{ route('dokumen.index') }}" class="btn btn-sm btn-light-primary">
                                 Lihat Selengkapnya
                             </a>
                         </div>

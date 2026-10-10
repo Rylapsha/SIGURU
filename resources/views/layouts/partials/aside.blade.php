@@ -1,192 +1,182 @@
 <!--begin::Aside-->
-<div
-    id="kt_aside"
-    class="aside"
+<div id="kt_aside"
+    class="aside aside-dark aside-hoverable"
     data-kt-drawer="true"
     data-kt-drawer-name="aside"
     data-kt-drawer-activate="{default: true, lg: false}"
     data-kt-drawer-overlay="true"
     data-kt-drawer-width="{default:'200px', '300px': '250px'}"
-    data-kt-drawer-direction="start">
+    data-kt-drawer-direction="start"
+    data-kt-drawer-toggle="#kt_aside_mobile_toggle">
 
-    <!--begin::Aside Logo-->
+    <!--begin::Brand-->
     <div class="aside-logo flex-column-auto" id="kt_aside_logo">
 
-        <a href="{{ route('dashboard') }}" class="d-flex align-items-center">
+        <a href="{{ route('dashboard') }}"
+            class="d-flex align-items-center justify-content-center">
 
             <img
-                src="{{ asset('asset/img/logo.png') }}"
                 alt="Logo SIGURU"
-                class="h-45px">
-
-            <div class="ms-3">
-                <span class="fw-bold fs-5 text-gray-800">
-                    SIGURU
-                </span>
-
-                <span class="text-muted fs-8 d-block">
-                    SMP Negeri 2 Purwakarta
-                </span>
-            </div>
-
+                src="{{ asset('asset/img/logos.png') }}"
+                class="h-60px logo">
         </a>
 
+        <!--begin::Aside toggler-->
+        <div id="kt_aside_toggle"
+            class="btn btn-icon w-auto px-0 btn-active-color-primary aside-toggle"
+            data-kt-toggle="true"
+            data-kt-toggle-state="active"
+            data-kt-toggle-target="body"
+            data-kt-toggle-name="aside-minimize">
+
+            <span class="svg-icon svg-icon-1 rotate-180">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    width="24" height="24"
+                    viewBox="0 0 24 24" fill="none">
+
+                    <path opacity="0.5"
+                        d="M14.2657 11.4343L18.45 7.25C18.8642 6.83579 18.8642 6.16421 18.45 5.75C18.0358 5.33579 17.3642 5.33579 16.95 5.75L11.4071 11.2929C11.0166 11.6834 11.0166 12.3166 11.4071 12.7071L16.95 18.25C17.3642 18.6642 18.0358 18.6642 18.45 18.25C18.8642 17.8358 18.8642 17.1642 18.45 16.75L14.2657 12.5657C13.9533 12.2533 13.9533 11.7467 14.2657 11.4343Z"
+                        fill="currentColor" />
+
+                    <path
+                        d="M8.2657 11.4343L12.45 7.25C12.8642 6.83579 12.8642 6.16421 12.45 5.75C12.0358 5.33579 11.3642 5.33579 10.95 5.75L5.40712 11.2929C5.01659 11.6834 5.01659 12.3166 5.40712 12.7071L10.95 18.25C11.3642 18.6642 12.0358 18.6642 12.45 18.25C12.8642 17.8358 12.8642 17.1642 12.45 16.75L8.2657 12.5657C7.95328 12.2533 7.95328 11.7467 8.2657 11.4343Z"
+                        fill="currentColor" />
+                </svg>
+            </span>
+        </div>
+        <!--end::Aside toggler-->
+
     </div>
-    <!--end::Aside Logo-->
+    <!--end::Brand-->
 
+    <!--begin::Aside menu-->
+    <div class="aside-menu flex-column-fluid">
 
-    <!--begin::Aside Menu-->
-    <div
-        class="hover-scroll-overlay-y my-5 my-lg-5"
-        id="kt_aside_menu_wrapper"
-        data-kt-scroll="true"
-        data-kt-scroll-activate="{default: false, lg: true}"
-        data-kt-scroll-height="auto">
+        <div class="hover-scroll-overlay-y my-5 my-lg-5"
+            id="kt_aside_menu_wrapper"
+            data-kt-scroll="true"
+            data-kt-scroll-activate="{default: false, lg: true}"
+            data-kt-scroll-height="auto"
+            data-kt-scroll-dependencies="#kt_aside_logo, #kt_aside_footer"
+            data-kt-scroll-wrappers="#kt_aside_menu"
+            data-kt-scroll-offset="0">
 
-        <div
-            class="menu menu-column menu-title-gray-800 menu-state-title-primary menu-state-icon-primary menu-state-bullet-primary"
-            id="kt_aside_menu"
-            data-kt-menu="true">
+            <!--begin::Menu-->
+            <div class="menu menu-column menu-title-gray-800
+                        menu-state-title-primary menu-state-icon-primary
+                        menu-state-bullet-primary menu-arrow-gray-500"
+                id="kt_aside_menu"
+                data-kt-menu="true"
+                data-kt-menu-expand="false">
 
-            <!--begin::Dashboard-->
-            <div class="menu-item">
-
-                <a
-                    class="menu-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
-                    href="{{ route('dashboard') }}">
-
-                    <span class="menu-icon">
-                        <i class="ki-duotone ki-element-11 fs-2">
-                            <span class="path1"></span>
-                            <span class="path2"></span>
-                            <span class="path3"></span>
-                            <span class="path4"></span>
-                        </i>
+                <!-- DASHBOARD -->
+                <div class="menu-content p-5">
+                    <span class="menu-section text-muted text-uppercase fs-8 ls-1">
+                        MENU UTAMA
                     </span>
+                </div>
 
-                    <span class="menu-title">
-                        Dashboard
+                <div class="menu-item">
+                    <a href="{{ route('dashboard') }}"
+                        class="menu-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+
+                        <span class="menu-icon">
+                            <i class="bi bi-grid-1x2-fill fs-3"></i>
+                        </span>
+
+                        <span class="menu-title">Dashboard</span>
+                    </a>
+                </div>
+                <!-- END DASHBOARD -->
+
+                <div class="menu-item">
+                    <div class="menu-content">
+                        <div class="separator mx-1 my-4"></div>
+                    </div>
+                </div>
+
+                <!-- PROFIL -->
+                <div class="menu-content p-5">
+                    <span class="menu-section text-muted text-uppercase fs-8 ls-1">
+                        DATA SAYA
                     </span>
+                </div>
+                <div class="menu-item">
+                    <a href="{{ route('profil') }}"
+                        class="menu-link {{ request()->routeIs('profil', 'profil.foto.update') ? 'active' : '' }}">
 
-                </a>
+                        <span class="menu-icon">
+                            <i class="bi bi-person-vcard-fill fs-3"></i>
+                        </span>
+
+                        <span class="menu-title">Profil Saya</span>
+                    </a>
+                </div>
+                <!-- END PROFIL -->
+
+                <!-- DOKUMEN -->
+                <div class="menu-item">
+                    <a href="{{ route('dokumen.index') }}"
+                        class="menu-link {{ request()->routeIs('dokumen.*') ? 'active' : '' }}">
+
+                        <span class="menu-icon">
+                            <i class="bi bi-folder-fill fs-3"></i>
+                        </span>
+
+                        <span class="menu-title">Dokumen</span>
+                    </a>
+                </div>
+                <!-- END DOKUMEN -->
+
+                <!-- SUPERVISI -->
+
+                <div class="menu-item">
+                    <span class="menu-link disabled">
+                        <span class="menu-icon">
+                            <i class="bi bi-clipboard2-check-fill fs-3"></i>
+                        </span>
+
+                        <span class="menu-title">Supervisi</span>
+                    </span>
+                </div>
+                <!-- END SUPERVISI -->
+
+                <!-- PEMBATAS -->
+                <div class="menu-item">
+                    <div class="menu-content">
+                        <div class="separator mx-1 my-4"></div>
+                    </div>
+                </div>
+
+                <!-- LOGOUT -->
+                <div class="menu-item">
+                    <form id="logout-form"
+                        action="{{ route('logout') }}"
+                        method="POST"
+                        class="w-100">
+
+                        @csrf
+
+                        <button type="button"
+                            id="logout-button"
+                            class="menu-link border-0 bg-transparent w-100 text-start">
+
+                            <span class="menu-icon">
+                                <i class="bi bi-box-arrow-right fs-3"></i>
+                            </span>
+
+                            <span class="menu-title">Logout</span>
+                        </button>
+                    </form>
+                </div>
+                <!-- END LOGOUT -->
 
             </div>
-            <!--end::Dashboard-->
-
-            <!--begin::Separator-->
-            <div
-                class="mx-5 my-4"
-                style="height: 3px; background-color: #e1e3ea;"></div>
-            <!--end::Separator-->
-
-            <!--begin::Profil-->
-            <div class="menu-item">
-                <a class="menu-link {{ request()->is('profil') ? 'active' : '' }}" href="{{ url('/profil') }}">
-                    <span class="menu-icon">
-                        <i class="ki-duotone ki-profile-user fs-2">
-                            <span class="path1"></span>
-                            <span class="path2"></span>
-                            <span class="path3"></span>
-                            <span class="path4"></span>
-                        </i>
-                    </span>
-                    <span class="menu-title"> Profil Saya </span></a>
-            </div>
-            <!--end::Profil-->
-
-            <!--begin::Menu item - Dokumen-->
-<div class="menu-item">
-    <a class="menu-link {{ request()->routeIs('dokumen.index') ? 'active' : '' }}"
-       href="{{ route('dokumen.index') }}">
-
-        <span class="menu-icon">
-            <i class="ki-duotone ki-folder fs-2">
-                <span class="path1"></span>
-                <span class="path2"></span>
-            </i>
-        </span>
-
-        <span class="menu-title">
-            Dokumen
-        </span>
-
-    </a>
-</div>
-<!--end::Menu item - Dokumen-->
-
-
-            <!--begin::Supervisi-->
-            <div class="menu-item">
-
-                <a
-                    class="menu-link"
-                    href="#">
-
-                    <span class="menu-icon">
-                        <i class="ki-duotone ki-chart-simple fs-2">
-                            <span class="path1"></span>
-                            <span class="path2"></span>
-                            <span class="path3"></span>
-                            <span class="path4"></span>
-                        </i>
-                    </span>
-
-                    <span class="menu-title">
-                        Supervisi
-                    </span>
-
-                </a>
-
-            </div>
-            <!--end::Supervisi-->
-
-            <!--begin::Separator-->
-            <div
-                class="mx-5 my-4"
-                style="height: 3px; background-color: #e1e3ea;"></div>
-            <!--end::Separator-->
-
-           
-<!--begin::Logout-->
-<div class="menu-item">
-
-    <form
-        id="logout-form"
-        action="{{ route('logout') }}"
-        method="POST"
-        class="w-100">
-
-        @csrf
-
-        <button
-            type="button"
-            id="logout-button"
-            class="menu-link border-0 bg-transparent w-100 text-start">
-
-            <span class="menu-icon">
-                <i class="ki-duotone ki-exit-right fs-2">
-                    <span class="path1"></span>
-                    <span class="path2"></span>
-                </i>
-            </span>
-
-            <span class="menu-title">
-                Logout
-            </span>
-
-        </button>
-
-    </form>
-
-</div>
-<!--end::Logout-->
-
-
+            <!--end::Menu-->
 
         </div>
-
     </div>
-    <!--end::Aside Menu-->
+    <!--end::Aside menu-->
 
 </div>
 <!--end::Aside-->
