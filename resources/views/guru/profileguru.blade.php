@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
 @section('title', 'Profile - SIGURU')
-
 @section('page_title', 'Profil Saya')
+@section('header_search', 'false')
 
 @section('content')
 

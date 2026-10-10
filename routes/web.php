@@ -27,15 +27,27 @@ Route::middleware('auth')->group(function () {
     Route::put('/profil/foto', [GuruProfileController::class, 'updateFoto'])
         ->name('profil.foto.update');
 
-Route::get('/dokumen', [DokumenController::class, 'index'])
-    ->name('dokumen.index');
+    Route::get('/dokumen', [DokumenController::class, 'index'])
+        ->name('dokumen.index');
 
-Route::post('/dokumen/{jenis}', [DokumenController::class, 'store'])
-    ->name('dokumen.store');
+    Route::get('/dokumen/kategori/{jenis}', [DokumenController::class, 'kategori'])
+        ->where('jenis', 'atp|ap|prota|prosem|kisi-kisi|naskah-soal|analisis-butir-soal')
+        ->name('dokumen.kategori');
 
-Route::get('/dokumen/{dokumen}/lihat', [DokumenController::class, 'lihat'])
-    ->name('dokumen.lihat');
+    Route::post('/dokumen/{jenis}', [DokumenController::class, 'store'])
+        ->name('dokumen.store');
 
-Route::delete('/dokumen/{dokumen}', [DokumenController::class, 'destroy'])
-    ->name('dokumen.destroy');
+    Route::get('/dokumen/{dokumen}/lihat', [DokumenController::class, 'lihat'])
+        ->name('dokumen.lihat');
+
+    Route::delete('/dokumen/{dokumen}', [DokumenController::class, 'destroy'])
+        ->name('dokumen.destroy');
+
+    Route::get('/dokumen/{dokumen}/unduh', [DokumenController::class, 'unduh'])
+        ->name('dokumen.unduh');
+
+    Route::get('/dokumen/modul-ajar', [
+        DokumenController::class,
+        'modulAjar'
+    ])->name('dokumen.modul-ajar');
 });

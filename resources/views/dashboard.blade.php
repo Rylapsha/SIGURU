@@ -20,6 +20,20 @@
             </div>
         </div>
 
+        <div id="dashboard-search-targets" class="d-none">
+            <div data-search-target="profil" data-search-keywords="profil, profile, biodata, data saya">
+                {{ route('profil') }}
+            </div>
+            <div data-search-target="dokumen" data-search-keywords="dokumen, file, modul, atp, ap, prota, prosem, bank soal, materi, arsip">
+                {{ route('dokumen.index') }}
+            </div>
+            <div data-search-target="supervisi" data-search-keywords="supervisi, pengawasan, monitoring, evaluasi">
+                {{ url('#supervisi-status') }}
+            </div>
+            <div data-search-target="agenda" data-search-keywords="agenda, jadwal, kegiatan, rapat, pengumpulan, evaluasi pembelajaran, supervisi guru">
+                {{ url('#agenda-mendatang') }}
+            </div>
+        </div>
 
         {{-- Dashboard Cards --}}
         <div class="row g-5 g-xl-8">
@@ -146,7 +160,7 @@
 
 
             {{-- Status Supervisi --}}
-            <div class="col-xl-6">
+            <div class="col-xl-6" id="supervisi-status">
                 <div class="card h-100">
 
                     <div class="card-header border-0 pt-6">
@@ -229,7 +243,7 @@
 
 
         {{-- Agenda Mendatang --}}
-        <div class="card mt-8">
+        <div class="card mt-8" id="agenda-mendatang">
 
             <div class="card-header border-0 pt-6">
 
@@ -377,4 +391,79 @@
     </div>
 </div>
 
+@endsection
+
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('headerGlobalSearch');
+        const searchForm = document.getElementById('headerSearchForm');
+
+        if (!searchInput || !searchForm) {
+            return;
+        }
+
+        const mappings = [{
+                key: 'profil',
+                match: ['profil', 'profile', 'biodata', 'data saya'],
+                url: '{{ url(' / profil ') }}'
+            },
+            {
+                key: 'dokumen',
+                match: ['dokumen', 'file', 'modul', 'atp', 'ap', 'prota', 'prosem', 'bank soal', 'materi', 'arsip'],
+                url: '{{ url(' / dokumen ') }}'
+            },
+            {
+                key: 'supervisi',
+                match: ['supervisi', 'pengawasan', 'monitoring', 'evaluasi'],
+                url: '#supervisi-status'
+            },
+            {
+                key: 'agenda',
+                match: ['agenda', 'jadwal', 'kegiatan', 'rapat', 'pengumpulan', 'evaluasi pembelajaran', 'supervisi guru'],
+                url: '#agenda-mendatang'
+            }
+        ];
+
+        const normalize = (value) => (value || '').toLowerCase().trim();
+
+        const handleSearch = () => {
+            const query = normalize(searchInput.value);
+
+            if (!query) {
+                return;
+            }
+
+            const matched = mappings.find((item) =>
+                item.match.some((keyword) => query.includes(keyword))
+            );
+
+            if (!matched) {
+                return;
+            }
+
+            if (matched.url.startsWith('#')) {
+                const target = document.querySelector(matched.url);
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                    target.classList.add('border', 'border-primary', 'rounded');
+                    setTimeout(() => target.classList.remove('border', 'border-primary', 'rounded'), 2000);
+                }
+                searchForm.dispatchEvent(new Event('reset'));
+            } else {
+                window.location.href = matched.url;
+            }
+        };
+
+        searchInput.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                handleSearch();
+            }
+        });
+    });
+</script>
 @endsection

@@ -38,6 +38,13 @@ License: For each use you must have a valid license purchased only from above li
     <link id="kt_plugins_stylesheet" href="{{ asset('demo1/dist/assets/plugins/global/plugins.bundle.css') }}" data-light-href="{{ asset('demo1/dist/assets/plugins/global/plugins.bundle.css') }}" data-dark-href="{{ asset('demo1/dist/assets/plugins/global/plugins.dark.bundle.css') }}" rel="stylesheet" type="text/css" />
     <link id="kt_theme_stylesheet" href="{{ asset('demo1/dist/assets/css/style.bundle.css') }}" data-light-href="{{ asset('demo1/dist/assets/css/style.bundle.css') }}" data-dark-href="{{ asset('demo1/dist/assets/css/style.dark.bundle.css') }}" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/min/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!--end::Global Stylesheets Bundle-->
     <script>
         if (localStorage.getItem('sikap-theme-mode') === 'dark') {
@@ -104,18 +111,22 @@ License: For each use you must have a valid license purchased only from above li
     </div>
     <!--end::Root-->
     @yield('modals')
+
     <!--begin::Javascript-->
     <script>
         var hostUrl = "assets/";
     </script>
+
     <!--begin::Global Javascript Bundle(used by all pages)-->
     <script src="{{ asset('demo1/dist/assets/plugins/global/plugins.bundle.js') }}"></script>
     <script src="{{ asset('demo1/dist/assets/js/scripts.bundle.js') }}"></script>
     <!--end::Global Javascript Bundle-->
+
     <!--begin::Page Vendors Javascript(used by this page)-->
     <script src="{{ asset('demo1/dist/assets/plugins/custom/fullcalendar/fullcalendar.bundle.js') }}"></script>
     <script src="{{ asset('demo1/dist/assets/plugins/custom/datatables/datatables.bundle.js') }}"></script>
     <!--end::Page Vendors Javascript-->
+
     <!--begin::Page Custom Javascript(used by this page)-->
     <script src="{{ asset('demo1/dist/assets/js/widgets.bundle.js') }}"></script>
     <script src="{{ asset('demo1/dist/assets/js/custom/widgets.js') }}"></script>
@@ -124,13 +135,33 @@ License: For each use you must have a valid license purchased only from above li
     <script src="{{ asset('demo1/dist/assets/js/custom/utilities/modals/create-app.js') }}"></script>
     <script src="{{ asset('demo1/dist/assets/js/custom/utilities/modals/users-search.js') }}"></script>
     <!--end::Page Custom Javascript-->
+
     <script>
         (() => {
-            const themeStylesheets = document.querySelectorAll('[data-light-href][data-dark-href]');
-            const themeModeToggle = document.getElementById('kt_header_theme_mode_toggle');
-            const darkModeToggle = document.getElementById('kt_user_menu_dark_mode_toggle');
-            const baseThemeMode = localStorage.getItem('sikap-theme-mode') === 'dark' ? 'dark' : 'light';
+            const themeStylesheets = document.querySelectorAll(
+                '[data-light-href][data-dark-href]'
+            );
+
+            const themeModeToggle = document.getElementById(
+                'kt_header_theme_mode_toggle'
+            );
+
+            const darkModeToggle = document.getElementById(
+                'kt_user_menu_dark_mode_toggle'
+            );
+
+            // Hentikan script jika elemen toggle tema tidak tersedia.
+            if (!themeModeToggle || !darkModeToggle) {
+                return;
+            }
+
+            const baseThemeMode =
+                localStorage.getItem('sikap-theme-mode') === 'dark' ?
+                'dark' :
+                'light';
+
             const alternateThemeStylesheets = new Map();
+
             let themeMode = baseThemeMode;
             let requestedThemeMode = themeMode;
             let isChangingTheme = false;
@@ -140,97 +171,183 @@ License: For each use you must have a valid license purchased only from above li
                     return alternateThemeStylesheets.get(mode);
                 }
 
-                const stylesheets = Array.from(themeStylesheets, (stylesheet) => {
-                    const alternateStylesheet = document.createElement('link');
-                    alternateStylesheet.rel = 'stylesheet';
-                    alternateStylesheet.media = 'not all';
-                    alternateStylesheet.href = stylesheet.dataset[`${mode}Href`];
-                    return alternateStylesheet;
-                });
+                const stylesheets = Array.from(
+                    themeStylesheets,
+                    (stylesheet) => {
+                        const alternateStylesheet =
+                            document.createElement('link');
+
+                        alternateStylesheet.rel = 'stylesheet';
+                        alternateStylesheet.media = 'not all';
+                        alternateStylesheet.href =
+                            stylesheet.dataset[`${mode}Href`];
+
+                        return alternateStylesheet;
+                    }
+                );
 
                 try {
-                    await Promise.all(stylesheets.map((stylesheet) => new Promise((resolve, reject) => {
-                        stylesheet.addEventListener('load', resolve, {
-                            once: true
-                        });
-                        stylesheet.addEventListener('error', () => reject(new Error(`Gagal memuat stylesheet tema: ${stylesheet.href}`)), {
-                            once: true
-                        });
-                        document.head.append(stylesheet);
-                    })));
+                    await Promise.all(
+                        stylesheets.map(
+                            (stylesheet) =>
+                            new Promise((resolve, reject) => {
+                                stylesheet.addEventListener(
+                                    'load',
+                                    resolve, {
+                                        once: true
+                                    }
+                                );
+
+                                stylesheet.addEventListener(
+                                    'error',
+                                    () => reject(
+                                        new Error(
+                                            `Gagal memuat stylesheet tema: ${stylesheet.href}`
+                                        )
+                                    ), {
+                                        once: true
+                                    }
+                                );
+
+                                document.head.append(stylesheet);
+                            })
+                        )
+                    );
                 } catch (error) {
-                    stylesheets.forEach((stylesheet) => stylesheet.remove());
+                    stylesheets.forEach((stylesheet) => {
+                        stylesheet.remove();
+                    });
+
                     throw error;
                 }
 
                 alternateThemeStylesheets.set(mode, stylesheets);
+
                 return stylesheets;
             };
 
             const applyThemeMode = async (mode) => {
                 requestedThemeMode = mode;
+
                 if (isChangingTheme) {
                     return;
                 }
+
                 isChangingTheme = true;
+
                 try {
                     while (themeMode !== requestedThemeMode) {
                         const nextMode = requestedThemeMode;
-                        const nextStylesheets = nextMode === baseThemeMode ?
+
+                        const nextStylesheets =
+                            nextMode === baseThemeMode ?
                             themeStylesheets :
-                            await loadAlternateThemeStylesheets(nextMode);
+                            await loadAlternateThemeStylesheets(
+                                nextMode
+                            );
 
                         if (nextMode !== requestedThemeMode) {
                             continue;
                         }
 
-                        document.body.classList.add('theme-transitioning');
-                        await new Promise((resolve) => window.requestAnimationFrame(resolve));
+                        document.body.classList.add(
+                            'theme-transitioning'
+                        );
 
-                        const currentStylesheets = themeMode === baseThemeMode ?
+                        await new Promise((resolve) => {
+                            window.requestAnimationFrame(resolve);
+                        });
+
+                        const currentStylesheets =
+                            themeMode === baseThemeMode ?
                             themeStylesheets :
                             alternateThemeStylesheets.get(themeMode);
 
                         currentStylesheets.forEach((stylesheet) => {
                             stylesheet.media = 'not all';
                         });
+
                         nextStylesheets.forEach((stylesheet) => {
                             stylesheet.media = 'all';
                         });
 
                         themeMode = nextMode;
-                        document.body.classList.toggle('dark-mode', themeMode === 'dark');
-                        darkModeToggle.checked = themeMode === 'dark';
-                        themeModeToggle.setAttribute('aria-pressed', String(themeMode === 'dark'));
-                        themeModeToggle.setAttribute('aria-label', themeMode === 'dark' ? 'Aktifkan mode terang' : 'Aktifkan mode gelap');
-                        themeModeToggle.querySelector('i').className = themeMode === 'dark' ?
-                            'bi bi-sun fs-2' :
-                            'bi bi-moon-stars fs-2';
-                        localStorage.setItem('sikap-theme-mode', themeMode);
 
-                        await new Promise((resolve) => window.setTimeout(resolve, 300));
+                        document.body.classList.toggle(
+                            'dark-mode',
+                            themeMode === 'dark'
+                        );
+
+                        darkModeToggle.checked = themeMode === 'dark';
+
+                        themeModeToggle.setAttribute(
+                            'aria-pressed',
+                            String(themeMode === 'dark')
+                        );
+
+                        themeModeToggle.setAttribute(
+                            'aria-label',
+                            themeMode === 'dark' ?
+                            'Aktifkan mode terang' :
+                            'Aktifkan mode gelap'
+                        );
+
+                        const themeIcon =
+                            themeModeToggle.querySelector('i');
+
+                        if (themeIcon) {
+                            themeIcon.className =
+                                themeMode === 'dark' ?
+                                'bi bi-sun fs-2' :
+                                'bi bi-moon-stars fs-2';
+                        }
+
+                        localStorage.setItem(
+                            'sikap-theme-mode',
+                            themeMode
+                        );
+
+                        await new Promise((resolve) => {
+                            window.setTimeout(resolve, 300);
+                        });
                     }
                 } catch (error) {
-                    console.error('Gagal mengganti mode tema.', error);
+                    console.error(
+                        'Gagal mengganti mode tema.',
+                        error
+                    );
                 } finally {
-                    document.body.classList.remove('theme-transitioning');
+                    document.body.classList.remove(
+                        'theme-transitioning'
+                    );
+
                     darkModeToggle.checked = themeMode === 'dark';
+
                     isChangingTheme = false;
                 }
             };
 
             themeModeToggle.addEventListener('click', () => {
-                applyThemeMode(requestedThemeMode === 'dark' ? 'light' : 'dark');
+                applyThemeMode(
+                    requestedThemeMode === 'dark' ? 'light' : 'dark'
+                );
             });
 
             darkModeToggle.checked = themeMode === 'dark';
+
             darkModeToggle.addEventListener('change', () => {
-                applyThemeMode(darkModeToggle.checked ? 'dark' : 'light');
+                applyThemeMode(
+                    darkModeToggle.checked ? 'dark' : 'light'
+                );
             });
         })();
     </script>
-    <!--end::Javascript-->
+
+    {{-- Script khusus setiap halaman, termasuk Date Range Picker --}}
+    @yield('scripts')
+
 </body>
 <!--end::Body-->
 
 </html>
+<!--end::Javascript-->

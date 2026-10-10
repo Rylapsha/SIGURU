@@ -1,3 +1,12 @@
+@php
+$headerSearchEnabled = true;
+
+if (\Illuminate\Support\Facades\View::hasSection('header_search')) {
+$headerSearchValue = strtolower(trim((string) \Illuminate\Support\Facades\View::getSection('header_search')));
+$headerSearchEnabled = ! in_array($headerSearchValue, ['false', '0', 'off', 'no'], true);
+}
+@endphp
+
 <!--begin::Header-->
 <div id="kt_header" class="header align-items-stretch mb-0">
 
@@ -38,7 +47,7 @@
 
             <!--begin::Toolbar title-->
             <div id="kt_toolbar_container"
-                class="container-fluid d-flex flex-stack">
+                class="container-fluid d-flex align-items-center flex-stack">
 
                 <div class="page-title d-flex align-items-center flex-wrap
                             me-3 mb-5 mb-lg-0">
@@ -53,6 +62,25 @@
                         </span>
                     </h1>
                 </div>
+
+                @if ($headerSearchEnabled)
+                <div class="d-flex align-items-center ms-auto" style="max-width: 420px; min-width: 220px; width: min(420px, 42vw);">
+                    <form class="w-100 position-relative mb-0" method="GET" action="{{ url()->current() }}" id="headerSearchForm">
+                        <span class="position-absolute top-50 translate-middle-y start-0 ms-4 text-muted">
+                            <i class="bi bi-search fs-5"></i>
+                        </span>
+                        <input
+                            type="search"
+                            name="q"
+                            id="headerGlobalSearch"
+                            class="form-control form-control-solid ps-12"
+                            placeholder="Cari..."
+                            value="{{ request('q') }}"
+                            aria-label="Cari di halaman"
+                            autocomplete="off">
+                    </form>
+                </div>
+                @endif
             </div>
             <!--end::Toolbar title-->
 
@@ -238,15 +266,63 @@
 
         themeToggle.addEventListener('click', function() {
             const isDark = document.body.classList.contains('dark-mode');
-            const nextTheme = isDark ? 'light' : 'dark';
+            const nextMode = isDark ? 'light' : 'dark';
 
             try {
-                localStorage.setItem(themeKey, nextTheme);
+                localStorage.setItem(themeKey, nextMode);
             } catch (error) {
-                // Perubahan tema tetap diterapkan untuk halaman saat ini.
+                // Abaikan error storage.
             }
 
-            applyTheme(nextTheme);
+            applyTheme(nextMode);
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchForm = document.getElementById('headerSearchForm');
+        const searchInput = document.getElementById('headerGlobalSearch');
+
+        if (!searchForm || !searchInput) {
+            return;
+        }
+
+        const searchableNodes = Array.from(
+            document.querySelectorAll('[data-searchable]')
+        );
+
+        const applySearch = () => {
+            const value = searchInput.value.trim().toLowerCase();
+
+            if (!value) {
+                searchableNodes.forEach((node) => {
+                    node.style.display = '';
+                });
+                return;
+            }
+
+            searchableNodes.forEach((node) => {
+                const text = (node.dataset.searchable || node.textContent || '')
+                    .replace(/\s+/g, ' ')
+                    .trim()
+                    .toLowerCase();
+
+                node.style.display = text.includes(value) ? '' : 'none';
+            });
+        };
+
+        if (searchableNodes.length) {
+            searchInput.addEventListener('input', applySearch);
+        }
+
+        searchForm.addEventListener('submit', function(event) {
+            if (!searchableNodes.length) {
+                return;
+            }
+
+            event.preventDefault();
+            applySearch();
         });
     });
 </script>
