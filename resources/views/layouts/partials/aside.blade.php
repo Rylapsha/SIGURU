@@ -128,18 +128,21 @@
                 </div>
                 <!-- END DOKUMEN -->
 
-                <!-- SUPERVISI -->
+                
+<!-- SUPERVISI -->
+<div class="menu-item">
+    <a href="{{ route('guru.supervisi') }}"
+        class="menu-link {{ request()->routeIs('guru.supervisi*') ? 'active' : '' }}">
 
-                <div class="menu-item">
-                    <span class="menu-link disabled">
-                        <span class="menu-icon">
-                            <i class="bi bi-clipboard2-check-fill fs-3"></i>
-                        </span>
+        <span class="menu-icon">
+            <i class="bi bi-clipboard2-check-fill fs-3"></i>
+        </span>
 
-                        <span class="menu-title">Supervisi</span>
-                    </span>
-                </div>
-                <!-- END SUPERVISI -->
+        <span class="menu-title">Supervisi</span>
+    </a>
+</div>
+<!-- END SUPERVISI -->
+
 
                 <!-- PEMBATAS -->
                 <div class="menu-item">

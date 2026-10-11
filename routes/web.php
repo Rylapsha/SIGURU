@@ -4,7 +4,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\GuruProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DokumenController;
-
+use App\Http\Controllers\SupervisiController;
 
 Route::get('/login', function () {
     return view('auth.login');
@@ -50,4 +50,11 @@ Route::middleware('auth')->group(function () {
         DokumenController::class,
         'modulAjar'
     ])->name('dokumen.modul-ajar');
+
+        Route::get('/supervisi', [SupervisiController::class, 'index'])
+    ->name('guru.supervisi');
+
+    Route::get('/supervisi/{id}', [SupervisiController::class, 'show'])
+        ->whereNumber('id')
+        ->name('guru.supervisi.detail');
 });
