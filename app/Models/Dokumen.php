@@ -10,6 +10,8 @@ class Dokumen extends Model
     protected $fillable = [
         'guru_id',
         'jenis_dokumen',
+        'kelas',
+        'mata_pelajaran',
         'nama_file',
         'file_path',
     ];

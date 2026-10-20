@@ -6,6 +6,7 @@
 @section('content')
 
 <div class="post d-flex flex-column-fluid" id="kt_post">
+
     <div class="container-fluid">
 
         {{-- Page Heading --}}
@@ -208,16 +209,11 @@
 
                                 <span class="text-gray-500 fs-7">
                                     Pantau jadwal supervisi
-                                    {{ strtolower($semesterAktif ?? 'ganjil') === 'ganjil'
-                        ? 'semester ganjil'
-                        : 'semester genap' }}
-                                    tahun ajaran {{ $tahunAjaran ?? '2026/2027' }}
                                 </span>
                             </div>
                         </div>
-
                         <div class="card-toolbar">
-                            <a href="{{ route('guru.supervisi') }}"
+                            <a href="{{ route('dokumen.index') }}"
                                 class="btn btn-sm btn-light-primary dashboard-action-btn">
                                 <span>Lihat Selengkapnya</span>
                                 <i class="bi bi-chevron-right"></i>

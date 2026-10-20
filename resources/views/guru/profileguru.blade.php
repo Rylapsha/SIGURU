@@ -7,7 +7,9 @@
 @section('content')
 
 <div class="post d-flex flex-column-fluid" id="kt_post">
+
     <div class="container-fluid">
+
 
         {{-- ========================================= --}}
         {{-- HEADER PROFILE --}}

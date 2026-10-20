@@ -55,6 +55,7 @@ $headerSearchEnabled = ! in_array($headerSearchValue, ['false', '0', 'off', 'no'
                     <h1 class="d-flex text-dark fw-bolder fs-3
                                align-items-center my-1">
 
+
                         @yield('page_title', 'Dashboard')
 
                         <span class="h-20px border-1 border-gray-200

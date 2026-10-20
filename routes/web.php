@@ -31,8 +31,20 @@ Route::middleware('auth')->group(function () {
         ->name('dokumen.index');
 
     Route::get('/dokumen/kategori/{jenis}', [DokumenController::class, 'kategori'])
-        ->where('jenis', 'atp|ap|prota|prosem|kisi-kisi|naskah-soal|analisis-butir-soal')
+        ->where('jenis', 'modul-ajar|atp-ap|prota-prosem|prota|prosem|kisi-kisi|naskah-soal|analisis-butir-soal')
         ->name('dokumen.kategori');
+
+    Route::get('/dokumen/modul-ajar', function () {
+        return redirect()->route('dokumen.kategori', ['jenis' => 'modul-ajar']);
+    })->name('dokumen.modul-ajar');
+
+    Route::get('/dokumen/atp', function () {
+        return redirect()->route('dokumen.kategori', ['jenis' => 'atp-ap']);
+    });
+
+    Route::get('/dokumen/ap', function () {
+        return redirect()->route('dokumen.kategori', ['jenis' => 'atp-ap']);
+    });
 
     Route::post('/dokumen/{jenis}', [DokumenController::class, 'store'])
         ->name('dokumen.store');
@@ -46,13 +58,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/dokumen/{dokumen}/unduh', [DokumenController::class, 'unduh'])
         ->name('dokumen.unduh');
 
-    Route::get('/dokumen/modul-ajar', [
-        DokumenController::class,
-        'modulAjar'
-    ])->name('dokumen.modul-ajar');
-
-        Route::get('/supervisi', [SupervisiController::class, 'index'])
-    ->name('guru.supervisi');
+    Route::get('/supervisi', [SupervisiController::class, 'index'])
+        ->name('guru.supervisi');
 
     Route::get('/supervisi/{id}', [SupervisiController::class, 'show'])
         ->whereNumber('id')

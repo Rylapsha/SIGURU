@@ -6,6 +6,7 @@ use App\Models\Dokumen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class DokumenController extends Controller
 {
@@ -24,6 +25,63 @@ class DokumenController extends Controller
             'Naskah Soal',
             'Analisis Butir Soal',
         ];
+    }
+
+    private function daftarKelas(): array
+    {
+        return ['10', '11', '12'];
+    }
+
+    private function daftarMataPelajaran(): array
+    {
+        return [
+            'Bahasa Indonesia',
+            'Bahasa Inggris',
+            'Bahasa Sunda',
+            'Bimbingan Konseling',
+            'Ilmu Pengetahuan Alam',
+            'Ilmu Pengathaun Sosial',
+            'Matematika',
+            'Pendidikan Agama Islam',
+            'Pendidikan Agama Kristen',
+            'Pendidikan Jasmani dan Olahraga Kebugaran',
+            'Pendidikan Pancasila',
+            'Seni Budaya dan Keterampilan',
+        ];
+    }
+
+    private function slugJenisDokumen(string $jenis): string
+    {
+        $map = [
+            'Modul Ajar' => 'modul-ajar',
+            'ATP' => 'atp-ap',
+            'AP' => 'atp-ap',
+            'PROTA' => 'prota-prosem',
+            'PROSEM' => 'prota-prosem',
+            'Kisi-Kisi' => 'kisi-kisi',
+            'Naskah Soal' => 'naskah-soal',
+            'Analisis Butir Soal' => 'analisis-butir-soal',
+        ];
+
+        return $map[$jenis] ?? strtolower(str_replace(' ', '-', $jenis));
+    }
+
+    private function jenisDariSlug(string $jenis): string
+    {
+        $map = [
+            'modul-ajar' => 'Modul Ajar',
+            'atp-ap' => 'ATP',
+            'atp' => 'ATP',
+            'ap' => 'AP',
+            'prota-prosem' => 'PROTA',
+            'prota' => 'PROTA',
+            'prosem' => 'PROSEM',
+            'kisi-kisi' => 'Kisi-Kisi',
+            'naskah-soal' => 'Naskah Soal',
+            'analisis-butir-soal' => 'Analisis Butir Soal',
+        ];
+
+        return $map[$jenis] ?? abort(404, 'Jenis dokumen tidak ditemukan.');
     }
 
     /**
@@ -48,43 +106,93 @@ class DokumenController extends Controller
         ));
     }
 
+
     /**
      * Mengunggah dokumen baru tanpa menimpa dokumen lama.
      */
     public function store(Request $request, string $jenis)
     {
-        if (!in_array($jenis, $this->jenisDokumen(), true)) {
-            abort(404);
-        }
+        $jenisLabel = $this->jenisDariSlug($jenis);
 
-        $request->validate([
+        // PROTA dan PROSEM tidak memerlukan pilihan kelas.
+        $isKelasRequired = !in_array(
+            $jenis,
+            ['prota-prosem', 'prota', 'prosem'],
+            true
+        );
+
+        // Validasi dilakukan kembali di server.
+        $validated = $request->validate([
             'file' => [
                 'required',
                 'file',
                 'mimes:pdf',
                 'max:10240',
             ],
+            'kelas' => [
+                $isKelasRequired ? 'required' : 'nullable',
+                'string',
+                Rule::in($this->daftarKelas()),
+            ],
+            'mata_pelajaran' => [
+                'required',
+                'string',
+                Rule::in($this->daftarMataPelajaran()),
+            ],
         ], [
             'file.required' => 'Silakan pilih file PDF.',
             'file.file' => 'File tidak valid.',
             'file.mimes' => 'File harus berformat PDF.',
             'file.max' => 'Ukuran file maksimal 10 MB.',
+            'kelas.required' => 'Pilih kelas dokumen terlebih dahulu.',
+            'kelas.in' => 'Kelas dokumen tidak valid.',
+            'mata_pelajaran.required' =>
+            'Pilih mata pelajaran dokumen terlebih dahulu.',
+            'mata_pelajaran.in' =>
+            'Mata pelajaran dokumen tidak valid.',
         ]);
 
         $file = $request->file('file');
 
+        // Simpan file ke storage/app/public/dokumen.
         $path = $file->store('dokumen', 'public');
 
-        Dokumen::create([
-            'guru_id' => Auth::id(),
-            'jenis_dokumen' => $jenis,
-            'nama_file' => $file->getClientOriginalName(),
-            'file_path' => $path,
-        ]);
+        if (!$path) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'file' => 'File gagal disimpan. Silakan coba kembali.',
+                ]);
+        }
+
+        try {
+            Dokumen::create([
+                'guru_id' => Auth::id(),
+                'jenis_dokumen' => $jenisLabel,
+                'kelas' => $isKelasRequired
+                    ? $validated['kelas']
+                    : null,
+                'mata_pelajaran' => $validated['mata_pelajaran'],
+                'nama_file' => $file->getClientOriginalName(),
+                'file_path' => $path,
+            ]);
+        } catch (\Throwable $e) {
+            // Hapus file jika pencatatan ke database gagal.
+            Storage::disk('public')->delete($path);
+
+            report($e);
+
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'file' =>
+                    'Dokumen gagal disimpan ke database. Silakan coba kembali.',
+                ]);
+        }
 
         return redirect()
-            ->route('dokumen.index')
-            ->with('success', $jenis . ' berhasil di-upload.');
+            ->route('dokumen.kategori', ['jenis' => $jenis])
+            ->with('success', $jenisLabel . ' berhasil di-upload.');
     }
 
     /**
@@ -132,11 +240,12 @@ class DokumenController extends Controller
         }
 
         $jenis = $dokumen->jenis_dokumen;
+        $redirectType = $this->slugJenisDokumen($jenis);
 
         $dokumen->delete();
 
         return redirect()
-            ->route('dokumen.index')
+            ->route('dokumen.kategori', ['jenis' => $redirectType])
             ->with('success', $jenis . ' berhasil dihapus.');
     }
 
@@ -151,30 +260,48 @@ class DokumenController extends Controller
         );
     }
 
-    public function modulAjar(Request $request)
+    /**
+     * Menampilkan dokumen berdasarkan kategori.
+     */
+    public function kategori(string $jenis)
     {
+        $map = [
+            'modul-ajar' => ['Modul Ajar'],
+            'atp-ap' => ['ATP', 'AP', 'Alur Pembelajaran', 'Tujuan Pembelajaran'],
+            'atp' => ['ATP'],
+            'ap' => ['AP'],
+            'prota-prosem' => ['PROTA', 'PROSEM'],
+            'prota' => ['PROTA'],
+            'prosem' => ['PROSEM'],
+            'kisi-kisi' => ['Kisi-Kisi'],
+            'naskah-soal' => ['Naskah Soal'],
+            'analisis-butir-soal' => ['Analisis Butir Soal'],
+        ];
+
+        abort_unless(isset($map[$jenis]), 404, 'Kategori dokumen tidak ditemukan.');
+
+        $label = match ($jenis) {
+            'modul-ajar' => 'Modul Ajar',
+            'atp-ap' => 'ATP & AP',
+            'atp' => 'ATP',
+            'ap' => 'AP',
+            'prota-prosem' => 'PROTA & PROSEM',
+            'prota' => 'PROTA',
+            'prosem' => 'PROSEM',
+            'kisi-kisi' => 'Kisi-Kisi',
+            'naskah-soal' => 'Naskah Soal',
+            'analisis-butir-soal' => 'Analisis Butir Soal',
+        };
+
         $query = Dokumen::where('guru_id', Auth::id())
-            ->where('jenis_dokumen', 'Modul Ajar');
+            ->whereIn('jenis_dokumen', $map[$jenis]);
 
-        $request->validate([
-            'start_date' => ['nullable', 'date_format:Y-m-d'],
-            'end_date' => [
-                'nullable',
-                'date_format:Y-m-d',
-                'after_or_equal:start_date',
-            ],
-        ]);
-
-        if ($request->filled('start_date')) {
-            $query->whereDate('created_at', '>=', $request->start_date);
-        }
-
-        if ($request->filled('end_date')) {
-            $query->whereDate('created_at', '<=', $request->end_date);
+        if (request()->filled('mata_pelajaran')) {
+            $query->where('mata_pelajaran', request('mata_pelajaran'));
         }
 
         $dokumens = $query->latest()->get();
 
-        return view('guru.dokumenmodulajar', compact('dokumens'));
+        return view('guru.dokumen-kategori', compact('dokumens', 'label', 'jenis'));
     }
 }
