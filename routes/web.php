@@ -5,6 +5,7 @@ use App\Http\Controllers\GuruProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DokumenController;
 use App\Http\Controllers\SupervisiController;
+use App\Http\Controllers\AdminDashboardController;
 
 Route::get('/login', function () {
     return view('auth.login');
@@ -16,7 +17,13 @@ Route::post('/login', [LoginController::class, 'login'])
 Route::post('/logout', [LoginController::class, 'logout'])
     ->name('logout');
 
+// Halaman awal aplikasi
 Route::get('/', function () {
+    return redirect()->route('login');
+})->name('home');
+
+// Dashboard Guru
+Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware('auth')->name('dashboard');
 
@@ -64,4 +71,28 @@ Route::middleware('auth')->group(function () {
     Route::get('/supervisi/{id}', [SupervisiController::class, 'show'])
         ->whereNumber('id')
         ->name('guru.supervisi.detail');
+});
+
+Route::prefix('admin')->name('admin.')->group(function () {
+
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])
+        ->name('dashboard');
+
+
+    Route::get('/guru', function () {
+        if (!session()->has('admin_id')) {
+            return redirect()->route('login');
+        }
+
+        return view('admin.guru.index');
+    })->name('guru.index');
+
+    Route::get('/supervisi', function () {
+        if (!session()->has('admin_id')) {
+            return redirect()->route('login');
+        }
+
+        return view('admin.supervisi.index');
+    })->name('supervisi.index');
+
 });
