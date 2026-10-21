@@ -160,20 +160,20 @@ $headerSearchEnabled = ! in_array($headerSearchValue, ['false', '0', 'off', 'no'
                         <!--end::Profile-->
 
                         <!--begin::Logout-->
-                        <div class="menu-item px-5">
-                            <form method="POST"
-                                action="{{ route('logout') }}"
-                                id="header-logout-form">
-                                @csrf
+<div class="menu-item px-5">
+    <form method="POST"
+          action="{{ route('logout') }}"
+          id="header-logout-form">
+        @csrf
 
-                                <button type="submit"
-                                    class="menu-link px-5 border-0
-                                           bg-transparent w-100 text-start">
-                                    Keluar
-                                </button>
-                            </form>
-                        </div>
-                        <!--end::Logout-->
+        <button type="button"
+                id="header-logout-button"
+                class="menu-link px-5 border-0 bg-transparent w-100 text-start">
+            Keluar
+        </button>
+    </form>
+</div>
+<!--end::Logout-->
 
                     </div>
                     <!--end::User account menu-->
@@ -324,6 +324,44 @@ $headerSearchEnabled = ! in_array($headerSearchValue, ['false', '0', 'off', 'no'
 
             event.preventDefault();
             applySearch();
+        });
+    });
+</script>
+
+{{-- Konfirmasi Logout dengan SweetAlert2 --}}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const logoutButton = document.getElementById('header-logout-button');
+        const logoutForm = document.getElementById('header-logout-form');
+
+        if (!logoutButton || !logoutForm) {
+            return;
+        }
+
+        logoutButton.addEventListener('click', function () {
+            if (typeof Swal === 'undefined') {
+                if (confirm('Yakin ingin logout?')) {
+                    logoutForm.submit();
+                }
+                return;
+            }
+
+            Swal.fire({
+                title: 'Yakin ingin logout?',
+                text: 'Kamu akan keluar dari sesi saat ini.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, Logout',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                focusCancel: true
+            }).then(function (result) {
+                if (result.isConfirmed) {
+                    logoutForm.submit();
+                }
+            });
         });
     });
 </script>

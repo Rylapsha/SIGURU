@@ -337,6 +337,35 @@ License: For each use you must have a valid license purchased only from above li
     {{-- Script khusus setiap halaman, termasuk Date Range Picker --}}
     @yield('scripts')
 
+    <!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const logoutButton = document.getElementById('logout-button');
+        const logoutForm = document.getElementById('logout-form');
+
+        if (logoutButton && logoutForm) {
+            logoutButton.addEventListener('click', function () {
+                Swal.fire({
+                    title: 'Yakin ingin logout?',
+                    text: 'Kamu akan keluar dari sesi saat ini.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Ya, Logout',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        logoutForm.submit();
+                    }
+                });
+            });
+        }
+    });
+</script>
 </body>
 <!--end::Body-->
 

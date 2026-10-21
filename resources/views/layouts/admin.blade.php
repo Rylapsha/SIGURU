@@ -1,4 +1,3 @@
-```blade
 <!DOCTYPE html>
 <html lang="id" data-admin-theme="dark">
 <head>
@@ -318,4 +317,3 @@
     @yield('scripts')
 </body>
 </html>
-```

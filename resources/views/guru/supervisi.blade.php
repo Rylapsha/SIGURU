@@ -324,6 +324,45 @@
         background: #edf0f5;
     }
 
+    /* Komentar admin yang hanya bisa dibaca guru */
+    .sp-comment {
+        min-width: 190px;
+        max-width: 280px;
+        padding: 10px 12px;
+        background: #f0f5fd;
+        border: 1px solid #e0e9f8;
+        border-radius: 8px;
+        overflow-wrap: anywhere;
+    }
+
+    .sp-comment-title {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 6px;
+        color: #3568c8;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .sp-comment p {
+        margin: 0;
+        color: #344461;
+        font-size: 11px;
+        line-height: 1.7;
+        white-space: pre-line;
+    }
+
+    .sp-no-comment {
+        display: inline-block;
+        padding: 6px 9px;
+        color: #8490a7;
+        background: #f4f6fa;
+        border-radius: 6px;
+        font-size: 10px;
+        white-space: nowrap;
+    }
+
     .sp-about {
         display: flex;
         gap: 13px;
@@ -409,7 +448,7 @@
         }
 
         .sp-table {
-            min-width: 850px;
+            min-width: 1100px;
         }
 
         .sp-about {
@@ -418,11 +457,7 @@
         }
     }
 
-    /* =========================================
-       TAMBAHAN: MODE GELAP SUPERVISI SIGURU
-       Mengikuti class body.dark-mode Metronic
-       ========================================= */
-
+    /* Mode gelap */
     body.dark-mode .sp-page {
         color: #f5f8fa;
     }
@@ -515,6 +550,24 @@
         background: #323248 !important;
         color: #c3c6d5 !important;
     }
+
+    body.dark-mode .sp-page .sp-comment {
+        background: #252536 !important;
+        border-color: #323248 !important;
+    }
+
+    body.dark-mode .sp-page .sp-comment-title {
+        color: #8db5ff !important;
+    }
+
+    body.dark-mode .sp-page .sp-comment p {
+        color: #f5f8fa !important;
+    }
+
+    body.dark-mode .sp-page .sp-no-comment {
+        color: #a1a5b7 !important;
+        background: #252536 !important;
+    }
 </style>
 
 @php
@@ -585,7 +638,6 @@
 
                         <div class="sp-next-info">
                             <div class="sp-info-list">
-
                                 <div class="sp-info-item">
                                     <span class="sp-info-symbol">♙</span>
                                     <div>
@@ -615,7 +667,6 @@
                                         </span>
                                     </div>
                                 </div>
-
                             </div>
 
                             <a href="{{ route('guru.supervisi.detail', $jadwalBerikutnya->id) }}"
@@ -624,6 +675,17 @@
                             </a>
                         </div>
                     </div>
+
+                    {{-- Komentar admin untuk jadwal berikutnya --}}
+                    @if (filled($jadwalBerikutnya->komentar_admin))
+                        <div class="sp-comment" style="margin-top: 12px; max-width: none;">
+                            <span class="sp-comment-title">
+                                <i class="ki-outline ki-message-text-2"></i>
+                                Komentar Admin
+                            </span>
+                            <p>{{ $jadwalBerikutnya->komentar_admin }}</p>
+                        </div>
+                    @endif
                 @else
                     <div class="sp-empty">
                         <span class="sp-small-icon">▣</span>
@@ -639,11 +701,9 @@
 
     {{-- Riwayat supervisi --}}
     <div class="sp-card">
-
         <div class="sp-history-header">
             <div class="sp-history-title">
                 <span class="sp-small-icon">↻</span>
-
                 <div>
                     <h3>Riwayat Supervisi</h3>
                     <p class="sp-subtitle">
@@ -678,6 +738,7 @@
                         <th>Observer</th>
                         <th>Keterangan</th>
                         <th>Status</th>
+                        <th>Komentar Admin</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -723,6 +784,24 @@
                                 </span>
                             </td>
 
+                            {{-- Komentar yang diberikan admin --}}
+                            <td>
+                                @if (filled($item->komentar_admin))
+                                    <div class="sp-comment">
+                                        <span class="sp-comment-title">
+                                            <i class="ki-outline ki-message-text-2"></i>
+                                            Komentar Admin
+                                        </span>
+
+                                        <p>{{ $item->komentar_admin }}</p>
+                                    </div>
+                                @else
+                                    <span class="sp-no-comment">
+                                        Belum ada komentar
+                                    </span>
+                                @endif
+                            </td>
+
                             <td>
                                 <a href="{{ route('guru.supervisi.detail', $item->id) }}"
                                    class="sp-btn">
@@ -732,7 +811,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7">
+                            <td colspan="8">
                                 <div class="sp-empty">
                                     <strong>Belum Ada Riwayat Supervisi</strong>
                                     <span>
@@ -760,7 +839,6 @@
                 </p>
             </div>
         </div>
-
     </div>
 </div>
 @endsection

@@ -1,3 +1,4 @@
+
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
@@ -15,6 +16,7 @@ Route::get('/login', function () {
 Route::post('/login', [LoginController::class, 'login'])
     ->name('login.process');
 
+// Logout Guru dan Admin
 Route::post('/logout', [LoginController::class, 'logout'])
     ->name('logout');
 

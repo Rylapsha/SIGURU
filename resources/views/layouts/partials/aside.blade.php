@@ -151,28 +151,28 @@
                     </div>
                 </div>
 
+                
                 <!-- LOGOUT -->
                 <div class="menu-item">
                     <form id="logout-form"
                         action="{{ route('logout') }}"
                         method="POST"
                         class="w-100">
-
                         @csrf
 
                         <button type="button"
-                            id="logout-button"
-                            class="menu-link border-0 bg-transparent w-100 text-start">
+                                id="logout-button"
+                                class="menu-link border-0 bg-transparent w-100 text-start">
 
                             <span class="menu-icon">
-                                <i class="bi bi-box-arrow-right fs-3"></i>
+                                <i class="bi bi-box-arrow-right"></i>
                             </span>
 
                             <span class="menu-title">Logout</span>
                         </button>
                     </form>
                 </div>
-                <!-- END LOGOUT -->
+
 
             </div>
             <!--end::Menu-->
