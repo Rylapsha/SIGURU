@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DokumenController;
 use App\Http\Controllers\SupervisiController;
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\AdminSupervisiController;
 
 Route::get('/login', function () {
     return view('auth.login');
@@ -73,11 +74,11 @@ Route::middleware('auth')->group(function () {
         ->name('guru.supervisi.detail');
 });
 
+
 Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])
         ->name('dashboard');
-
 
     Route::get('/guru', function () {
         if (!session()->has('admin_id')) {
@@ -87,12 +88,22 @@ Route::prefix('admin')->name('admin.')->group(function () {
         return view('admin.guru.index');
     })->name('guru.index');
 
-    Route::get('/supervisi', function () {
-        if (!session()->has('admin_id')) {
-            return redirect()->route('login');
-        }
+    // Halaman dan pengelolaan supervisi admin
+    Route::get('/supervisi', [AdminSupervisiController::class, 'index'])
+        ->name('supervisi.index');
 
-        return view('admin.supervisi.index');
-    })->name('supervisi.index');
+    Route::post('/supervisi', [AdminSupervisiController::class, 'store'])
+        ->name('supervisi.store');
 
+    Route::patch('/supervisi/{id}/status', [AdminSupervisiController::class, 'updateStatus'])
+        ->whereNumber('id')
+        ->name('supervisi.status');
+
+    Route::patch('/supervisi/{id}/komentar', [AdminSupervisiController::class, 'updateKomentar'])
+        ->whereNumber('id')
+        ->name('supervisi.komentar');
+
+    Route::patch('/supervisi/{id}/hasil', [AdminSupervisiController::class, 'updateHasil'])
+        ->whereNumber('id')
+        ->name('supervisi.hasil');
 });
