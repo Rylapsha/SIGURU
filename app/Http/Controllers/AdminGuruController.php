@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Dokumen;
 use App\Models\Guru;
+use App\Models\KomentarDokumen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -22,7 +23,7 @@ class AdminGuruController extends Controller
     }
 
     /**
-     * Daftar kategori dokumen yang ditampilkan kepada admin.
+     * Daftar kategori dokumen.
      */
     private function kategoriDokumen(): array
     {
@@ -69,7 +70,7 @@ class AdminGuruController extends Controller
             return redirect()->route('login');
         }
 
-        // Daftar mata pelajaran sesuai data yang diberikan.
+        // Daftar mata pelajaran.
         $daftarMataPelajaran = collect([
             'Bahasa Indonesia',
             'Bahasa Inggris',
@@ -97,7 +98,7 @@ class AdminGuruController extends Controller
             );
         }
 
-        // Filter berdasarkan mata pelajaran.
+        // Filter mata pelajaran.
         if ($request->filled('mata_pelajaran')) {
             $query->where(
                 'mata_pelajaran',
@@ -111,14 +112,14 @@ class AdminGuruController extends Controller
             ->paginate(9)
             ->withQueryString();
 
-        // Ambil dokumen milik guru yang tampil pada halaman ini.
+        // Ambil dokumen milik guru pada halaman aktif.
         $guruIds = $gurus->getCollection()->pluck('id');
 
         $dokumens = Dokumen::whereIn('guru_id', $guruIds)
             ->get()
             ->groupBy('guru_id');
 
-        // Hitung kelengkapan dokumen berdasarkan data database.
+        // Hitung kelengkapan dokumen setiap guru.
         foreach ($gurus as $guru) {
             $dokumenGuru = $dokumens->get(
                 $guru->id,
@@ -159,7 +160,7 @@ class AdminGuruController extends Controller
     }
 
     /**
-     * Halaman detail guru dan daftar dokumennya.
+     * Halaman detail guru, dokumen, dan riwayat komentar.
      */
     public function show($id)
     {
@@ -167,10 +168,12 @@ class AdminGuruController extends Controller
 
         $guru = Guru::findOrFail($id);
 
+        // Ambil semua dokumen milik guru.
         $semuaDokumen = Dokumen::where('guru_id', $guru->id)
             ->latest()
             ->get();
 
+        // Kelompokkan dokumen berdasarkan kategori.
         $dokumenPerKategori = [];
 
         foreach ($this->kategoriDokumen() as $label => $jenisYangDiterima) {
@@ -190,15 +193,24 @@ class AdminGuruController extends Controller
                 ->values();
         }
 
+        // Ambil riwayat komentar berdasarkan ID dokumen.
+        $komentarPerDokumen = KomentarDokumen::whereIn(
+            'dokumen_id',
+            $semuaDokumen->pluck('id')
+        )
+            ->latest()
+            ->get()
+            ->groupBy('dokumen_id');
+
         return view('admin.guru.detail', compact(
             'guru',
-            'dokumenPerKategori'
+            'dokumenPerKategori',
+            'komentarPerDokumen'
         ));
     }
 
     /**
-     * Membuka file PDF untuk dilihat admin.
-     * Admin tidak dapat mengunggah atau menghapus dokumen melalui method ini.
+     * Membuka PDF dokumen untuk dilihat admin.
      */
     public function lihatDokumen($id)
     {

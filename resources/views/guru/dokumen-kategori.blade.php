@@ -50,28 +50,28 @@
     @endif
 
     @php
-    $isKelasRequired = !in_array(
-    $jenis,
-    ['prota-prosem', 'prota', 'prosem'],
-    true
-    );
+        $isKelasRequired = !in_array(
+            $jenis,
+            ['prota-prosem', 'prota', 'prosem'],
+            true
+        );
 
-    $mataPelajaranList = [
-    'Bahasa Indonesia',
-    'Bahasa Inggris',
-    'Bahasa Sunda',
-    'Bimbingan Konseling',
-    'Ilmu Pengetahuan Alam',
-    'Ilmu Pengetahuan Sosial',
-    'Matematika',
-    'Pendidikan Agama Islam',
-    'Pendidikan Agama Kristen',
-    'Pendidikan Jasmani dan Olahraga Kebugaran',
-    'Pendidikan Pancasila',
-    'Seni Budaya dan Keterampilan',
-    ];
+        $mataPelajaranList = [
+            'Bahasa Indonesia',
+            'Bahasa Inggris',
+            'Bahasa Sunda',
+            'Bimbingan Konseling',
+            'Ilmu Pengetahuan Alam',
+            'Ilmu Pengetahuan Sosial',
+            'Matematika',
+            'Pendidikan Agama Islam',
+            'Pendidikan Agama Kristen',
+            'Pendidikan Jasmani dan Olahraga Kebugaran',
+            'Pendidikan Pancasila',
+            'Seni Budaya dan Keterampilan',
+        ];
 
-    $kelasList = ['10', '11', '12'];
+        $kelasList = ['10', '11', '12'];
     @endphp
 
     {{-- FORM UPLOAD DOKUMEN --}}
@@ -182,7 +182,6 @@
                 </span>
             </h3>
 
-            {{-- Satu form filter tanpa form bersarang --}}
             <form
                 action="{{ route('dokumen.kategori', ['jenis' => $jenis]) }}"
                 method="GET"
@@ -283,165 +282,259 @@
 
             @if($isKelasRequired)
 
-            @foreach($kelasList as $kelas)
-            @php
-            $dokumenKelas = $dokumens->where('kelas', (string) $kelas);
-            @endphp
+                @foreach($kelasList as $kelas)
+                    @php
+                        $dokumenKelas = $dokumens->where('kelas', (string) $kelas);
+                    @endphp
 
-            <div class="mb-7">
-                <h4 class="fw-bold text-gray-800 mb-4">
-                    Kelas {{ $kelas }}
-                </h4>
+                    <div class="mb-7">
+                        <h4 class="fw-bold text-gray-800 mb-4">
+                            Kelas {{ $kelas }}
+                        </h4>
 
-                @if($dokumenKelas->isEmpty())
-                <div class="border rounded p-5 text-center text-muted">
-                    Belum ada dokumen untuk kelas {{ $kelas }}.
-                </div>
-                @else
-                @foreach($dokumenKelas as $dokumen)
-                <div class="d-flex flex-column flex-md-row align-items-md-center gap-4 border rounded p-4 mb-4">
-
-                    <div class="symbol symbol-45px">
-                        <div class="symbol-label bg-light-danger">
-                            <i class="bi bi-file-earmark-pdf-fill fs-2 text-danger"></i>
-                        </div>
-                    </div>
-
-                    <div class="flex-grow-1 min-w-0">
-                        <div class="fw-bold text-gray-800 text-break">
-                            {{ $dokumen->nama_file }}
-                        </div>
-
-                        <div class="text-muted fs-7 mt-1">
-                            {{ $dokumen->mata_pelajaran ?? '-' }}
-                            <span class="mx-1">•</span>
-                            Kelas {{ $dokumen->kelas ?? '-' }}
-                            <span class="mx-1">•</span>
-                            Semester {{ $dokumen->semester ?? '-' }}
-                            <span class="mx-1">•</span>
-                            PDF
-                            <span class="mx-1">•</span>
-
-                            @if(\Illuminate\Support\Facades\Storage::disk('public')->exists($dokumen->file_path))
-                            {{ number_format(\Illuminate\Support\Facades\Storage::disk('public')->size($dokumen->file_path) / 1024, 1, ',', '.') }} KB
-                            @else
-                            File tidak ditemukan
-                            @endif
-
-                            <span class="mx-1">•</span>
-                            Diunggah {{ $dokumen->created_at->format('d/m/Y H:i') }}
-                        </div>
-                    </div>
-
-                    <div class="d-flex flex-wrap gap-2">
-                        <a
-                            href="{{ route('dokumen.lihat', $dokumen->id) }}"
-                            target="_blank"
-                            class="btn btn-sm btn-light-primary">
-
-                            <i class="bi bi-eye me-1"></i> Lihat
-                        </a>
-
-                        <a
-                            href="{{ route('dokumen.unduh', $dokumen->id) }}"
-                            class="btn btn-sm btn-light-success">
-
-                            <i class="bi bi-download me-1"></i> Unduh
-                        </a>
-
-                        <form
-                            action="{{ route('dokumen.destroy', $dokumen->id) }}"
-                            method="POST"
-                            class="form-hapus-dokumen">
-
-                            @csrf
-                            @method('DELETE')
-
-                            <button type="submit" class="btn btn-sm btn-light-danger">
-                                <i class="bi bi-trash me-1"></i> Hapus
-                            </button>
-                        </form>
-                    </div>
-
-                </div>
-                @endforeach
-                @endif
-            </div>
-            @endforeach
-
-            @else
-
-            @if($dokumens->isEmpty())
-            <div class="border rounded p-5 text-center text-muted">
-                Belum ada dokumen untuk {{ $label }}.
-            </div>
-            @else
-            @foreach($dokumens as $dokumen)
-            <div class="d-flex flex-column flex-md-row align-items-md-center gap-4 border rounded p-4 mb-4">
-
-                <div class="symbol symbol-45px">
-                    <div class="symbol-label bg-light-danger">
-                        <i class="bi bi-file-earmark-pdf-fill fs-2 text-danger"></i>
-                    </div>
-                </div>
-
-                <div class="flex-grow-1 min-w-0">
-                    <div class="fw-bold text-gray-800 text-break">
-                        {{ $dokumen->nama_file }}
-                    </div>
-
-                    <div class="text-muted fs-7 mt-1">
-                        {{ $dokumen->mata_pelajaran ?? '-' }}
-                        <span class="mx-1">•</span>
-                        Semester {{ $dokumen->semester ?? '-' }}
-                        <span class="mx-1">•</span>
-                        PDF
-                        <span class="mx-1">•</span>
-
-                        @if(\Illuminate\Support\Facades\Storage::disk('public')->exists($dokumen->file_path))
-                        {{ number_format(\Illuminate\Support\Facades\Storage::disk('public')->size($dokumen->file_path) / 1024, 1, ',', '.') }} KB
+                        @if($dokumenKelas->isEmpty())
+                            <div class="border rounded p-5 text-center text-muted">
+                                Belum ada dokumen untuk kelas {{ $kelas }}.
+                            </div>
                         @else
-                        File tidak ditemukan
+
+                            @foreach($dokumenKelas as $dokumen)
+                                <div class="border rounded p-4 mb-4">
+
+                                    <div class="d-flex flex-column flex-md-row align-items-md-center gap-4">
+
+                                        <div class="symbol symbol-45px">
+                                            <div class="symbol-label bg-light-danger">
+                                                <i class="bi bi-file-earmark-pdf-fill fs-2 text-danger"></i>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex-grow-1 min-w-0">
+                                            <div class="fw-bold text-gray-800 text-break">
+                                                {{ $dokumen->nama_file }}
+                                            </div>
+
+                                            <div class="text-muted fs-7 mt-1">
+                                                {{ $dokumen->mata_pelajaran ?? '-' }}
+                                                <span class="mx-1">•</span>
+                                                Kelas {{ $dokumen->kelas ?? '-' }}
+                                                <span class="mx-1">•</span>
+                                                Semester {{ $dokumen->semester ?? '-' }}
+                                                <span class="mx-1">•</span>
+                                                PDF
+                                                <span class="mx-1">•</span>
+
+                                                @if(\Illuminate\Support\Facades\Storage::disk('public')->exists($dokumen->file_path))
+                                                    {{ number_format(\Illuminate\Support\Facades\Storage::disk('public')->size($dokumen->file_path) / 1024, 1, ',', '.') }} KB
+                                                @else
+                                                    File tidak ditemukan
+                                                @endif
+
+                                                <span class="mx-1">•</span>
+                                                Diunggah {{ $dokumen->created_at->format('d/m/Y H:i') }}
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <a
+                                                href="{{ route('dokumen.lihat', $dokumen->id) }}"
+                                                target="_blank"
+                                                class="btn btn-sm btn-light-primary">
+
+                                                <i class="bi bi-eye me-1"></i> Lihat
+                                            </a>
+
+                                            <a
+                                                href="{{ route('dokumen.unduh', $dokumen->id) }}"
+                                                class="btn btn-sm btn-light-success">
+
+                                                <i class="bi bi-download me-1"></i> Unduh
+                                            </a>
+
+                                            <form
+                                                action="{{ route('dokumen.destroy', $dokumen->id) }}"
+                                                method="POST"
+                                                class="form-hapus-dokumen">
+
+                                                @csrf
+                                                @method('DELETE')
+
+                                                <button type="submit" class="btn btn-sm btn-light-danger">
+                                                    <i class="bi bi-trash me-1"></i> Hapus
+                                                </button>
+                                            </form>
+                                        </div>
+
+                                    </div>
+
+                                    {{-- TAMBAHAN: KOMENTAR ADMIN --}}
+                                    @php
+                                        $komentarDokumen = $komentarPerDokumen->get(
+                                            $dokumen->id,
+                                            collect()
+                                        );
+                                    @endphp
+
+                                    <div class="mt-4 pt-4 border-top">
+                                        <div class="fw-bold text-gray-800 mb-3">
+                                            <i class="bi bi-chat-left-text me-2"></i>
+                                            Komentar Admin
+                                        </div>
+
+                                        @forelse($komentarDokumen as $komentar)
+                                            <div class="bg-light rounded p-3 mb-3">
+                                                <div class="d-flex align-items-center gap-2 mb-2">
+                                                    <i class="bi bi-person-circle fs-3 text-primary"></i>
+
+                                                    <div>
+                                                        <div class="fw-semibold text-gray-800">
+                                                            Admin
+                                                        </div>
+
+                                                        <small class="text-muted">
+                                                            {{ $komentar->created_at->format('d/m/Y H:i') }}
+                                                        </small>
+                                                    </div>
+                                                </div>
+
+                                                <div class="text-gray-700"
+                                                    style="white-space: pre-line; overflow-wrap: anywhere;">{{ $komentar->komentar }}</div>
+                                            </div>
+                                        @empty
+                                            <div class="text-muted fs-7">
+                                                <i class="bi bi-chat-left me-1"></i>
+                                                Belum ada komentar dari admin untuk dokumen ini.
+                                            </div>
+                                        @endforelse
+                                    </div>
+
+                                </div>
+                            @endforeach
+
                         @endif
-
-                        <span class="mx-1">•</span>
-                        Diunggah {{ $dokumen->created_at->format('d/m/Y H:i') }}
                     </div>
-                </div>
+                @endforeach
 
-                <div class="d-flex flex-wrap gap-2">
-                    <a
-                        href="{{ route('dokumen.lihat', $dokumen->id) }}"
-                        target="_blank"
-                        class="btn btn-sm btn-light-primary">
+            @else
 
-                        <i class="bi bi-eye me-1"></i> Lihat
-                    </a>
+                @if($dokumens->isEmpty())
+                    <div class="border rounded p-5 text-center text-muted">
+                        Belum ada dokumen untuk {{ $label }}.
+                    </div>
+                @else
 
-                    <a
-                        href="{{ route('dokumen.unduh', $dokumen->id) }}"
-                        class="btn btn-sm btn-light-success">
+                    @foreach($dokumens as $dokumen)
+                        <div class="border rounded p-4 mb-4">
 
-                        <i class="bi bi-download me-1"></i> Unduh
-                    </a>
+                            <div class="d-flex flex-column flex-md-row align-items-md-center gap-4">
 
-                    <form
-                        action="{{ route('dokumen.destroy', $dokumen->id) }}"
-                        method="POST"
-                        class="form-hapus-dokumen">
+                                <div class="symbol symbol-45px">
+                                    <div class="symbol-label bg-light-danger">
+                                        <i class="bi bi-file-earmark-pdf-fill fs-2 text-danger"></i>
+                                    </div>
+                                </div>
 
-                        @csrf
-                        @method('DELETE')
+                                <div class="flex-grow-1 min-w-0">
+                                    <div class="fw-bold text-gray-800 text-break">
+                                        {{ $dokumen->nama_file }}
+                                    </div>
 
-                        <button type="submit" class="btn btn-sm btn-light-danger">
-                            <i class="bi bi-trash me-1"></i> Hapus
-                        </button>
-                    </form>
-                </div>
+                                    <div class="text-muted fs-7 mt-1">
+                                        {{ $dokumen->mata_pelajaran ?? '-' }}
+                                        <span class="mx-1">•</span>
+                                        Semester {{ $dokumen->semester ?? '-' }}
+                                        <span class="mx-1">•</span>
+                                        PDF
+                                        <span class="mx-1">•</span>
 
-            </div>
-            @endforeach
-            @endif
+                                        @if(\Illuminate\Support\Facades\Storage::disk('public')->exists($dokumen->file_path))
+                                            {{ number_format(\Illuminate\Support\Facades\Storage::disk('public')->size($dokumen->file_path) / 1024, 1, ',', '.') }} KB
+                                        @else
+                                            File tidak ditemukan
+                                        @endif
+
+                                        <span class="mx-1">•</span>
+                                        Diunggah {{ $dokumen->created_at->format('d/m/Y H:i') }}
+                                    </div>
+                                </div>
+
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a
+                                        href="{{ route('dokumen.lihat', $dokumen->id) }}"
+                                        target="_blank"
+                                        class="btn btn-sm btn-light-primary">
+
+                                        <i class="bi bi-eye me-1"></i> Lihat
+                                    </a>
+
+                                    <a
+                                        href="{{ route('dokumen.unduh', $dokumen->id) }}"
+                                        class="btn btn-sm btn-light-success">
+
+                                        <i class="bi bi-download me-1"></i> Unduh
+                                    </a>
+
+                                    <form
+                                        action="{{ route('dokumen.destroy', $dokumen->id) }}"
+                                        method="POST"
+                                        class="form-hapus-dokumen">
+
+                                        @csrf
+                                        @method('DELETE')
+
+                                        <button type="submit" class="btn btn-sm btn-light-danger">
+                                            <i class="bi bi-trash me-1"></i> Hapus
+                                        </button>
+                                    </form>
+                                </div>
+
+                            </div>
+
+                            {{-- TAMBAHAN: KOMENTAR ADMIN --}}
+                            @php
+                                $komentarDokumen = $komentarPerDokumen->get(
+                                    $dokumen->id,
+                                    collect()
+                                );
+                            @endphp
+
+                            <div class="mt-4 pt-4 border-top">
+                                <div class="fw-bold text-gray-800 mb-3">
+                                    <i class="bi bi-chat-left-text me-2"></i>
+                                    Komentar Admin
+                                </div>
+
+                                @forelse($komentarDokumen as $komentar)
+                                    <div class="bg-light rounded p-3 mb-3">
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <i class="bi bi-person-circle fs-3 text-primary"></i>
+
+                                            <div>
+                                                <div class="fw-semibold text-gray-800">
+                                                    Admin
+                                                </div>
+
+                                                <small class="text-muted">
+                                                    {{ $komentar->created_at->format('d/m/Y H:i') }}
+                                                </small>
+                                            </div>
+                                        </div>
+
+                                        <div class="text-gray-700"
+                                            style="white-space: pre-line; overflow-wrap: anywhere;">{{ $komentar->komentar }}</div>
+                                    </div>
+                                @empty
+                                    <div class="text-muted fs-7">
+                                        <i class="bi bi-chat-left me-1"></i>
+                                        Belum ada komentar dari admin untuk dokumen ini.
+                                    </div>
+                                @endforelse
+                            </div>
+
+                        </div>
+                    @endforeach
+
+                @endif
 
             @endif
 

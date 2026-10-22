@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Dokumen;
+use App\Models\KomentarDokumen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -85,7 +86,7 @@ class DokumenController extends Controller
     }
 
     /**
-     * Menampilkan halaman dokumen guru.
+     * Menampilkan halaman dokumen guru beserta komentar admin.
      */
     public function index()
     {
@@ -93,19 +94,27 @@ class DokumenController extends Controller
 
         $jenisDokumen = $this->jenisDokumen();
 
-        // Ambil semua dokumen milik guru,
-        // termasuk beberapa dokumen dalam kategori yang sama.
-        $dokumens = Dokumen::where('guru_id', $guruId)
+        $semuaDokumen = Dokumen::where('guru_id', $guruId)
+            ->latest()
+            ->get();
+
+        // Ambil komentar yang hanya berkaitan dengan dokumen guru ini.
+        $komentarPerDokumen = KomentarDokumen::whereIn(
+            'dokumen_id',
+            $semuaDokumen->pluck('id')
+        )
             ->latest()
             ->get()
-            ->groupBy('jenis_dokumen');
+            ->groupBy('dokumen_id');
+
+        $dokumens = $semuaDokumen->groupBy('jenis_dokumen');
 
         return view('guru.dokumen', compact(
             'jenisDokumen',
-            'dokumens'
+            'dokumens',
+            'komentarPerDokumen'
         ));
     }
-
 
     /**
      * Mengunggah dokumen baru tanpa menimpa dokumen lama.
@@ -114,14 +123,12 @@ class DokumenController extends Controller
     {
         $jenisLabel = $this->jenisDariSlug($jenis);
 
-        // PROTA dan PROSEM tidak memerlukan pilihan kelas.
         $isKelasRequired = !in_array(
             $jenis,
             ['prota-prosem', 'prota', 'prosem'],
             true
         );
 
-        // Validasi dilakukan kembali di server.
         $validated = $request->validate([
             'file' => [
                 'required',
@@ -151,14 +158,13 @@ class DokumenController extends Controller
             'kelas.required' => 'Pilih kelas dokumen terlebih dahulu.',
             'kelas.in' => 'Kelas dokumen tidak valid.',
             'mata_pelajaran.required' =>
-            'Pilih mata pelajaran dokumen terlebih dahulu.',
+                'Pilih mata pelajaran dokumen terlebih dahulu.',
             'mata_pelajaran.in' =>
-            'Mata pelajaran dokumen tidak valid.',
+                'Mata pelajaran dokumen tidak valid.',
         ]);
 
         $file = $request->file('file');
 
-        // Simpan file ke storage/app/public/dokumen.
         $path = $file->store('dokumen', 'public');
 
         if (!$path) {
@@ -182,7 +188,6 @@ class DokumenController extends Controller
                 'file_path' => $path,
             ]);
         } catch (\Throwable $e) {
-            // Hapus file jika pencatatan ke database gagal.
             Storage::disk('public')->delete($path);
 
             report($e);
@@ -191,7 +196,7 @@ class DokumenController extends Controller
                 ->withInput()
                 ->withErrors([
                     'file' =>
-                    'Dokumen gagal disimpan ke database. Silakan coba kembali.',
+                        'Dokumen gagal disimpan ke database. Silakan coba kembali.',
                 ]);
         }
 
@@ -266,7 +271,7 @@ class DokumenController extends Controller
     }
 
     /**
-     * Menampilkan dokumen berdasarkan kategori.
+     * Menampilkan dokumen berdasarkan kategori beserta komentarnya.
      */
     public function kategori(string $jenis)
     {
@@ -283,7 +288,11 @@ class DokumenController extends Controller
             'analisis-butir-soal' => ['Analisis Butir Soal'],
         ];
 
-        abort_unless(isset($map[$jenis]), 404, 'Kategori dokumen tidak ditemukan.');
+        abort_unless(
+            isset($map[$jenis]),
+            404,
+            'Kategori dokumen tidak ditemukan.'
+        );
 
         $label = match ($jenis) {
             'modul-ajar' => 'Modul Ajar',
@@ -304,12 +313,27 @@ class DokumenController extends Controller
         if (request()->filled('mata_pelajaran')) {
             $query->where('mata_pelajaran', request('mata_pelajaran'));
         }
+
         if (request()->filled('semester')) {
             $query->where('semester', request('semester'));
         }
 
         $dokumens = $query->latest()->get();
 
-        return view('guru.dokumen-kategori', compact('dokumens', 'label', 'jenis'));
+        // Komentar hanya diambil untuk dokumen pada kategori yang sedang dibuka.
+        $komentarPerDokumen = KomentarDokumen::whereIn(
+            'dokumen_id',
+            $dokumens->pluck('id')
+        )
+            ->latest()
+            ->get()
+            ->groupBy('dokumen_id');
+
+        return view('guru.dokumen-kategori', compact(
+            'dokumens',
+            'label',
+            'jenis',
+            'komentarPerDokumen'
+        ));
     }
 }
