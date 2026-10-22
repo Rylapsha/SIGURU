@@ -40,7 +40,7 @@ class DokumenController extends Controller
             'Bahasa Sunda',
             'Bimbingan Konseling',
             'Ilmu Pengetahuan Alam',
-            'Ilmu Pengathaun Sosial',
+            'Ilmu Pengetahuan Sosial',
             'Matematika',
             'Pendidikan Agama Islam',
             'Pendidikan Agama Kristen',
@@ -139,6 +139,10 @@ class DokumenController extends Controller
                 'string',
                 Rule::in($this->daftarMataPelajaran()),
             ],
+            'semester' => [
+                'required',
+                Rule::in(['1', '2']),
+            ],
         ], [
             'file.required' => 'Silakan pilih file PDF.',
             'file.file' => 'File tidak valid.',
@@ -173,6 +177,7 @@ class DokumenController extends Controller
                     ? $validated['kelas']
                     : null,
                 'mata_pelajaran' => $validated['mata_pelajaran'],
+                'semester' => $validated['semester'],
                 'nama_file' => $file->getClientOriginalName(),
                 'file_path' => $path,
             ]);
@@ -298,6 +303,9 @@ class DokumenController extends Controller
 
         if (request()->filled('mata_pelajaran')) {
             $query->where('mata_pelajaran', request('mata_pelajaran'));
+        }
+        if (request()->filled('semester')) {
+            $query->where('semester', request('semester'));
         }
 
         $dokumens = $query->latest()->get();

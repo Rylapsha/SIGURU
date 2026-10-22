@@ -11,6 +11,7 @@ class Dokumen extends Model
         'guru_id',
         'jenis_dokumen',
         'kelas',
+        'semester',
         'mata_pelajaran',
         'nama_file',
         'file_path',
