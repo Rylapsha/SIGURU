@@ -8,6 +8,7 @@ use App\Http\Controllers\DokumenController;
 use App\Http\Controllers\SupervisiController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AdminSupervisiController;
+use App\Http\Controllers\AdminGuruController;
 
 Route::get('/login', function () {
     return view('auth.login');
@@ -82,13 +83,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])
         ->name('dashboard');
 
-    Route::get('/guru', function () {
-        if (!session()->has('admin_id')) {
-            return redirect()->route('login');
-        }
+    Route::get('/guru', [AdminGuruController::class, 'index'])
+        ->name('guru.index');
 
-        return view('admin.guru.index');
-    })->name('guru.index');
+    Route::get('/guru/{id}', [AdminGuruController::class, 'show'])
+        ->whereNumber('id')
+        ->name('guru.detail');
+
+    Route::get('/guru/dokumen/{id}/lihat', [AdminGuruController::class, 'lihatDokumen'])
+        ->whereNumber('id')
+        ->name('guru.dokumen.lihat');
 
     // Halaman dan pengelolaan supervisi admin
     Route::get('/supervisi', [AdminSupervisiController::class, 'index'])

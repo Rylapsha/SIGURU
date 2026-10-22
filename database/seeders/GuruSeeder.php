@@ -15,7 +15,7 @@ class GuruSeeder extends Seeder
     {
         Guru::create([
             'nip' => '198501012010011001',
-            'nama_lengkap' => 'Oliver Rojali',
+            'nama_lengkap' => 'Meerqeen de valorant',
             'golongan' => 'III/b',
             'mata_pelajaran' => 'Matematika',
             'password' => Hash::make('123456'),
