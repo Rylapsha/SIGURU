@@ -150,6 +150,18 @@ class DokumenController extends Controller
                 'required',
                 Rule::in(['1', '2']),
             ],
+            'tahun_ajaran' => [
+                'required',
+                'string',
+                'regex:/^\d{4}\/\d{4}$/',
+                function ($attribute, $value, $fail) {
+                    [$tahunMulai, $tahunSelesai] = explode('/', $value);
+
+                    if ((int) $tahunSelesai !== (int) $tahunMulai + 1) {
+                        $fail('Tahun ajaran harus terdiri dari dua tahun berurutan.');
+                    }
+                },
+            ],
         ], [
             'file.required' => 'Silakan pilih file PDF.',
             'file.file' => 'File tidak valid.',
@@ -161,6 +173,8 @@ class DokumenController extends Controller
                 'Pilih mata pelajaran dokumen terlebih dahulu.',
             'mata_pelajaran.in' =>
                 'Mata pelajaran dokumen tidak valid.',
+            'tahun_ajaran.required' => 'Pilih tahun ajaran dokumen terlebih dahulu.',
+            'tahun_ajaran.regex' => 'Format tahun ajaran harus seperti 2026/2027.',
         ]);
 
         $file = $request->file('file');
@@ -184,6 +198,7 @@ class DokumenController extends Controller
                     : null,
                 'mata_pelajaran' => $validated['mata_pelajaran'],
                 'semester' => $validated['semester'],
+                'tahun_ajaran' => $validated['tahun_ajaran'],
                 'nama_file' => $file->getClientOriginalName(),
                 'file_path' => $path,
             ]);
@@ -318,7 +333,21 @@ class DokumenController extends Controller
             $query->where('semester', request('semester'));
         }
 
+        if (request()->filled('tahun_ajaran')) {
+            $query->where('tahun_ajaran', request('tahun_ajaran'));
+        }
+
         $dokumens = $query->latest()->get();
+        $tahunAjaranAktif = $this->tahunAjaranAktif();
+        $tahunAjaranOptions = Dokumen::where('guru_id', Auth::id())
+            ->whereNotNull('tahun_ajaran')
+            ->distinct()
+            ->orderByDesc('tahun_ajaran')
+            ->pluck('tahun_ajaran')
+            ->push($tahunAjaranAktif)
+            ->unique()
+            ->sortDesc()
+            ->values();
 
         // Komentar hanya diambil untuk dokumen pada kategori yang sedang dibuka.
         $komentarPerDokumen = KomentarDokumen::whereIn(
@@ -333,7 +362,17 @@ class DokumenController extends Controller
             'dokumens',
             'label',
             'jenis',
-            'komentarPerDokumen'
+            'komentarPerDokumen',
+            'tahunAjaranOptions',
+            'tahunAjaranAktif'
         ));
+    }
+
+    private function tahunAjaranAktif(): string
+    {
+        $tahun = now()->year;
+        $tahunMulai = now()->month >= 7 ? $tahun : $tahun - 1;
+
+        return $tahunMulai . '/' . ($tahunMulai + 1);
     }
 }

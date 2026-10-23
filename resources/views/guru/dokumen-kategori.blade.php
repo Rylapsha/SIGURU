@@ -123,6 +123,26 @@
                     </div>
 
                     <div class="col-md-6 col-xl-3">
+                        <label for="tahun_ajaran" class="form-label fw-semibold">
+                            Tahun Ajaran
+                        </label>
+
+                        <input name="tahun_ajaran"
+                            id="tahun_ajaran"
+                            type="text"
+                            class="form-control"
+                            list="tahun-ajaran-options"
+                            pattern="\d{4}/\d{4}"
+                            value="{{ old('tahun_ajaran', $tahunAjaranAktif) }}"
+                            required>
+                        <datalist id="tahun-ajaran-options">
+                            @foreach($tahunAjaranOptions as $tahunAjaran)
+                            <option value="{{ $tahunAjaran }}">
+                            @endforeach
+                        </datalist>
+                    </div>
+
+                    <div class="col-md-6 col-xl-3">
                         <label for="mata_pelajaran" class="form-label fw-semibold">
                             Mata Pelajaran
                         </label>
@@ -236,6 +256,25 @@
                         </div>
 
                         <div class="mb-4">
+                            <label for="filter-tahun-ajaran" class="form-label fw-semibold">
+                                Tahun Ajaran
+                            </label>
+
+                            <input name="tahun_ajaran"
+                                id="filter-tahun-ajaran"
+                                type="text"
+                                class="form-control"
+                                list="filter-tahun-ajaran-options"
+                                value="{{ request('tahun_ajaran') }}"
+                                placeholder="Semua tahun ajaran">
+                            <datalist id="filter-tahun-ajaran-options">
+                                @foreach($tahunAjaranOptions as $tahunAjaran)
+                                <option value="{{ $tahunAjaran }}">
+                                @endforeach
+                            </datalist>
+                        </div>
+
+                        <div class="mb-4">
                             <label for="filter-mapel" class="form-label fw-semibold">
                                 Mata Pelajaran
                             </label>
@@ -320,6 +359,8 @@
                                                 Kelas {{ $dokumen->kelas ?? '-' }}
                                                 <span class="mx-1">•</span>
                                                 Semester {{ $dokumen->semester ?? '-' }}
+                                                <span class="mx-1">•</span>
+                                                Tahun Ajaran {{ $dokumen->tahun_ajaran ?? 'Belum ditentukan' }}
                                                 <span class="mx-1">•</span>
                                                 PDF
                                                 <span class="mx-1">•</span>
@@ -443,6 +484,8 @@
                                         {{ $dokumen->mata_pelajaran ?? '-' }}
                                         <span class="mx-1">•</span>
                                         Semester {{ $dokumen->semester ?? '-' }}
+                                        <span class="mx-1">•</span>
+                                        Tahun Ajaran {{ $dokumen->tahun_ajaran ?? 'Belum ditentukan' }}
                                         <span class="mx-1">•</span>
                                         PDF
                                         <span class="mx-1">•</span>

@@ -12,6 +12,7 @@ class Dokumen extends Model
         'jenis_dokumen',
         'kelas',
         'semester',
+        'tahun_ajaran',
         'mata_pelajaran',
         'nama_file',
         'file_path',
