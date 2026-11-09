@@ -18,6 +18,20 @@ class AdminSupervisiController extends Controller
         return null;
     }
 
+    public function create()
+    {
+        if (!session()->has('admin_id')) {
+            return redirect()->route('login');
+        }
+
+        $guru = DB::table('gurus')
+            ->select('id', 'nama_lengkap', 'mata_pelajaran')
+            ->orderBy('nama_lengkap')
+            ->get();
+
+        return view('admin.supervisi.create', compact('guru'));
+    }
+
     public function index()
     {
         if ($redirect = $this->pastikanAdmin()) {
@@ -27,8 +41,6 @@ class AdminSupervisiController extends Controller
         $statistik = [
             'terjadwal' => DB::table('supervisis')
                 ->where('status', 'terjadwal')->count(),
-            'dalam_proses' => DB::table('supervisis')
-                ->where('status', 'dalam_proses')->count(),
             'selesai' => DB::table('supervisis')
                 ->where('status', 'selesai')->count(),
             'dibatalkan' => DB::table('supervisis')
@@ -95,7 +107,6 @@ class AdminSupervisiController extends Controller
                 'required',
                 Rule::in([
                     'terjadwal',
-                    'dalam_proses',
                     'selesai',
                     'dibatalkan',
                 ]),

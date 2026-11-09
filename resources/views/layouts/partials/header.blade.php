@@ -63,25 +63,6 @@ $headerSearchEnabled = ! in_array($headerSearchValue, ['false', '0', 'off', 'no'
                         </span>
                     </h1>
                 </div>
-
-                @if ($headerSearchEnabled)
-                <div class="d-flex align-items-center ms-auto" style="max-width: 420px; min-width: 220px; width: min(420px, 42vw);">
-                    <form class="w-100 position-relative mb-0" method="GET" action="{{ url()->current() }}" id="headerSearchForm">
-                        <span class="position-absolute top-50 translate-middle-y start-0 ms-4 text-muted">
-                            <i class="bi bi-search fs-5"></i>
-                        </span>
-                        <input
-                            type="search"
-                            name="q"
-                            id="headerGlobalSearch"
-                            class="form-control form-control-solid ps-12"
-                            placeholder="Cari..."
-                            value="{{ request('q') }}"
-                            aria-label="Cari di halaman"
-                            autocomplete="off">
-                    </form>
-                </div>
-                @endif
             </div>
             <!--end::Toolbar title-->
 
@@ -89,14 +70,15 @@ $headerSearchEnabled = ! in_array($headerSearchValue, ['false', '0', 'off', 'no'
             <div class="d-flex align-items-stretch flex-shrink-0">
 
                 <!--begin::Theme mode-->
-                <div class="d-flex align-items-center ms-1 ms-lg-3">
+                <div class="d-flex align-items-center ms-1 ms-lg-3" style="display: none !important;">
                     <button type="button"
                         id="kt_header_theme_mode_toggle"
                         class="btn btn-icon btn-icon-muted
                                btn-active-light btn-active-color-primary
                                w-30px h-30px w-md-40px h-md-40px"
-                        aria-label="Aktifkan mode gelap"
-                        aria-pressed="false">
+                        aria-label="Mode terang aktif"
+                        aria-pressed="false"
+                        disabled>
 
                         <i class="bi bi-moon-stars fs-2"
                             aria-hidden="true"></i>
@@ -160,20 +142,20 @@ $headerSearchEnabled = ! in_array($headerSearchValue, ['false', '0', 'off', 'no'
                         <!--end::Profile-->
 
                         <!--begin::Logout-->
-<div class="menu-item px-5">
-    <form method="POST"
-          action="{{ route('logout') }}"
-          id="header-logout-form">
-        @csrf
+                        <div class="menu-item px-5">
+                            <form method="POST"
+                                action="{{ route('logout') }}"
+                                id="header-logout-form">
+                                @csrf
 
-        <button type="button"
-                id="header-logout-button"
-                class="menu-link px-5 border-0 bg-transparent w-100 text-start">
-            Keluar
-        </button>
-    </form>
-</div>
-<!--end::Logout-->
+                                <button type="button"
+                                    id="header-logout-button"
+                                    class="menu-link px-5 border-0 bg-transparent w-100 text-start">
+                                    Keluar
+                                </button>
+                            </form>
+                        </div>
+                        <!--end::Logout-->
 
                     </div>
                     <!--end::User account menu-->
@@ -222,115 +204,33 @@ $headerSearchEnabled = ! in_array($headerSearchValue, ['false', '0', 'off', 'no'
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const themeToggle = document.getElementById('kt_header_theme_mode_toggle');
-        const themeKey = 'siguru-theme-mode';
 
-        if (!themeToggle) return;
-
-        function applyTheme(mode) {
-            const dark = mode === 'dark';
-
-            document.documentElement.setAttribute(
-                'data-bs-theme',
-                dark ? 'dark' : 'light'
-            );
-
-            document.body.classList.toggle('dark-mode', dark);
-
-            themeToggle.innerHTML = dark ?
-                '<i class="bi bi-sun fs-2" aria-hidden="true"></i>' :
-                '<i class="bi bi-moon-stars fs-2" aria-hidden="true"></i>';
-
-            themeToggle.setAttribute(
-                'aria-label',
-                dark ? 'Aktifkan mode terang' : 'Aktifkan mode gelap'
-            );
-
-            themeToggle.setAttribute('aria-pressed', String(dark));
-
-            document.querySelectorAll('[data-light-href][data-dark-href]')
-                .forEach(function(stylesheet) {
-                    stylesheet.href = dark ?
-                        stylesheet.dataset.darkHref :
-                        stylesheet.dataset.lightHref;
-                });
+        if (themeToggle) {
+            themeToggle.disabled = true;
+            themeToggle.style.display = 'none';
+            themeToggle.setAttribute('aria-label', 'Mode terang aktif');
+            themeToggle.setAttribute('aria-pressed', 'false');
+            themeToggle.innerHTML = '<i class="bi bi-moon-stars fs-2" aria-hidden="true"></i>';
         }
 
-        let savedTheme = 'light';
+        document.documentElement.setAttribute('data-bs-theme', 'light');
+        document.body.classList.remove('dark-mode');
+        document.querySelectorAll('[data-light-href][data-dark-href]').forEach(function(stylesheet) {
+            stylesheet.href = stylesheet.dataset.lightHref || stylesheet.href;
+            stylesheet.media = 'all';
+        });
 
         try {
-            savedTheme = localStorage.getItem(themeKey) || 'light';
+            localStorage.setItem('siguru-theme-mode', 'light');
         } catch (error) {
-            // Tetap gunakan mode terang jika localStorage tidak tersedia.
+            // Tetap aman jika localStorage tidak tersedia.
         }
-
-        applyTheme(savedTheme);
-
-        themeToggle.addEventListener('click', function() {
-            const isDark = document.body.classList.contains('dark-mode');
-            const nextMode = isDark ? 'light' : 'dark';
-
-            try {
-                localStorage.setItem(themeKey, nextMode);
-            } catch (error) {
-                // Abaikan error storage.
-            }
-
-            applyTheme(nextMode);
-        });
-    });
-</script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const searchForm = document.getElementById('headerSearchForm');
-        const searchInput = document.getElementById('headerGlobalSearch');
-
-        if (!searchForm || !searchInput) {
-            return;
-        }
-
-        const searchableNodes = Array.from(
-            document.querySelectorAll('[data-searchable]')
-        );
-
-        const applySearch = () => {
-            const value = searchInput.value.trim().toLowerCase();
-
-            if (!value) {
-                searchableNodes.forEach((node) => {
-                    node.style.display = '';
-                });
-                return;
-            }
-
-            searchableNodes.forEach((node) => {
-                const text = (node.dataset.searchable || node.textContent || '')
-                    .replace(/\s+/g, ' ')
-                    .trim()
-                    .toLowerCase();
-
-                node.style.display = text.includes(value) ? '' : 'none';
-            });
-        };
-
-        if (searchableNodes.length) {
-            searchInput.addEventListener('input', applySearch);
-        }
-
-        searchForm.addEventListener('submit', function(event) {
-            if (!searchableNodes.length) {
-                return;
-            }
-
-            event.preventDefault();
-            applySearch();
-        });
     });
 </script>
 
 {{-- Konfirmasi Logout dengan SweetAlert2 --}}
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         const logoutButton = document.getElementById('header-logout-button');
         const logoutForm = document.getElementById('header-logout-form');
 
@@ -338,7 +238,7 @@ $headerSearchEnabled = ! in_array($headerSearchValue, ['false', '0', 'off', 'no'
             return;
         }
 
-        logoutButton.addEventListener('click', function () {
+        logoutButton.addEventListener('click', function() {
             if (typeof Swal === 'undefined') {
                 if (confirm('Yakin ingin logout?')) {
                     logoutForm.submit();
@@ -357,7 +257,7 @@ $headerSearchEnabled = ! in_array($headerSearchValue, ['false', '0', 'off', 'no'
                 cancelButtonText: 'Batal',
                 reverseButtons: true,
                 focusCancel: true
-            }).then(function (result) {
+            }).then(function(result) {
                 if (result.isConfirmed) {
                     logoutForm.submit();
                 }

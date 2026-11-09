@@ -2,287 +2,2220 @@
 
 @section('title', 'Dashboard Admin')
 
+@section('page_title', 'Dashboard')
+
 @section('content')
-<div class="siguru-dashboard">
-    {{-- HEADER --}}
-    <div class="dashboard-heading">
-        <div>
-            <span class="dashboard-eyebrow">PANEL ADMINISTRATOR</span>
-            <h1>Dashboard Admin</h1>
-            <p>Ringkasan data guru, kelengkapan dokumen, dan jadwal supervisi sekolah.</p>
-        </div>
-        <div class="dashboard-heading-mark"><i class="ki-outline ki-element-11"></i></div>
-    </div>
 
-    {{-- KARTU RINGKASAN --}}
-    <div class="summary-grid">
-        <div class="summary-card summary-guru">
-            <div class="summary-icon"><i class="ki-outline ki-people"></i></div>
-            <div class="summary-content">
-                <span class="summary-label">Total Guru</span>
-                <strong>{{ number_format($totalGuru, 0, ',', '.') }}</strong>
-                <small>Guru terdaftar di SIGURU</small>
-            </div>
-            <span class="summary-card-accent"></span>
-        </div>
-    </div>
+@php
+/*
+|--------------------------------------------------------------------------
+| Perhitungan Tahun Ajaran Aktif
+|--------------------------------------------------------------------------
+*/
+$tanggalSekarang = \Carbon\Carbon::now();
+$bulanSekarang = (int) $tanggalSekarang->format('n');
+$tahunSekarang = (int) $tanggalSekarang->format('Y');
 
-    {{-- GRAFIK DAN KELENGKAPAN DOKUMEN --}}
-    <div class="dashboard-main-grid">
-        <section class="dashboard-panel chart-panel">
-            <div class="panel-heading">
-                <div>
-                    <span class="panel-kicker">STATISTIK SEKOLAH</span>
-                    <h3>Jumlah Guru per Mata Pelajaran</h3>
-                    <p>Persebaran guru berdasarkan mata pelajaran yang diampu.</p>
-                </div>
-                <div class="panel-heading-icon blue-icon"><i class="ki-outline ki-chart-simple"></i></div>
-            </div>
+$tahunMulaiAjaran = $bulanSekarang >= 7
+? $tahunSekarang
+: $tahunSekarang - 1;
 
-            @if($statistikMapel->isNotEmpty())
-                @php $jumlahMaksimum = max(1, (int) $statistikMapel->max('jumlah')); @endphp
-                <div class="bar-chart">
-                    @foreach($statistikMapel as $item)
-                        <div class="bar-chart-item">
-                            <span class="bar-chart-count">{{ $item->jumlah }}</span>
-                            <div class="bar-chart-track">
-                                <div class="bar-chart-bar" style="height: {{ max(8, ($item->jumlah / $jumlahMaksimum) * 100) }}%"></div>
-                            </div>
-                            <span class="bar-chart-label" title="{{ $item->mata_pelajaran }}">{{ $item->mata_pelajaran }}</span>
-                        </div>
-                    @endforeach
-                </div>
-                <div class="chart-footer"><span class="chart-legend"></span>Jumlah guru per mata pelajaran</div>
-            @else
-                <div class="empty-chart">
-                    <div class="empty-state-icon"><i class="ki-outline ki-chart-simple"></i></div>
-                    <h4>Belum ada data mata pelajaran</h4>
-                    <p>Grafik akan muncul setelah data mata pelajaran tersedia.</p>
-                </div>
-            @endif
-        </section>
+$tahunAjaranAktif = $tahunMulaiAjaran . '/' . ($tahunMulaiAjaran + 1);
 
-        <section class="dashboard-panel document-panel">
-            <div class="panel-heading">
-                <div>
-                    <span class="panel-kicker">PEMANTAUAN ADMINISTRASI</span>
-                    <h3>Kelengkapan Dokumen Guru</h3>
-                    <p>Ringkasan pemenuhan 8 jenis dokumen wajib.</p>
-                </div>
-                <div class="panel-heading-icon green-icon"><i class="ki-outline ki-document"></i></div>
-            </div>
+$semesterAktif = $bulanSekarang >= 7
+? 'Ganjil'
+: 'Genap';
 
-            {{-- RINGKASAN KELENGKAPAN DOKUMEN: tetap di dalam panel, bukan kartu atas --}}
-            <div class="document-stats">
-                <div class="document-stat complete-stat">
-                    <div class="document-stat-top">
-                        <span class="document-stat-label">Dokumen Lengkap</span>
-                        <i class="ki-outline ki-check-circle"></i>
-                    </div>
-                    <div class="document-stat-number">{{ $dokumenLengkap }} <small>dari {{ $totalGuru }} guru</small></div>
-                    <div class="mini-progress"><span style="width: {{ $persentaseLengkap }}%"></span></div>
-                    <span class="document-stat-percent">{{ $persentaseLengkap }}% guru</span>
-                </div>
-                <div class="document-stat incomplete-stat">
-                    <div class="document-stat-top">
-                        <span class="document-stat-label">Dokumen Belum Lengkap</span>
-                        <i class="ki-outline ki-alert-circle"></i>
-                    </div>
-                    <div class="document-stat-number">{{ $dokumenBelumLengkap }} <small>dari {{ $totalGuru }} guru</small></div>
-                    <div class="mini-progress"><span style="width: {{ $persentaseBelumLengkap }}%"></span></div>
-                    <span class="document-stat-percent">{{ $persentaseBelumLengkap }}% guru</span>
-                </div>
-            </div>
 
-            <div class="completion-heading">
-                <span>Persentase Kelengkapan Dokumen</span>
-                <strong>{{ $persentaseLengkap }}% lengkap</strong>
-            </div>
-            <div class="completion-bar" role="img" aria-label="{{ $persentaseLengkap }} persen guru lengkap dan {{ $persentaseBelumLengkap }} persen belum lengkap">
-                @if($totalGuru > 0)
-                    <div class="completion-done" style="width: {{ $persentaseLengkap }}%">@if($persentaseLengkap >= 12){{ $persentaseLengkap }}%@endif</div>
-                    <div class="completion-pending" style="width: {{ $persentaseBelumLengkap }}%">@if($persentaseBelumLengkap >= 12){{ $persentaseBelumLengkap }}%@endif</div>
-                @else
-                    <div class="completion-empty">Belum ada data guru</div>
-                @endif
-            </div>
-            <div class="completion-legend">
-                <span><i class="legend-dot done-dot"></i>Dokumen lengkap</span>
-                <span><i class="legend-dot pending-dot"></i>Belum lengkap</span>
-            </div>
+/*
+|--------------------------------------------------------------------------
+| Data Kelengkapan Dokumen
+|--------------------------------------------------------------------------
+*/
+$totalGuru = (int) ($totalGuru ?? 0);
+$dokumenLengkap = (int) ($dokumenLengkap ?? 0);
 
-            <div class="document-info"><i class="ki-outline ki-information-3"></i><p>Dokumen dinilai lengkap jika seluruh 8 jenis tersedia pada tahun ajaran, mata pelajaran, semester, dan kelas yang sesuai. PROTA dan PROSEM tidak dibedakan berdasarkan kelas.</p></div>
-        </section>
-    </div>
+$dokumenBelumLengkap = max(
+0,
+$totalGuru - $dokumenLengkap
+);
 
-    {{-- JADWAL SUPERVISI --}}
-    <section class="dashboard-panel schedule-panel">
-        <div class="panel-heading schedule-heading">
+$persentaseLengkap = $totalGuru > 0
+? (int) round(($dokumenLengkap / $totalGuru) * 100)
+: 0;
+
+
+/*
+|--------------------------------------------------------------------------
+| Data Supervisi
+|--------------------------------------------------------------------------
+*/
+$jumlahJadwalMendatang = isset($jadwalMendatang)
+? $jadwalMendatang->count()
+: 0;
+@endphp
+
+
+<div class="post d-flex flex-column-fluid" id="kt_post">
+
+    <div class="container-fluid dashboard-container">
+
+        {{-- ==========================================================
+            HEADER DASHBOARD
+        =========================================================== --}}
+        <div class="d-flex flex-wrap flex-stack mb-7 mt-4">
+
             <div>
-                <span class="panel-kicker">AGENDA SEKOLAH</span>
-                <h3>Jadwal Supervisi</h3>
-                <p>Jadwal supervisi mendatang yang berstatus terjadwal.</p>
+
+                <h1 class="fw-lighter mt-3 mb-10 dashboard-welcome">
+
+                    Selamat Datang
+                    <span class="fw-bolder">
+                        {{ Auth::user()->nama_lengkap ?? 'Admin' }}
+                    </span>
+
+                    di Sistem Informasi Direktori Guru SMP Negeri 2 Purwakarta
+
+                </h1>
+
+                <p class="dashboard-description">
+
+                    Dashboard ini menampilkan ringkasan data guru, kelengkapan
+                    dokumen, jadwal supervisi, dan aktivitas pembelajaran
+                    untuk membantu admin melakukan pemantauan secara terpusat.
+
+                    <br>
+
+                    Silakan gunakan informasi yang tersedia untuk memantau
+                    kondisi data dan kegiatan guru di sekolah.
+
+                </p>
+
             </div>
-            <a href="{{ route('admin.supervisi.index') }}" class="view-all-link">Lihat Semua <i class="ki-outline ki-arrow-right"></i></a>
+
         </div>
 
-        <div class="schedule-list">
-            @forelse($jadwalMendatang as $jadwal)
-                <div class="schedule-item">
-                    <div class="schedule-date">
-                        <span class="schedule-day">{{ \Carbon\Carbon::parse($jadwal->tanggal)->format('d') }}</span>
-                        <span class="schedule-month">{{ \Carbon\Carbon::parse($jadwal->tanggal)->locale('id')->translatedFormat('M') }}</span>
+
+        {{-- ==========================================================
+            INFORMASI TAHUN AJARAN
+        =========================================================== --}}
+        <div class="card dashboard-panel mb-5" id="tahun-ajaran-aktif">
+
+            <div class="card-header border-0">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="dashboard-section-icon">
+
+                        <i class="bi bi-calendar3"></i>
+
                     </div>
-                    <div class="schedule-detail">
-                        <h4>{{ $jadwal->nama_lengkap ?? 'Guru belum ditentukan' }}</h4>
-                        <p class="schedule-subject">{{ $jadwal->mata_pelajaran ?: 'Mata pelajaran belum ditentukan' }}</p>
-                        <div class="schedule-time"><i class="ki-outline ki-time"></i><span>{{ $jadwal->jam ? \Carbon\Carbon::parse($jadwal->jam)->format('H:i') . ' WIB' : 'Jam belum ditentukan' }}</span></div>
+
+                    <div>
+
+                        <h3 class="dashboard-heading fw-bold mb-1">
+
+                            Tahun Ajaran Aktif
+
+                        </h3>
+
+                        <span class="dashboard-muted fs-7">
+
+                            {{ $tahunAjaranAktif }}
+                            - Semester {{ $semesterAktif }}
+
+                        </span>
+
                     </div>
-                    <span class="schedule-status"><i class="ki-outline ki-check"></i> Terjadwal</span>
+
                 </div>
-            @empty
-                <div class="empty-schedule">
-                    <div class="empty-state-icon"><i class="ki-outline ki-calendar-tick"></i></div>
-                    <h4>Belum ada jadwal supervisi</h4>
-                    <p>Jadwal supervisi mendatang akan ditampilkan di sini.</p>
-                    <a href="{{ route('admin.supervisi.index') }}">Kelola Jadwal</a>
-                </div>
-            @endforelse
+
+            </div>
+
         </div>
-    </section>
+
+
+        {{-- ==========================================================
+            TARGET PENCARIAN
+        =========================================================== --}}
+        <div id="dashboard-search-targets" class="d-none">
+
+            <div
+                data-search-target="dashboard"
+                data-search-keywords="dashboard, beranda, halaman utama">
+                {{ route('admin.dashboard') }}
+            </div>
+
+            <div
+                data-search-target="guru"
+                data-search-keywords="guru, data guru, daftar guru, tenaga pendidik">
+                {{ route('admin.guru.index') }}
+            </div>
+
+            <div
+                data-search-target="dokumen"
+                data-search-keywords="dokumen, arsip, file, kelengkapan dokumen">
+                {{ route('dokumen.index') }}
+            </div>
+
+            <div
+                data-search-target="supervisi"
+                data-search-keywords="supervisi, jadwal supervisi, pengawasan, monitoring">
+                {{ route('admin.supervisi.index') }}
+            </div>
+
+        </div>
+
+
+        {{-- ==========================================================
+            LAYOUT UTAMA
+        =========================================================== --}}
+        <div class="dashboard-layout">
+
+
+            {{-- ======================================================
+                KOLOM KIRI
+            ======================================================= --}}
+            <div class="dashboard-main d-flex flex-column gap-5">
+
+
+                {{-- ==================================================
+                    KELENGKAPAN DOKUMEN GURU
+                =================================================== --}}
+                <div
+                    class="card dashboard-panel"
+                    id="kelengkapan-statistik">
+
+                    {{-- HEADER --}}
+                    <div class="card-header border-0 pt-6">
+
+                        <div class="d-flex align-items-center gap-3">
+
+                            <div class="dashboard-section-icon">
+
+                                <i class="bi bi-folder-check"></i>
+
+                            </div>
+
+                            <div>
+
+                                <h3 class="dashboard-heading fw-bold mb-1">
+
+                                    Kelengkapan Dokumen Guru
+
+                                </h3>
+
+                                <span class="dashboard-muted fs-7">
+
+                                    Status kelengkapan dokumen seluruh guru
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- BODY --}}
+                    <div class="card-body pt-4">
+
+
+                        {{-- DIAGRAM DONAT --}}
+                        <div class="dashboard-chart-area">
+
+                            <div class="dashboard-donut-chart">
+
+                                <canvas
+                                    id="dashboardDocumentChart"
+                                    role="img"
+                                    aria-label="Diagram persentase kelengkapan dokumen guru">
+                                </canvas>
+
+                                <div class="dashboard-donut-center">
+
+                                    <span class="dashboard-donut-percentage">
+
+                                        {{ $persentaseLengkap }}%
+
+                                    </span>
+
+                                    <span class="dashboard-muted fs-7">
+
+                                        {{ $dokumenLengkap }}
+                                        dari
+                                        {{ $totalGuru }}
+                                        guru
+
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        {{-- RINCIAN --}}
+                        <div class="dashboard-detail-panel mt-5">
+
+                            <div
+                                class="d-flex align-items-center justify-content-between gap-3 mb-5">
+
+                                <h4 class="dashboard-heading fw-bold mb-0 fs-6">
+
+                                    Rincian Kelengkapan Dokumen
+
+                                </h4>
+
+                                <span class="badge badge-light-primary">
+
+                                    {{ $dokumenLengkap }}/{{ $totalGuru }}
+
+                                </span>
+
+                            </div>
+
+
+                            <div class="d-flex flex-column gap-4">
+
+
+                                {{-- DOKUMEN LENGKAP --}}
+                                <div class="dashboard-detail-row">
+
+                                    <div class="d-flex align-items-center gap-2">
+
+                                        <span
+                                            class="dashboard-detail-dot detail-dot-success">
+                                        </span>
+
+                                        <span class="dashboard-detail-label fs-7">
+
+                                            Dokumen Lengkap
+
+                                        </span>
+
+                                    </div>
+
+                                    <div class="dashboard-detail-progress">
+
+                                        <div class="progress h-6px">
+
+                                            <div
+                                                class="progress-bar bg-success"
+                                                role="progressbar"
+                                                style="width: {{ $persentaseLengkap }}%;"
+                                                aria-valuenow="{{ $persentaseLengkap }}"
+                                                aria-valuemin="0"
+                                                aria-valuemax="100">
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                    <span class="dashboard-muted fs-8 text-end">
+
+                                        {{ $dokumenLengkap }}
+
+                                    </span>
+
+                                </div>
+
+
+                                {{-- BELUM LENGKAP --}}
+                                <div class="dashboard-detail-row">
+
+                                    <div class="d-flex align-items-center gap-2">
+
+                                        <span
+                                            class="dashboard-detail-dot detail-dot-danger">
+                                        </span>
+
+                                        <span class="dashboard-detail-label fs-7">
+
+                                            Belum Lengkap
+
+                                        </span>
+
+                                    </div>
+
+                                    <div class="dashboard-detail-progress">
+
+                                        <div class="progress h-6px">
+
+                                            <div
+                                                class="progress-bar bg-danger"
+                                                role="progressbar"
+                                                style="width:
+                                                {{ $totalGuru > 0
+                                                    ? round(($dokumenBelumLengkap / $totalGuru) * 100)
+                                                    : 0 }}%;"
+                                                aria-valuenow="{{ $totalGuru > 0
+                                                    ? round(($dokumenBelumLengkap / $totalGuru) * 100)
+                                                    : 0 }}"
+                                                aria-valuemin="0"
+                                                aria-valuemax="100">
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                    <span class="dashboard-muted fs-8 text-end">
+
+                                        {{ $dokumenBelumLengkap }}
+
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- INFORMASI --}}
+                            <div class="dashboard-info-box mt-5">
+
+                                <div class="d-flex align-items-start gap-3">
+
+                                    <i class="bi bi-info-circle text-primary fs-5"></i>
+
+                                    <div class="dashboard-muted fs-8">
+
+                                        Dokumen dinyatakan lengkap apabila
+                                        seluruh dokumen yang diperlukan
+                                        tersedia sesuai tahun ajaran,
+                                        mata pelajaran, semester, dan kelas.
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                {{-- ==================================================
+                    STATISTIK SUPERVISI
+                =================================================== --}}
+                <div
+                    class="card dashboard-panel"
+                    id="supervisi-status">
+
+                    <div class="card-header border-0 pt-6">
+
+                        <div class="d-flex align-items-center gap-3">
+
+                            <div class="dashboard-section-icon">
+
+                                <i class="bi bi-bar-chart-line"></i>
+
+                            </div>
+
+                            <div>
+
+                                <h3 class="dashboard-heading fw-bold mb-1">
+
+                                    Statistik Supervisi
+
+                                </h3>
+
+                                <span class="dashboard-muted fs-7">
+
+                                    Jumlah guru yang mengikuti supervisi
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        {{-- FILTER TANGGAL --}}
+                        <div class="card-toolbar mt-4 mt-md-0">
+
+                            <div class="input-group input-group-sm">
+
+                                <span class="input-group-text">
+
+                                    <i class="bi bi-calendar3"></i>
+
+                                </span>
+
+                                <input
+                                    type="text"
+                                    id="supervisiDateRange"
+                                    class="form-control"
+                                    placeholder="Pilih rentang tanggal"
+                                    autocomplete="off">
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="card-body pt-4">
+
+                        {{-- JUMLAH GURU --}}
+                        <div class="d-flex justify-content-between align-items-center mb-5">
+
+                            <div>
+
+                                <span class="dashboard-muted fs-7">
+
+                                    Jumlah Guru
+
+                                </span>
+
+                                <div
+                                    id="supervisiCountLabel"
+                                    class="dashboard-heading fw-bold fs-2">
+
+                                    0
+
+                                </div>
+
+                            </div>
+
+                            <div class="text-end">
+
+                                <span
+                                    id="supervisiRangeText"
+                                    class="dashboard-muted fs-8">
+
+                                    Seluruh data
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        {{-- CHART --}}
+                        <div class="supervisi-chart-wrapper">
+
+                            <canvas
+                                id="supervisiChart"
+                                height="120">
+                            </canvas>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            {{-- ======================================================
+                KOLOM KANAN
+            ======================================================= --}}
+            <div class="dashboard-agenda d-flex flex-column gap-5">
+
+
+                {{-- ==================================================
+                    JUMLAH GURU PER MATA PELAJARAN
+                =================================================== --}}
+                <div class="card dashboard-panel">
+
+                    <div class="card-header border-0 pt-6">
+
+                        <div class="d-flex align-items-center gap-3">
+
+                            <div class="dashboard-section-icon">
+
+                                <i class="bi bi-people"></i>
+
+                            </div>
+
+                            <div>
+
+                                <h3 class="dashboard-heading fw-bold mb-1">
+
+                                    Jumlah Guru per Mata Pelajaran
+
+                                </h3>
+
+                                <span class="dashboard-muted fs-7">
+
+                                    Distribusi guru berdasarkan mata pelajaran
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="card-body pt-4">
+
+                        @forelse(($statistikMapel ?? []) as $item)
+
+                        @php
+                        $mapel = $item->mata_pelajaran ?? 'Tidak diketahui';
+                        $jumlah = (int) ($item->jumlah ?? 0);
+
+                        $maksimumGuru = max(
+                        1,
+                        (int) collect($statistikMapel ?? [])->pluck('jumlah')->max()
+                        );
+
+                        $persentaseMapel = round(
+                        ($jumlah / $maksimumGuru) * 100
+                        );
+                        @endphp
+
+                        <div class="mb-5">
+
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+
+                                <span class="dashboard-muted fs-7">
+
+                                    {{ $mapel }}
+
+                                </span>
+
+                                <span class="dashboard-heading fw-bold fs-7">
+
+                                    {{ $jumlah }} guru
+
+                                </span>
+
+                            </div>
+
+                            <div class="progress h-6px">
+
+                                <div
+                                    class="progress-bar bg-primary"
+                                    role="progressbar"
+                                    style="width: {{ $persentaseMapel }}%;"
+                                    aria-valuenow="{{ $persentaseMapel }}"
+                                    aria-valuemin="0"
+                                    aria-valuemax="100">
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        @empty
+
+                        <div class="text-center py-8">
+
+                            <i class="bi bi-people fs-2x text-muted d-block mb-3"></i>
+
+                            <div class="dashboard-muted fs-7">
+
+                                Belum ada data guru.
+
+                            </div>
+
+                        </div>
+
+                        @endforelse
+
+                    </div>
+
+                </div>
+
+
+                {{-- ==================================================
+                    JADWAL SUPERVISI
+                =================================================== --}}
+                <div
+                    class="card dashboard-panel"
+                    id="agenda-mendatang">
+
+                    <div class="card-header border-0 pt-6">
+
+                        <div class="d-flex align-items-center gap-3">
+
+                            <div class="dashboard-section-icon">
+
+                                <i class="bi bi-calendar-range"></i>
+
+                            </div>
+
+                            <div>
+
+                                <h3 class="dashboard-heading fw-bold mb-1">
+
+                                    Agenda
+
+                                </h3>
+
+                                <span class="dashboard-muted fs-7">
+
+                                    Pantau jadwal kegiatan dan agenda mendatang
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="card-body pt-4">
+
+                        @forelse(($jadwalMendatang ?? collect()) as $jadwal)
+
+                        @if(!$loop->first)
+
+                        <div class="separator separator-dashed my-5"></div>
+
+                        @endif
+
+
+                        <a
+                            href="{{ route('admin.supervisi.index') }}"
+                            class="dashboard-agenda-item">
+
+
+                            {{-- TANGGAL --}}
+                            <div class="dashboard-agenda-date">
+
+                                <span class="dashboard-agenda-day">
+
+                                    {{ \Carbon\Carbon::parse($jadwal->tanggal)->format('d') }}
+
+                                </span>
+
+                                <span class="dashboard-agenda-month">
+
+                                    {{ mb_strtoupper(
+                                            \Carbon\Carbon::parse($jadwal->tanggal)
+                                                ->translatedFormat('M')
+                                        ) }}
+
+                                </span>
+
+                            </div>
+
+
+                            {{-- INFORMASI --}}
+                            <div class="flex-grow-1 min-w-0">
+
+                                <span
+                                    class="dashboard-agenda-title fw-bold d-block fs-6 mb-2">
+
+                                    {{ $jadwal->nama_guru
+                                            ?? $jadwal->guru->nama_lengkap
+                                            ?? 'Nama guru' }}
+
+                                </span>
+
+
+                                @if($jadwal->mata_pelajaran)
+
+                                <span class="dashboard-muted fs-7 d-block mb-1">
+
+                                    <i class="bi bi-book me-1"></i>
+
+                                    {{ $jadwal->mata_pelajaran }}
+
+                                </span>
+
+                                @endif
+
+
+                                <span class="dashboard-muted fs-7 d-block mb-1">
+
+                                    <i class="bi bi-clock me-1"></i>
+
+                                    {{ $jadwal->jam
+                                            ? \Illuminate\Support\Str::substr($jadwal->jam, 0, 5) . ' WIB'
+                                            : 'Waktu belum ditentukan' }}
+
+                                </span>
+
+
+                                @if(isset($jadwal->status))
+
+                                <span class="dashboard-muted fs-7 d-block">
+
+                                    <i class="bi bi-check-circle me-1"></i>
+
+                                    {{ ucfirst($jadwal->status) }}
+
+                                </span>
+
+                                @else
+
+                                <span class="dashboard-muted fs-7 d-block">
+
+                                    <i class="bi bi-calendar-check me-1"></i>
+
+                                    Terjadwal
+
+                                </span>
+
+                                @endif
+
+                            </div>
+
+
+                            <i class="bi bi-chevron-right dashboard-agenda-arrow"></i>
+
+                        </a>
+
+                        @empty
+
+                        <div class="dashboard-muted text-center py-8">
+
+                            <i class="bi bi-calendar2-x fs-2x d-block mb-3"></i>
+
+                            <div class="fw-semibold mb-1">
+
+                                Belum ada jadwal supervisi
+
+                            </div>
+
+                            <div class="fs-8">
+
+                                Belum terdapat agenda supervisi yang akan datang.
+
+                            </div>
+
+                        </div>
+
+                        @endforelse
+
+                    </div>
+
+
+                    @if(isset($jadwalMendatang) && $jadwalMendatang->count() > 0)
+
+                    <div class="card-footer border-0 pt-0">
+
+                        <div class="dashboard-agenda-footer">
+
+                            <i class="bi bi-calendar-check fs-3 text-primary"></i>
+
+                            <span class="dashboard-muted fs-7">
+
+                                {{ $jumlahJadwalMendatang }}
+                                jadwal supervisi mendatang
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    @endif
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
 
+
 <style>
-    .siguru-dashboard {
-        --surface: #111d30;
-        --surface-soft: #15243a;
-        --border: #263a55;
-        --text: #edf4ff;
-        --muted: #8fa4bf;
-        --blue: #4d91f7;
-        --green: #25c58a;
-        --red: #f05b66;
-        width: 100%; padding: 26px 30px 34px; box-sizing: border-box;
-        color: var(--text); font-family: Inter, sans-serif;
+    /* ==========================================================
+       DASHBOARD CONTAINER
+    ========================================================== */
+
+    .dashboard-container {
+        padding-top: 0.5rem;
+        padding-bottom: 2rem;
     }
-    .siguru-dashboard *, .siguru-dashboard *::before, .siguru-dashboard *::after { box-sizing: border-box; }
-    .dashboard-heading { display:flex; align-items:center; justify-content:space-between; gap:18px; margin-bottom:23px; }
-    .dashboard-eyebrow, .panel-kicker { display:block; margin-bottom:7px; color:var(--blue); font-size:10px; font-weight:750; letter-spacing:1.1px; text-transform:uppercase; }
-    .dashboard-heading h1 { margin:0 0 7px; color:var(--text); font-size:27px; font-weight:750; letter-spacing:-.6px; }
-    .dashboard-heading p { margin:0; color:var(--muted); font-size:12px; line-height:1.7; }
-    .dashboard-heading-mark { width:45px; height:45px; display:flex; align-items:center; justify-content:center; flex:0 0 45px; border:1px solid var(--border); border-radius:13px; background:var(--surface); color:var(--blue); font-size:22px; }
-    .summary-grid { display:grid; grid-template-columns:minmax(0, 360px); gap:16px; margin-bottom:18px; }
-    .summary-card { position:relative; display:flex; align-items:center; gap:15px; min-width:0; min-height:122px; overflow:hidden; padding:20px; border:1px solid var(--border); border-radius:13px; background:var(--surface); box-shadow:0 5px 16px rgba(0,0,0,.08); }
-    .summary-icon { display:flex; align-items:center; justify-content:center; width:48px; height:48px; flex:0 0 48px; border-radius:12px; background:#1d3859; color:var(--blue); font-size:23px; }
-    .summary-content { display:flex; flex-direction:column; min-width:0; gap:5px; }
-    .summary-label { color:var(--muted); font-size:11px; font-weight:600; }
-    .summary-content strong { color:var(--text); font-size:28px; font-weight:750; line-height:1.15; }
-    .summary-content strong small { font-size:11px; font-weight:550; }
-    .summary-content > small { color:var(--muted); font-size:10px; }
-    .summary-card-accent { position:absolute; right:0; bottom:0; left:0; height:3px; background:var(--blue); opacity:.85; }
-    .dashboard-main-grid { display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr); align-items:stretch; gap:18px; margin-bottom:18px; }
-    .dashboard-panel { min-width:0; padding:22px; border:1px solid var(--border); border-radius:14px; background:var(--surface); box-shadow:0 5px 16px rgba(0,0,0,.06); }
-    .panel-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; padding-bottom:18px; border-bottom:1px solid var(--border); }
-    .panel-heading h3 { margin:0 0 6px; color:var(--text); font-size:15px; font-weight:750; letter-spacing:-.2px; }
-    .panel-heading p { margin:0; color:var(--muted); font-size:10px; line-height:1.7; }
-    .panel-kicker { margin-bottom:6px; font-size:9px; letter-spacing:.9px; }
-    .panel-heading-icon { display:flex; align-items:center; justify-content:center; width:38px; height:38px; flex:0 0 38px; border-radius:11px; font-size:19px; }
-    .blue-icon { background:rgba(77,145,247,.14); color:var(--blue); }
-    .green-icon { background:rgba(37,197,138,.13); color:var(--green); }
-    .bar-chart { display:flex; align-items:flex-end; gap:clamp(12px,2vw,25px); min-height:220px; padding:23px 4px 4px; overflow-x:auto; }
-    .bar-chart-item { display:flex; flex:1 0 54px; flex-direction:column; align-items:center; justify-content:flex-end; min-width:0; height:190px; }
-    .bar-chart-count { margin-bottom:8px; color:var(--text); font-size:10px; font-weight:750; }
-    .bar-chart-track { display:flex; align-items:flex-end; justify-content:center; width:100%; height:140px; border-bottom:1px solid var(--border); background:linear-gradient(to bottom,transparent 24%,rgba(143,164,191,.055) 25%,transparent 26%,transparent 49%,rgba(143,164,191,.055) 50%,transparent 51%,transparent 74%,rgba(143,164,191,.055) 75%,transparent 76%); }
-    .bar-chart-bar { width:min(30px,60%); min-height:8px; border-radius:6px 6px 2px 2px; background:linear-gradient(180deg,#69b0ff 0%,#3478e5 100%); box-shadow:0 5px 13px rgba(52,120,229,.18); }
-    .bar-chart-label { display:-webkit-box; width:100%; margin-top:9px; overflow:hidden; color:var(--muted); font-size:9px; line-height:1.5; text-align:center; overflow-wrap:anywhere; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
-    .chart-footer { display:flex; align-items:center; gap:8px; padding-top:14px; border-top:1px solid var(--border); color:var(--muted); font-size:10px; }
-    .chart-legend { width:7px; height:7px; border-radius:50%; background:var(--blue); }
-    .incomplete-stat .mini-progress span { background:var(--red); }
-    .completion-done, .completion-pending { display:flex; align-items:center; justify-content:center; min-width:0; color:#fff; font-size:9px; font-weight:750; white-space:nowrap; transition:width .25s ease; }
 
-    .document-stats { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:18px; }
-    .document-stat { min-width:0; padding:14px; border:1px solid var(--border); border-radius:10px; background:var(--surface-soft); }
-    .document-stat-top { display:flex; align-items:center; justify-content:space-between; gap:8px; color:var(--muted); font-size:10px; font-weight:650; }
-    .document-stat-top i { font-size:16px; color:var(--green); }
-    .incomplete-stat .document-stat-top i { color:var(--red); }
-    .document-stat-number { margin:10px 0; color:var(--text); font-size:23px; font-weight:800; line-height:1.2; }
-    .document-stat-number small { color:var(--muted); font-size:9px; font-weight:500; }
-    .mini-progress { height:6px; overflow:hidden; border-radius:20px; background:rgba(143,164,191,.15); }
-    .mini-progress span { display:block; height:100%; border-radius:20px; background:var(--green); }
-    .incomplete-stat .mini-progress span { background:var(--red); }
-    .document-stat-percent { display:block; margin-top:7px; color:var(--muted); font-size:9px; }
-    .completion-heading { display:flex; justify-content:space-between; align-items:center; gap:10px; margin:22px 0 10px; color:var(--text); font-size:10px; }
-    .completion-heading strong { color:var(--muted); font-size:9px; }
-    .completion-bar { display:flex; width:100%; height:28px; overflow:hidden; border-radius:7px; background:rgba(143,164,191,.15); }
-    .completion-done { background:var(--green); }
-    .completion-pending { background:var(--red); }
-    .completion-empty { display:flex; align-items:center; justify-content:center; width:100%; color:var(--muted); font-size:10px; }
-    .completion-legend { display:flex; flex-wrap:wrap; gap:15px; margin-top:11px; }
-    .completion-legend span { display:inline-flex; align-items:center; gap:6px; color:var(--muted); font-size:9px; }
-    .legend-dot { width:7px; height:7px; border-radius:50%; }
-    .done-dot { background:var(--green); }
-    .pending-dot { background:var(--red); }
 
-    .document-info { display:flex; align-items:flex-start; gap:9px; margin-top:18px; padding:12px; border:1px solid var(--border); border-radius:9px; background:rgba(77,145,247,.055); }
-    .document-info i { flex:0 0 auto; margin-top:1px; color:var(--blue); font-size:14px; }
-    .document-info p { margin:0; color:var(--muted); font-size:9px; line-height:1.8; }
-    .schedule-panel { padding-bottom:8px; }
-    .schedule-heading { align-items:center; }
-    .view-all-link { display:inline-flex; align-items:center; gap:7px; flex:0 0 auto; padding:9px 12px; border:1px solid var(--border); border-radius:8px; color:var(--blue); font-size:10px; font-weight:700; text-decoration:none; transition:background .2s ease; }
-    .view-all-link:hover { background:rgba(77,145,247,.1); color:#7db4ff; }
-    .schedule-list { display:flex; flex-direction:column; }
-    .schedule-item { display:flex; align-items:center; gap:15px; min-width:0; padding:16px 2px; border-bottom:1px solid var(--border); }
-    .schedule-item:last-child { border-bottom:0; }
-    .schedule-date { display:flex; flex:0 0 52px; flex-direction:column; align-items:center; justify-content:center; min-height:54px; border:1px solid rgba(77,145,247,.24); border-radius:10px; background:rgba(77,145,247,.1); }
-    .schedule-day { color:var(--text); font-size:19px; font-weight:750; line-height:1.2; }
-    .schedule-month { margin-top:3px; color:var(--blue); font-size:9px; font-weight:750; text-transform:uppercase; }
-    .schedule-detail { flex:1; min-width:0; }
-    .schedule-detail h4 { margin:0 0 5px; color:var(--text); font-size:11px; font-weight:750; }
-    .schedule-subject { margin:0 0 7px; color:var(--muted); font-size:10px; }
-    .schedule-time { display:flex; align-items:center; gap:6px; color:var(--muted); font-size:9px; }
-    .schedule-time i { font-size:12px; }
-    .schedule-status { display:inline-flex; align-items:center; gap:4px; flex:0 0 auto; padding:6px 9px; border:1px solid rgba(37,197,138,.23); border-radius:7px; background:rgba(37,197,138,.1); color:#5ce0ad; font-size:9px; font-weight:700; white-space:nowrap; }
-    .empty-chart, .empty-schedule { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:220px; padding:25px 10px; text-align:center; }
-    .empty-state-icon { display:flex; align-items:center; justify-content:center; width:44px; height:44px; margin-bottom:13px; border-radius:12px; background:rgba(77,145,247,.13); color:var(--blue); font-size:21px; }
-    .empty-chart h4, .empty-schedule h4 { margin:0 0 7px; color:var(--text); font-size:12px; font-weight:700; }
-    .empty-chart p, .empty-schedule p { max-width:300px; margin:0; color:var(--muted); font-size:10px; line-height:1.7; }
-    .empty-schedule a { display:inline-block; margin-top:14px; padding:9px 13px; border-radius:7px; background:#245da5; color:#fff; font-size:10px; font-weight:700; text-decoration:none; }
+    /* ==========================================================
+       HEADER
+    ========================================================== */
 
-    /* Tema terang mengikuti pengaturan tema admin */
-    html[data-admin-theme="light"] .siguru-dashboard { --surface:#fff; --surface-soft:#f7faff; --border:#e3eaf3; --text:#17243a; --muted:#64748b; }
-    html[data-admin-theme="light"] .dashboard-panel, html[data-admin-theme="light"] .summary-card { box-shadow:0 4px 16px rgba(15,23,42,.035); }
-    html[data-admin-theme="light"] .summary-icon { background:#e8f1ff; }
-    html[data-admin-theme="light"] .summary-complete .summary-icon { background:#e6f8f0; }
-    html[data-admin-theme="light"] .summary-incomplete .summary-icon { background:#fff0f0; }
-    html[data-admin-theme="light"] .document-stat { background:#f8faff; }
-        html[data-admin-theme="light"] .bar-chart-track { background:linear-gradient(to bottom,transparent 24%,rgba(100,116,139,.07) 25%,transparent 26%,transparent 49%,rgba(100,116,139,.07) 50%,transparent 51%,transparent 74%,rgba(100,116,139,.07) 75%,transparent 76%); }
-    html[data-admin-theme="light"] .document-info { background:#f6f9ff; }
-
-    @media (max-width: 1100px) {
-        .siguru-dashboard { padding:22px 18px 28px; }
-        .dashboard-main-grid { grid-template-columns:minmax(0,1fr); }
-        .summary-grid { gap:12px; }
-        .summary-card { padding:16px; }
+    .dashboard-welcome {
+        color: var(--bs-gray-900, #181c32) !important;
+        font-size: 1.35rem;
+        line-height: 1.5;
     }
-    @media (max-width: 767px) {
-        .siguru-dashboard { padding:16px; }
-        .dashboard-heading h1 { font-size:23px; }
-        .summary-grid { grid-template-columns:minmax(0,1fr); }
-        .summary-card { min-height:100px; }
-        .document-stats { grid-template-columns:minmax(0,1fr); }
-        .dashboard-main-grid { gap:14px; }
-        .dashboard-panel { padding:17px; }
-        .bar-chart { gap:12px; min-height:195px; }
-        .bar-chart-item { height:170px; }
-        .bar-chart-track { height:120px; }
-                    .schedule-item { align-items:flex-start; gap:10px; }
-        .schedule-status { padding:5px 6px; font-size:8px; }
-        .schedule-date { flex-basis:46px; }
-        .view-all-link { padding:8px; font-size:9px; }
+
+    .dashboard-description {
+        color: var(--bs-gray-600, #7e8299);
+        font-size: 0.9rem;
+        line-height: 1.7;
+        margin-top: -1rem;
     }
-    @media (max-width: 420px) {
-            .schedule-heading { align-items:flex-start; }
-        .schedule-status { max-width:78px; white-space:normal; }
+
+
+    /* ==========================================================
+       LAYOUT
+    ========================================================== */
+
+    .dashboard-layout {
+        display: grid;
+        grid-template-columns:
+            minmax(0, 7fr) minmax(0, 4.3fr);
+
+        gap: 1.25rem;
+        align-items: start;
+    }
+
+
+    .dashboard-main,
+    .dashboard-agenda {
+        min-width: 0;
+    }
+
+
+    /* ==========================================================
+       PANEL
+    ========================================================== */
+
+    .dashboard-panel {
+        border: 1px solid var(--bs-border-color, #dce8f8);
+        border-radius: 12px;
+
+        box-shadow:
+            0 2px 8px rgba(35, 75, 130, 0.025);
+
+        background: var(--bs-card-bg, #fff);
+        color: var(--bs-body-color, #181c32);
+
+        overflow: hidden;
+    }
+
+
+    .dashboard-panel .card-header,
+    .dashboard-panel .card-body,
+    .dashboard-panel .card-footer {
+        color: var(--bs-body-color, #181c32);
+    }
+
+
+    /* ==========================================================
+       HEADING
+    ========================================================== */
+
+    .dashboard-heading {
+        color: var(--bs-gray-900, #181c32) !important;
+        line-height: 1.4;
+    }
+
+
+    .dashboard-muted {
+        color: var(--bs-gray-600, #7e8299);
+    }
+
+
+    /* ==========================================================
+       ICON
+    ========================================================== */
+
+    .dashboard-section-icon {
+        width: 48px;
+        height: 48px;
+
+        border-radius: 15px;
+
+        background: #e6f0ff;
+        color: #2478ed;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 1.4rem;
+
+        flex-shrink: 0;
+    }
+
+
+    .dashboard-section-icon i {
+        color: #2478ed !important;
+    }
+
+
+    /* ==========================================================
+       DONUT CHART
+    ========================================================== */
+
+    .dashboard-chart-area {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        gap: 1rem;
+
+        padding: 1rem 0;
+    }
+
+
+    .dashboard-donut-chart {
+        width: 100%;
+        max-width: 230px;
+
+        aspect-ratio: 1 / 1;
+
+        position: relative;
+
+        margin: 0 auto;
+    }
+
+
+    .dashboard-donut-chart canvas {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+
+    .dashboard-donut-center {
+        position: absolute;
+
+        top: 50%;
+        left: 50%;
+
+        transform: translate(-50%, -50%);
+
+        display: flex;
+        flex-direction: column;
+
+        align-items: center;
+        justify-content: center;
+
+        text-align: center;
+
+        pointer-events: none;
+
+        white-space: nowrap;
+    }
+
+
+    .dashboard-donut-percentage {
+        color: var(--bs-gray-900, #181c32);
+
+        font-size: 1.7rem;
+        font-weight: 800;
+
+        line-height: 1.2;
+    }
+
+
+    /* ==========================================================
+       DETAIL PANEL
+    ========================================================== */
+
+    .dashboard-detail-panel {
+        background: var(--bs-secondary-bg, #f8fbff);
+
+        border: 1px solid var(--bs-border-color, #e4e8f0);
+
+        border-radius: 10px;
+
+        padding: 1.25rem;
+    }
+
+
+    .dashboard-detail-row {
+        display: grid;
+
+        grid-template-columns:
+            minmax(140px, 0.9fr) minmax(80px, 1fr) 35px;
+
+        align-items: center;
+
+        gap: 0.75rem;
+    }
+
+
+    .dashboard-detail-label {
+        color: var(--bs-gray-700, #5e6278);
+    }
+
+
+    .dashboard-detail-dot {
+        width: 8px;
+        height: 8px;
+
+        border-radius: 50%;
+
+        flex-shrink: 0;
+    }
+
+
+    .detail-dot-success {
+        background: #50cd89;
+    }
+
+
+    .detail-dot-danger {
+        background: #f1416c;
+    }
+
+
+    .dashboard-detail-progress {
+        width: 100%;
+    }
+
+
+    /* ==========================================================
+       INFO BOX
+    ========================================================== */
+
+    .dashboard-info-box {
+        padding: 0.85rem 1rem;
+
+        border-radius: 9px;
+
+        background: var(--bs-secondary-bg, #f1f7ff);
+    }
+
+
+    /* ==========================================================
+       BUTTON
+    ========================================================== */
+
+    .dashboard-action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        gap: 7px;
+
+        min-height: 34px;
+
+        padding: 7px 12px;
+
+        border-radius: 20px;
+
+        font-size: 12px;
+        font-weight: 600;
+
+        line-height: 1.4;
+
+        white-space: nowrap;
+    }
+
+
+    /* ==========================================================
+       AGENDA
+    ========================================================== */
+
+    .dashboard-agenda-item {
+        display: flex;
+
+        align-items: flex-start;
+
+        gap: 1rem;
+
+        min-width: 0;
+
+        padding: 0.25rem;
+
+        text-decoration: none;
+
+        color: inherit;
+
+        border-radius: 8px;
+
+        transition:
+            background 0.2s ease;
+    }
+
+
+    .dashboard-agenda-item:hover {
+        color: inherit;
+
+        background:
+            var(--bs-secondary-bg, #f5f9ff);
+    }
+
+
+    .dashboard-agenda-date {
+        width: 55px;
+        min-width: 55px;
+
+        min-height: 66px;
+
+        border-radius: 10px;
+
+        background: #edf5ff;
+
+        color: #2478ed;
+
+        display: flex;
+
+        flex-direction: column;
+
+        align-items: center;
+
+        justify-content: center;
+
+        padding: 7px 3px;
+    }
+
+
+    .dashboard-agenda-day {
+        font-size: 1.25rem;
+
+        font-weight: 800;
+
+        line-height: 1.3;
+    }
+
+
+    .dashboard-agenda-month {
+        font-size: 0.75rem;
+
+        font-weight: 600;
+    }
+
+
+    .dashboard-agenda-title {
+        color: var(--bs-gray-900, #181c32) !important;
+    }
+
+
+    .dashboard-agenda-arrow {
+        color: #8ca2c2;
+
+        font-size: 0.85rem;
+
+        margin-top: 0.5rem;
+
+        flex-shrink: 0;
+    }
+
+
+    .dashboard-agenda-footer {
+        display: flex;
+
+        align-items: center;
+
+        gap: 0.75rem;
+
+        padding: 0.85rem 1rem;
+
+        border-radius: 9px;
+
+        background:
+            var(--bs-secondary-bg, #f1f7ff);
+    }
+
+
+    /* ==========================================================
+       STATISTIK SUPERVISI
+    ========================================================== */
+
+    .supervisi-chart-wrapper {
+        position: relative;
+
+        width: 100%;
+
+        min-height: 250px;
+
+        padding: 1rem;
+
+        border-radius: 10px;
+
+        background:
+            linear-gradient(to bottom,
+                rgba(36, 120, 237, 0.04),
+                rgba(36, 120, 237, 0.01));
+    }
+
+
+    #supervisiChart {
+        width: 100% !important;
+        max-height: 250px;
+    }
+
+
+    /* ==========================================================
+       DARK MODE
+    ========================================================== */
+
+    [data-bs-theme="dark"] .dashboard-welcome,
+    [data-bs-theme="dark"] .dashboard-heading,
+    [data-bs-theme="dark"] .dashboard-donut-percentage,
+    [data-bs-theme="dark"] .dashboard-agenda-title {
+        color: #f5f8ff !important;
+    }
+
+
+    [data-bs-theme="dark"] .dashboard-description,
+    [data-bs-theme="dark"] .dashboard-muted,
+    [data-bs-theme="dark"] .dashboard-detail-label {
+        color: #b5b5c3 !important;
+    }
+
+
+    [data-bs-theme="dark"] .dashboard-panel,
+    [data-bs-theme="dark"] .dashboard-detail-panel {
+        background: #1e1e2d;
+
+        border-color: #343448;
+    }
+
+
+    [data-bs-theme="dark"] .dashboard-detail-panel {
+        background: #252538;
+    }
+
+
+    [data-bs-theme="dark"] .dashboard-section-icon {
+        background: #252d41;
+
+        color: #79aaff;
+    }
+
+
+    [data-bs-theme="dark"] .dashboard-section-icon i {
+        color: #79aaff !important;
+    }
+
+
+    [data-bs-theme="dark"] .dashboard-info-box,
+    [data-bs-theme="dark"] .dashboard-agenda-footer {
+        background: #252538;
+    }
+
+
+    [data-bs-theme="dark"] .dashboard-agenda-date {
+        background: #252d41;
+
+        color: #79aaff;
+    }
+
+
+    [data-bs-theme="dark"] .dashboard-agenda-arrow {
+        color: #7e8299;
+    }
+
+
+    [data-bs-theme="dark"] .supervisi-chart-wrapper {
+        background:
+            rgba(121, 170, 255, 0.04);
+    }
+
+
+    /* ==========================================================
+       RESPONSIVE
+    ========================================================== */
+
+    @media (max-width: 1199.98px) {
+
+        .dashboard-layout {
+            grid-template-columns:
+                minmax(0, 1fr) minmax(0, 1fr);
+        }
+
+    }
+
+
+    @media (max-width: 991.98px) {
+
+        .dashboard-layout {
+            grid-template-columns: 1fr;
+        }
+
+
+        .dashboard-main,
+        .dashboard-agenda {
+            width: 100%;
+        }
+
+    }
+
+
+    @media (max-width: 767.98px) {
+
+        .dashboard-container {
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+        }
+
+
+        .dashboard-welcome {
+            font-size: 1.15rem;
+            margin-bottom: 1.5rem !important;
+        }
+
+
+        .dashboard-description {
+            font-size: 0.8rem;
+        }
+
+
+        .dashboard-panel .card-header {
+            padding: 1.25rem !important;
+        }
+
+
+        .dashboard-panel .card-body {
+            padding: 1.25rem !important;
+        }
+
+
+        .dashboard-section-icon {
+            width: 42px;
+            height: 42px;
+
+            border-radius: 13px;
+
+            font-size: 1.2rem;
+        }
+
+
+        .dashboard-detail-row {
+            grid-template-columns:
+                minmax(95px, 0.9fr) minmax(50px, 1fr) 30px;
+
+            gap: 0.65rem;
+        }
+
+
+        .dashboard-donut-chart {
+            max-width: 195px;
+        }
+
+
+        .dashboard-agenda-item {
+            gap: 0.75rem;
+        }
+
+
+        .dashboard-agenda-date {
+            width: 48px;
+            min-width: 48px;
+
+            min-height: 60px;
+        }
+
+
+        .dashboard-agenda-day {
+            font-size: 1.1rem;
+        }
+
+
+        .dashboard-agenda-month {
+            font-size: 0.7rem;
+        }
+
+
+        .supervisi-chart-wrapper {
+            min-height: 210px;
+
+            padding: 0.5rem;
+        }
+
+    }
+
+
+    @media (prefers-reduced-motion: reduce) {
+
+        .dashboard-agenda-item {
+            transition: none;
+        }
+
     }
 </style>
+
+
+@endsection
+
+
+@section('scripts')
+
+{{-- ==========================================================
+    CHART.JS
+=========================================================== --}}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+
+        /* ==========================================================
+           DIAGRAM DONAT KELENGKAPAN DOKUMEN
+        =========================================================== */
+
+        const documentCanvas =
+            document.getElementById('dashboardDocumentChart');
+
+
+        if (
+            documentCanvas &&
+            typeof Chart !== 'undefined'
+        ) {
+
+            const completeDocuments = {
+                {
+                    $dokumenLengkap
+                }
+            };
+
+            const incompleteDocuments = {
+                {
+                    $dokumenBelumLengkap
+                }
+            };
+
+
+            new Chart(documentCanvas, {
+
+                type: 'doughnut',
+
+                data: {
+
+                    labels: [
+                        'Dokumen Lengkap',
+                        'Belum Lengkap'
+                    ],
+
+                    datasets: [{
+
+                        data: [
+                            completeDocuments,
+                            incompleteDocuments
+                        ],
+
+                        backgroundColor: [
+                            '#50cd89',
+                            '#e4e6ef'
+                        ],
+
+                        borderWidth: 0,
+
+                        borderRadius: 5,
+
+                        spacing: 3,
+
+                        hoverOffset: 5
+
+                    }]
+
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    cutout: '76%',
+
+                    plugins: {
+
+                        legend: {
+                            display: false
+                        },
+
+                        tooltip: {
+
+                            enabled: true,
+
+                            callbacks: {
+
+                                label: function(context) {
+
+                                    return context.label +
+                                        ': ' +
+                                        context.raw;
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            });
+
+        }
+
+
+        /* ==========================================================
+           DATA SUPERVISI
+        =========================================================== */
+
+        const allSupervisiData =
+            @json($supervisiSelesai ?? []);
+
+
+        /* ==========================================================
+           ELEMEN SUPERVISI
+        =========================================================== */
+
+        const supervisiCountLabel =
+            document.getElementById('supervisiCountLabel');
+
+        const supervisiRangeText =
+            document.getElementById('supervisiRangeText');
+
+        const supervisiCanvas =
+            document.getElementById('supervisiChart');
+
+
+        let supervisiChart = null;
+
+
+        /* ==========================================================
+           FORMAT TANGGAL
+        =========================================================== */
+
+        function parseTanggal(value) {
+
+            if (!value) {
+                return null;
+            }
+
+            const date = new Date(value);
+
+            return isNaN(date.getTime()) ?
+                null :
+                date;
+
+        }
+
+
+        /* ==========================================================
+           RENDER STATISTIK SUPERVISI
+        =========================================================== */
+
+        function renderSupervisiChart(startDate = null, endDate = null) {
+
+            let filteredData =
+                Array.isArray(allSupervisiData) ?
+                allSupervisiData : [];
+
+
+            if (startDate && endDate) {
+
+                filteredData = filteredData.filter(function(item) {
+
+                    const tanggal =
+                        parseTanggal(item.tanggal);
+
+                    if (!tanggal) {
+                        return false;
+                    }
+
+                    return (
+                        tanggal >= startDate &&
+                        tanggal <= endDate
+                    );
+
+                });
+
+            }
+
+
+            /* -----------------------------------------------
+               Hitung guru unik
+            ------------------------------------------------ */
+
+            const guruIds = new Set();
+
+
+            filteredData.forEach(function(item) {
+
+                const guruId =
+                    item.guru_id ??
+                    item.guruId ??
+                    item.id_guru ??
+                    item.guru?.id ??
+                    item.guru?.id_guru ??
+                    item.id;
+
+
+                if (guruId !== undefined && guruId !== null) {
+
+                    guruIds.add(String(guruId));
+
+                }
+
+            });
+
+
+            if (supervisiCountLabel) {
+
+                supervisiCountLabel.textContent =
+                    guruIds.size;
+
+            }
+
+
+            /* -----------------------------------------------
+               Buat bucket berdasarkan bulan
+            ------------------------------------------------ */
+
+            const monthlyData = {};
+
+
+            filteredData.forEach(function(item) {
+
+                const tanggal =
+                    parseTanggal(item.tanggal);
+
+
+                if (!tanggal) {
+                    return;
+                }
+
+
+                const year =
+                    tanggal.getFullYear();
+
+                const month =
+                    tanggal.getMonth();
+
+
+                const key =
+                    `${year}-${String(month + 1).padStart(2, '0')}`;
+
+
+                if (!monthlyData[key]) {
+
+                    monthlyData[key] = {
+
+                        year: year,
+
+                        month: month,
+
+                        count: 0
+
+                    };
+
+                }
+
+
+                monthlyData[key].count++;
+
+            });
+
+
+            const sortedMonths =
+                Object.values(monthlyData)
+                .sort(function(a, b) {
+
+                    if (a.year !== b.year) {
+                        return a.year - b.year;
+                    }
+
+                    return a.month - b.month;
+
+                });
+
+
+            const labels =
+                sortedMonths.map(function(item) {
+
+                    return new Date(
+                        item.year,
+                        item.month,
+                        1
+                    ).toLocaleDateString(
+                        'id-ID', {
+                            month: 'short'
+                        }
+                    );
+
+                });
+
+
+            const values =
+                sortedMonths.map(function(item) {
+
+                    return item.count;
+
+                });
+
+
+            /* -----------------------------------------------
+               Jika tidak ada data
+            ------------------------------------------------ */
+
+            if (labels.length === 0) {
+
+                labels.push('Tidak ada data');
+                values.push(0);
+
+            }
+
+
+            /* -----------------------------------------------
+               Update range
+            ------------------------------------------------ */
+
+            if (supervisiRangeText) {
+
+                if (startDate && endDate) {
+
+                    const startText =
+                        startDate.toLocaleDateString(
+                            'id-ID', {
+                                day: '2-digit',
+                                month: 'short',
+                                year: 'numeric'
+                            }
+                        );
+
+                    const endText =
+                        endDate.toLocaleDateString(
+                            'id-ID', {
+                                day: '2-digit',
+                                month: 'short',
+                                year: 'numeric'
+                            }
+                        );
+
+                    supervisiRangeText.textContent =
+                        `${startText} - ${endText}`;
+
+                } else {
+
+                    supervisiRangeText.textContent =
+                        'Seluruh data';
+
+                }
+
+            }
+
+
+            /* -----------------------------------------------
+               Destroy chart sebelumnya
+            ------------------------------------------------ */
+
+            if (supervisiChart) {
+
+                supervisiChart.destroy();
+
+            }
+
+
+            if (!supervisiCanvas ||
+                typeof Chart === 'undefined') {
+
+                return;
+
+            }
+
+
+            supervisiChart =
+                new Chart(supervisiCanvas, {
+
+                    type: 'bar',
+
+                    data: {
+
+                        labels: labels,
+
+                        datasets: [{
+
+                            label: 'Supervisi',
+
+                            data: values,
+
+                            backgroundColor: '#2478ed',
+
+                            borderRadius: 5,
+
+                            borderSkipped: false
+
+                        }]
+
+                    },
+
+                    options: {
+
+                        responsive: true,
+
+                        maintainAspectRatio: false,
+
+                        plugins: {
+
+                            legend: {
+                                display: false
+                            },
+
+                            tooltip: {
+
+                                callbacks: {
+
+                                    label: function(context) {
+
+                                        return (
+                                            ' ' +
+                                            context.raw +
+                                            ' supervisi'
+                                        );
+
+                                    }
+
+                                }
+
+                            }
+
+                        },
+
+                        scales: {
+
+                            x: {
+
+                                grid: {
+                                    display: false
+                                },
+
+                                ticks: {
+
+                                    color: '#7e8299'
+
+                                }
+
+                            },
+
+                            y: {
+
+                                beginAtZero: true,
+
+                                ticks: {
+
+                                    precision: 0,
+
+                                    color: '#7e8299'
+
+                                },
+
+                                grid: {
+
+                                    color: 'rgba(126,130,153,0.12)'
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                });
+
+        }
+
+
+        /* ==========================================================
+           INITIAL CHART
+        =========================================================== */
+
+        renderSupervisiChart();
+
+
+        /* ==========================================================
+           DATE RANGE PICKER
+        =========================================================== */
+
+        const dateRangeInput =
+            $('#supervisiDateRange');
+
+
+        if (
+            dateRangeInput.length &&
+            typeof $.fn.daterangepicker !== 'undefined'
+        ) {
+
+            dateRangeInput.daterangepicker({
+
+                autoUpdateInput: false,
+
+                locale: {
+
+                    format: 'DD/MM/YYYY',
+
+                    separator: ' - ',
+
+                    applyLabel: 'Terapkan',
+
+                    cancelLabel: 'Batal',
+
+                    customRangeLabel: 'Rentang Khusus',
+
+                    daysOfWeek: [
+                        'Mg',
+                        'Sn',
+                        'Sl',
+                        'Rb',
+                        'Km',
+                        'Jm',
+                        'Sb'
+                    ],
+
+                    monthNames: [
+                        'Januari',
+                        'Februari',
+                        'Maret',
+                        'April',
+                        'Mei',
+                        'Juni',
+                        'Juli',
+                        'Agustus',
+                        'September',
+                        'Oktober',
+                        'November',
+                        'Desember'
+                    ],
+
+                    firstDay: 1
+
+                },
+
+                ranges: {
+
+                    'Bulan Ini': [
+
+                        moment().startOf('month'),
+                        moment().endOf('month')
+
+                    ],
+
+                    '3 Bulan Terakhir': [
+
+                        moment().subtract(2, 'months').startOf('month'),
+                        moment().endOf('month')
+
+                    ],
+
+                    '6 Bulan Terakhir': [
+
+                        moment().subtract(5, 'months').startOf('month'),
+                        moment().endOf('month')
+
+                    ],
+
+                    'Tahun Ini': [
+
+                        moment().startOf('year'),
+                        moment().endOf('year')
+
+                    ]
+
+                }
+
+            });
+
+
+            dateRangeInput.on(
+                'apply.daterangepicker',
+                function(ev, picker) {
+
+                    $(this).val(
+
+                        picker.startDate.format('DD/MM/YYYY') +
+                        ' - ' +
+                        picker.endDate.format('DD/MM/YYYY')
+
+                    );
+
+
+                    const startDate =
+                        picker.startDate
+                        .toDate();
+
+
+                    const endDate =
+                        picker.endDate
+                        .toDate();
+
+
+                    endDate.setHours(
+                        23,
+                        59,
+                        59,
+                        999
+                    );
+
+
+                    renderSupervisiChart(
+                        startDate,
+                        endDate
+                    );
+
+                }
+            );
+
+
+            dateRangeInput.on(
+                'cancel.daterangepicker',
+                function() {
+
+                    $(this).val('');
+
+                    renderSupervisiChart();
+
+                }
+            );
+
+        }
+
+
+        /* ==========================================================
+           PENCARIAN GLOBAL
+        =========================================================== */
+
+        const searchInput =
+            document.getElementById(
+                'headerGlobalSearch'
+            );
+
+        const searchForm =
+            document.getElementById(
+                'headerSearchForm'
+            );
+
+
+        if (
+            searchInput &&
+            searchForm
+        ) {
+
+            const mappings = [
+
+                {
+                    key: 'dashboard',
+
+                    match: [
+                        'dashboard',
+                        'beranda',
+                        'home'
+                    ],
+
+                    url: @json(route('admin.dashboard'))
+                },
+
+                {
+                    key: 'guru',
+
+                    match: [
+                        'guru',
+                        'data guru',
+                        'daftar guru',
+                        'tenaga pendidik'
+                    ],
+
+                    url: @json(route('admin.guru.index'))
+                },
+
+                {
+                    key: 'dokumen',
+
+                    match: [
+                        'dokumen',
+                        'file',
+                        'arsip',
+                        'kelengkapan dokumen'
+                    ],
+
+                    url: @json(route('dokumen.index'))
+                },
+
+                {
+                    key: 'supervisi',
+
+                    match: [
+                        'supervisi',
+                        'pengawasan',
+                        'monitoring',
+                        'jadwal supervisi'
+                    ],
+
+                    url: @json(route('admin.supervisi.index'))
+                }
+
+            ];
+
+
+            const normalize =
+                value =>
+                (value || '')
+                .toLowerCase()
+                .trim();
+
+
+            function handleSearch() {
+
+                const query =
+                    normalize(
+                        searchInput.value
+                    );
+
+
+                if (!query) {
+                    return;
+                }
+
+
+                const matched =
+                    mappings.find(function(item) {
+
+                        return item.match.some(
+                            function(keyword) {
+
+                                return query.includes(
+                                    keyword
+                                );
+
+                            }
+                        );
+
+                    });
+
+
+                if (!matched) {
+                    return;
+                }
+
+
+                window.location.href =
+                    matched.url;
+
+            }
+
+
+            searchInput.addEventListener(
+                'keydown',
+                function(event) {
+
+                    if (event.key === 'Enter') {
+
+                        event.preventDefault();
+
+                        handleSearch();
+
+                    }
+
+                }
+            );
+
+        }
+
+    });
+</script>
+
 @endsection

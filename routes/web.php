@@ -1,4 +1,3 @@
-
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
@@ -11,6 +10,7 @@ use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AdminSupervisiController;
 use App\Http\Controllers\AdminGuruController;
 use App\Http\Controllers\AdminKomentarDokumenController;
+use App\Http\Controllers\AdminMataPelajaranController;
 
 /*
 |--------------------------------------------------------------------------
@@ -121,6 +121,15 @@ Route::prefix('admin')
         Route::get('/guru', [AdminGuruController::class, 'index'])
             ->name('guru.index');
 
+        Route::post('/guru', [AdminGuruController::class, 'store'])
+            ->name('guru.store');
+
+        Route::put('/guru/{guru}', [AdminGuruController::class, 'update'])
+            ->name('guru.update');
+
+        Route::delete('/guru/{guru}', [AdminGuruController::class, 'destroy'])
+            ->name('guru.destroy');
+
         Route::get('/guru/{id}', [AdminGuruController::class, 'show'])
             ->whereNumber('id')
             ->name('guru.detail');
@@ -144,6 +153,9 @@ Route::prefix('admin')
         // Halaman dan pengelolaan supervisi admin
         Route::get('/supervisi', [AdminSupervisiController::class, 'index'])
             ->name('supervisi.index');
+
+        Route::get('/supervisi/create', [AdminSupervisiController::class, 'create'])
+            ->name('supervisi.create');
 
         Route::post('/supervisi', [AdminSupervisiController::class, 'store'])
             ->name('supervisi.store');
@@ -174,4 +186,16 @@ Route::prefix('admin')
             [AdminKomentarDokumenController::class, 'destroy']
         )->whereNumber('id')->name('guru.dokumen.komentar.destroy');
 
-   });
+        // Mata Pelajaran
+        Route::get('/mata-pelajaran', [AdminMataPelajaranController::class, 'index'])
+            ->name('mata-pelajaran.index');
+
+        Route::post('/mata-pelajaran', [AdminMataPelajaranController::class, 'store'])
+            ->name('mata-pelajaran.store');
+
+        Route::put('/mata-pelajaran/{mataPelajaran}', [AdminMataPelajaranController::class, 'update'])
+            ->name('mata-pelajaran.update');
+
+        Route::delete('/mata-pelajaran/{mataPelajaran}', [AdminMataPelajaranController::class, 'destroy'])
+            ->name('mata-pelajaran.destroy');
+    });

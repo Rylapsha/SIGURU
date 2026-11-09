@@ -54,7 +54,6 @@ class SupervisiController extends Controller
 
         $statusLabels = [
             'terjadwal' => 'Terjadwal',
-            'dalam_proses' => 'Dalam Proses',
             'selesai' => 'Selesai',
             'dibatalkan' => 'Dibatalkan',
         ];

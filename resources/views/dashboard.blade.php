@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('title', 'Dashboard - SIGURU')
@@ -7,22 +6,22 @@
 @section('content')
 
 @php
-    $totalKategoriDokumen = count($kategoriDokumen ?? []);
-    $jumlahDokumenLengkap = (int) ($jumlahKategoriLengkap ?? 0);
-    $jumlahDokumenBelumLengkap = max(
-        0,
-        $totalKategoriDokumen - $jumlahDokumenLengkap
-    );
+$totalKategoriDokumen = count($kategoriDokumen ?? []);
+$jumlahDokumenLengkap = (int) ($jumlahKategoriLengkap ?? 0);
+$jumlahDokumenBelumLengkap = max(
+0,
+$totalKategoriDokumen - $jumlahDokumenLengkap
+);
 
-    $persentaseDokumen = $totalKategoriDokumen > 0
-        ? (int) round(
-            ($jumlahDokumenLengkap / $totalKategoriDokumen) * 100
-        )
-        : 0;
+$persentaseDokumen = $totalKategoriDokumen > 0
+? (int) round(
+($jumlahDokumenLengkap / $totalKategoriDokumen) * 100
+)
+: 0;
 
-    $jumlahSupervisiMendatang = isset($agendaMendatang)
-        ? $agendaMendatang->count()
-        : 0;
+$jumlahSupervisiMendatang = isset($agendaMendatang)
+? $agendaMendatang->count()
+: 0;
 @endphp
 
 <div class="post d-flex flex-column-fluid" id="kt_post">
@@ -31,11 +30,64 @@
         {{-- Header Dashboard --}}
         <div class="d-flex flex-wrap flex-stack mb-7 mt-4">
             <div>
-                <h1 class="fw-bold mb-2 dashboard-welcome">
-                    Selamat Datang, {{ Auth::user()->nama_lengkap ?? 'Guru' }}
+                <h1 class="fw-lighter mt-3 mb-10 dashboard-welcome">
+                    Selamat Datang <span class="fw-bolder">{{ Auth::user()->nama_lengkap ?? 'Guru' }}</span>
+                    di Sistem Informasi Direktori Guru SMP Negeri 2 Purwakarta
                 </h1>
+                <p class="dashboard-description">
+                    Sistem ini dirancang untuk memudahkan guru dalam mengelola dokumen, jadwal supervisi, dan agenda terkait pembelajaran.
+                    <br> Silakan jelajahi fitur-fitur yang tersedia untuk meningkatkan efisiensi kerja Anda.
+                </p>
             </div>
         </div>
+
+
+        {{-- Ringkasan Tahun Ajaran dan Semester --}}
+        @php
+        $tanggalSekarang = \Carbon\Carbon::now();
+        $bulanSekarang = (int) $tanggalSekarang->format('n');
+        $tahunSekarang = (int) $tanggalSekarang->format('Y');
+
+        $tahunMulaiAjaran = $bulanSekarang >= 7
+        ? $tahunSekarang
+        : $tahunSekarang - 1;
+
+        $tahunAjaranAktif = $tahunMulaiAjaran . '/'
+        . ($tahunMulaiAjaran + 1);
+
+        $semesterAktif = $bulanSekarang >= 7
+        ? 'Ganjil'
+        : 'Genap';
+
+        $jumlahSupervisiTerjadwal =
+        (isset($jadwalGanjil) && $jadwalGanjil ? 1 : 0)
+        + (isset($jadwalGenap) && $jadwalGenap ? 1 : 0);
+        @endphp
+
+        {{-- Informasi Tahun Ajaran --}}
+
+        <div class="card dashboard-panel mb-5" id="tahun-ajaran-aktif">
+
+            <div class="card-header border-0">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="dashboard-section-icon">
+                        <i class="bi bi-calendar3"></i>
+                    </div>
+
+                    <div>
+                        <h3 class="dashboard-heading fw-bold mb-1">
+                            Tahun Ajaran Aktif
+                        </h3>
+
+                        <span class="dashboard-muted fs-7">
+                            {{ $tahunAjaranAktif }} - Semester {{ $semesterAktif }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
 
         {{-- Target Pencarian --}}
         <div id="dashboard-search-targets" class="d-none">
@@ -86,13 +138,6 @@
                             </div>
                         </div>
 
-                        <div class="card-toolbar">
-                            <a href="{{ route('dokumen.index') }}"
-                                class="btn btn-sm btn-light-primary dashboard-action-btn">
-                                Lihat Selengkapnya
-                                <i class="bi bi-chevron-right"></i>
-                            </a>
-                        </div>
                     </div>
 
                     <div class="card-body pt-4">
@@ -117,22 +162,12 @@
                                 </div>
                             </div>
 
-                            <button type="button"
-                                class="btn btn-sm btn-light-primary dashboard-detail-toggle"
-                                id="toggleDocumentDetails"
-                                aria-expanded="false"
-                                aria-controls="documentDetails">
-                                <i class="bi bi-eye"></i>
-                                <span id="documentToggleText">Lihat Detail</span>
-                                <i class="bi bi-chevron-down" id="documentToggleIcon"></i>
-                            </button>
 
                         </div>
 
                         {{-- Rincian Dokumen --}}
                         <div id="documentDetails"
-                            class="dashboard-document-details mt-5"
-                            hidden>
+                            class="dashboard-document-details mt-5">
 
                             <div class="dashboard-detail-panel">
 
@@ -150,46 +185,46 @@
 
                                     @forelse(($kategoriDokumen ?? []) as $namaKategori => $lengkap)
 
-                                        <div class="dashboard-detail-row">
+                                    <div class="dashboard-detail-row">
 
-                                            <div class="d-flex align-items-center gap-2">
-                                                <span class="dashboard-detail-dot {{ $lengkap ? 'detail-dot-success' : 'detail-dot-danger' }}"></span>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="dashboard-detail-dot {{ $lengkap ? 'detail-dot-success' : 'detail-dot-danger' }}"></span>
 
-                                                <span class="dashboard-detail-label fs-7">
-                                                    {{ $namaKategori }}
-                                                </span>
-                                            </div>
+                                            <span class="dashboard-detail-label fs-7">
+                                                {{ $namaKategori }}
+                                            </span>
+                                        </div>
 
-                                            <div class="dashboard-detail-progress">
-                                                <div class="progress h-6px">
-                                                    <div class="progress-bar {{ $lengkap ? 'bg-success' : 'bg-gray-300' }}"
-                                                        role="progressbar"
-                                                        style="width: {{ $lengkap ? 100 : 0 }}%;"
-                                                        aria-valuenow="{{ $lengkap ? 100 : 0 }}"
-                                                        aria-valuemin="0"
-                                                        aria-valuemax="100">
-                                                    </div>
+                                        <div class="dashboard-detail-progress">
+                                            <div class="progress h-6px">
+                                                <div class="progress-bar {{ $lengkap ? 'bg-success' : 'bg-gray-300' }}"
+                                                    role="progressbar"
+                                                    style="width: {{ $lengkap ? 100 : 0 }}%;"
+                                                    aria-valuenow="{{ $lengkap ? 100 : 0 }}"
+                                                    aria-valuemin="0"
+                                                    aria-valuemax="100">
                                                 </div>
                                             </div>
-
-                                            @if($lengkap)
-                                                <i class="bi bi-check-circle-fill text-success"></i>
-                                            @else
-                                                <i class="bi bi-x-circle-fill text-danger"></i>
-                                            @endif
-
                                         </div>
+
+                                        @if($lengkap)
+                                        <i class="bi bi-check-circle-fill text-success"></i>
+                                        @else
+                                        <i class="bi bi-x-circle-fill text-danger"></i>
+                                        @endif
+
+                                    </div>
 
                                     @empty
-                                        <div class="dashboard-muted text-center py-3">
-                                            Belum ada data dokumen.
-                                        </div>
+                                    <div class="dashboard-muted text-center py-3">
+                                        Belum ada data dokumen.
+                                    </div>
                                     @endforelse
 
                                 </div>
 
                                 <a href="{{ route('dokumen.index') }}"
-                                    class="btn btn-sm btn-light-primary w-100 mt-5">
+                                    class="btn btn-sm btn-light-primary dashboard-action-btn mt-3">
                                     Kelola Dokumen
                                     <i class="bi bi-arrow-right ms-2"></i>
                                 </a>
@@ -201,7 +236,7 @@
                 </div>
 
                 {{-- Ringkasan Supervisi --}}
-                <div class="card dashboard-panel" id="supervisi-status">
+                <!-- <div class="card dashboard-panel" id="supervisi-status">
 
                     <div class="card-header border-0 pt-6">
                         <div class="d-flex align-items-center gap-3">
@@ -247,43 +282,43 @@
 
                                         @if(isset($jadwalGanjil) && $jadwalGanjil)
 
-                                            @php
-                                                $statusGanjil = strtolower(
-                                                    $jadwalGanjil->status ?? 'terjadwal'
-                                                );
-                                            @endphp
+                                        @php
+                                        $statusGanjil = strtolower(
+                                        $jadwalGanjil->status ?? 'terjadwal'
+                                        );
+                                        @endphp
 
-                                            @if($statusGanjil === 'selesai')
-                                                <span class="badge badge-light-success mb-3">
-                                                    <i class="bi bi-check-circle me-1"></i>
-                                                    Selesai
-                                                </span>
-                                            @elseif(in_array($statusGanjil, ['terjadwal', 'dijadwalkan']))
-                                                <span class="badge badge-light-primary mb-3">
-                                                    <i class="bi bi-calendar-check me-1"></i>
-                                                    Terjadwal
-                                                </span>
-                                            @else
-                                                <span class="badge badge-light-warning mb-3">
-                                                    {{ $statusLabels[$statusGanjil] ?? ucfirst(str_replace('_', ' ', $statusGanjil)) }}
-                                                </span>
-                                            @endif
+                                        @if($statusGanjil === 'selesai')
+                                        <span class="badge badge-light-success mb-3">
+                                            <i class="bi bi-check-circle me-1"></i>
+                                            Selesai
+                                        </span>
+                                        @elseif(in_array($statusGanjil, ['terjadwal', 'dijadwalkan']))
+                                        <span class="badge badge-light-primary mb-3">
+                                            <i class="bi bi-calendar-check me-1"></i>
+                                            Terjadwal
+                                        </span>
+                                        @else
+                                        <span class="badge badge-light-warning mb-3">
+                                            {{ $statusLabels[$statusGanjil] ?? ucfirst(str_replace('_', ' ', $statusGanjil)) }}
+                                        </span>
+                                        @endif
 
-                                            <div class="dashboard-muted fs-7">
-                                                <i class="bi bi-calendar3 me-1"></i>
-                                                {{ $jadwalGanjil->tanggal
+                                        <div class="dashboard-muted fs-7">
+                                            <i class="bi bi-calendar3 me-1"></i>
+                                            {{ $jadwalGanjil->tanggal
                                                     ? \Carbon\Carbon::parse($jadwalGanjil->tanggal)->translatedFormat('d F Y')
                                                     : 'Tanggal belum ditentukan' }}
-                                            </div>
+                                        </div>
 
                                         @else
-                                            <span class="badge badge-light-secondary mb-3">
-                                                Belum dijadwalkan
-                                            </span>
+                                        <span class="badge badge-light-secondary mb-3">
+                                            Belum dijadwalkan
+                                        </span>
 
-                                            <div class="dashboard-muted fs-7">
-                                                Belum ada jadwal supervisi.
-                                            </div>
+                                        <div class="dashboard-muted fs-7">
+                                            Belum ada jadwal supervisi.
+                                        </div>
                                         @endif
                                     </div>
                                 </div>
@@ -304,43 +339,43 @@
 
                                         @if(isset($jadwalGenap) && $jadwalGenap)
 
-                                            @php
-                                                $statusGenap = strtolower(
-                                                    $jadwalGenap->status ?? 'terjadwal'
-                                                );
-                                            @endphp
+                                        @php
+                                        $statusGenap = strtolower(
+                                        $jadwalGenap->status ?? 'terjadwal'
+                                        );
+                                        @endphp
 
-                                            @if($statusGenap === 'selesai')
-                                                <span class="badge badge-light-success mb-3">
-                                                    <i class="bi bi-check-circle me-1"></i>
-                                                    Selesai
-                                                </span>
-                                            @elseif(in_array($statusGenap, ['terjadwal', 'dijadwalkan']))
-                                                <span class="badge badge-light-primary mb-3">
-                                                    <i class="bi bi-calendar-check me-1"></i>
-                                                    Terjadwal
-                                                </span>
-                                            @else
-                                                <span class="badge badge-light-warning mb-3">
-                                                    {{ $statusLabels[$statusGenap] ?? ucfirst(str_replace('_', ' ', $statusGenap)) }}
-                                                </span>
-                                            @endif
+                                        @if($statusGenap === 'selesai')
+                                        <span class="badge badge-light-success mb-3">
+                                            <i class="bi bi-check-circle me-1"></i>
+                                            Selesai
+                                        </span>
+                                        @elseif(in_array($statusGenap, ['terjadwal', 'dijadwalkan']))
+                                        <span class="badge badge-light-primary mb-3">
+                                            <i class="bi bi-calendar-check me-1"></i>
+                                            Terjadwal
+                                        </span>
+                                        @else
+                                        <span class="badge badge-light-warning mb-3">
+                                            {{ $statusLabels[$statusGenap] ?? ucfirst(str_replace('_', ' ', $statusGenap)) }}
+                                        </span>
+                                        @endif
 
-                                            <div class="dashboard-muted fs-7">
-                                                <i class="bi bi-calendar3 me-1"></i>
-                                                {{ $jadwalGenap->tanggal
+                                        <div class="dashboard-muted fs-7">
+                                            <i class="bi bi-calendar3 me-1"></i>
+                                            {{ $jadwalGenap->tanggal
                                                     ? \Carbon\Carbon::parse($jadwalGenap->tanggal)->translatedFormat('d F Y')
                                                     : 'Tanggal belum ditentukan' }}
-                                            </div>
+                                        </div>
 
                                         @else
-                                            <span class="badge badge-light-secondary mb-3">
-                                                Belum dijadwalkan
-                                            </span>
+                                        <span class="badge badge-light-secondary mb-3">
+                                            Belum dijadwalkan
+                                        </span>
 
-                                            <div class="dashboard-muted fs-7">
-                                                Belum ada jadwal supervisi.
-                                            </div>
+                                        <div class="dashboard-muted fs-7">
+                                            Belum ada jadwal supervisi.
+                                        </div>
                                         @endif
                                     </div>
                                 </div>
@@ -348,7 +383,7 @@
 
                         </div>
                     </div>
-                </div>
+                </div> -->
 
             </div>
 
@@ -369,98 +404,88 @@
                                 </h3>
 
                                 <span class="dashboard-muted fs-7">
-                                    Kegiatan dan jadwal yang akan datang
+                                    Pantau jadwal kegiatan dan agenda mendatang
                                 </span>
                             </div>
                         </div>
 
-                        <div class="card-toolbar">
-                            <a href="{{ route('guru.supervisi') }}"
-                                class="btn btn-sm btn-light-primary dashboard-action-btn">
-                                Lihat Semua
-                                <i class="bi bi-chevron-right"></i>
-                            </a>
-                        </div>
                     </div>
 
                     <div class="card-body pt-4">
 
                         @forelse(($agendaMendatang ?? collect()) as $agenda)
 
-                            @if(!$loop->first)
-                                <div class="separator separator-dashed my-5"></div>
-                            @endif
+                        @if(!$loop->first)
+                        <div class="separator separator-dashed my-5"></div>
+                        @endif
 
-                            <a href="{{ route('guru.supervisi') }}"
-                                class="dashboard-agenda-item">
+                        <a href="{{ route('guru.supervisi') }}"
+                            class="dashboard-agenda-item">
 
-                                <div class="dashboard-agenda-date">
-                                    <span class="dashboard-agenda-day">
-                                        {{ \Carbon\Carbon::parse($agenda->tanggal)->format('d') }}
-                                    </span>
+                            <div class="dashboard-agenda-date">
+                                <span class="dashboard-agenda-day">
+                                    {{ \Carbon\Carbon::parse($agenda->tanggal)->format('d') }}
+                                </span>
 
-                                    <span class="dashboard-agenda-month">
-                                        {{ mb_strtoupper(\Carbon\Carbon::parse($agenda->tanggal)->translatedFormat('M')) }}
-                                    </span>
-                                </div>
-
-                                <div class="flex-grow-1 min-w-0">
-
-                                    <span class="dashboard-agenda-title fw-bold d-block fs-6 mb-2">
-                                        Supervisi Guru
-                                    </span>
-
-                                    <span class="dashboard-muted fs-7 d-block mb-1">
-                                        <i class="bi bi-clock me-1"></i>
-                                        {{ $agenda->jam
-                                            ? \Illuminate\Support\Str::substr($agenda->jam, 0, 5) . ' WIB'
-                                            : 'Waktu belum ditentukan' }}
-                                    </span>
-
-                                    @if($agenda->mata_pelajaran)
-                                        <span class="dashboard-muted fs-7 d-block mb-1">
-                                            <i class="bi bi-book me-1"></i>
-                                            {{ $agenda->mata_pelajaran }}
-                                        </span>
-                                    @endif
-
-                                    @if($agenda->nama_supervisor)
-                                        <span class="dashboard-muted fs-7 d-block">
-                                            <i class="bi bi-person me-1"></i>
-                                            {{ $agenda->nama_supervisor }}
-                                        </span>
-                                    @endif
-
-                                </div>
-
-                            </a>
-
-                        @empty
-                            <div class="dashboard-muted text-center py-8">
-                                <i class="bi bi-calendar2-x fs-2x d-block mb-3"></i>
-
-                                <div class="fw-semibold mb-1">
-                                    Belum ada agenda
-                                </div>
-
-                                <span class="fs-7">
-                                    Jadwal supervisi mendatang akan muncul di sini.
+                                <span class="dashboard-agenda-month">
+                                    {{ mb_strtoupper(\Carbon\Carbon::parse($agenda->tanggal)->translatedFormat('M')) }}
                                 </span>
                             </div>
+
+                            <div class="flex-grow-1 min-w-0">
+
+                                <span class="dashboard-agenda-title fw-bold d-block fs-6 mb-2">
+                                    Supervisi Guru
+                                </span>
+
+                                <span class="dashboard-muted fs-7 d-block mb-1">
+                                    <i class="bi bi-clock me-1"></i>
+                                    {{ $agenda->jam
+                                            ? \Illuminate\Support\Str::substr($agenda->jam, 0, 5) . ' WIB'
+                                            : 'Waktu belum ditentukan' }}
+                                </span>
+
+                                @if($agenda->mata_pelajaran)
+                                <span class="dashboard-muted fs-7 d-block mb-1">
+                                    <i class="bi bi-book me-1"></i>
+                                    {{ $agenda->mata_pelajaran }}
+                                </span>
+                                @endif
+
+                                @if($agenda->nama_supervisor)
+                                <span class="dashboard-muted fs-7 d-block">
+                                    <i class="bi bi-person me-1"></i>
+                                    {{ $agenda->nama_supervisor }}
+                                </span>
+                                @endif
+
+                            </div>
+
+                        </a>
+
+                        @empty
+                        <div class="dashboard-muted text-center py-8">
+                            <i class="bi bi-calendar2-x fs-2x d-block mb-3"></i>
+
+                            <div class="fw-semibold mb-1">
+                                Belum ada agenda
+                            </div>
+
+                        </div>
                         @endforelse
 
                     </div>
 
                     @if(isset($agendaMendatang) && $agendaMendatang->count() > 0)
-                        <div class="card-footer border-0 pt-0">
-                            <div class="dashboard-agenda-footer">
-                                <i class="bi bi-calendar-check fs-3 text-primary"></i>
+                    <div class="card-footer border-0 pt-0">
+                        <div class="dashboard-agenda-footer">
+                            <i class="bi bi-calendar-check fs-3 text-primary"></i>
 
-                                <span class="dashboard-muted fs-7">
-                                    {{ $jumlahSupervisiMendatang }} agenda mendatang
-                                </span>
-                            </div>
+                            <span class="dashboard-muted fs-7">
+                                {{ $jumlahSupervisiMendatang }} agenda mendatang
+                            </span>
                         </div>
+                    </div>
                     @endif
 
                 </div>
@@ -479,13 +504,15 @@
         color: var(--bs-gray-900, #181c32);
         font-size: clamp(1.5rem, 2vw, 2rem);
         letter-spacing: -0.5px;
+
     }
 
     .dashboard-description {
         color: var(--bs-gray-600, #7e8299);
         line-height: 1.7;
         display: inline-block;
-        max-width: 750px;
+        max-width: 100%;
+        width: 100%;
     }
 
     .dashboard-layout {
@@ -534,6 +561,10 @@
         justify-content: center;
         font-size: 1.4rem;
         flex-shrink: 0;
+    }
+
+    .dashboard-section-icon i {
+        color: #2478ed !important;
     }
 
     .dashboard-action-btn {
@@ -629,7 +660,7 @@
         overflow-wrap: anywhere;
     }
 
-    .dashboard-detail-row > div:first-child {
+    .dashboard-detail-row>div:first-child {
         min-width: 0;
     }
 
@@ -904,152 +935,159 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
 
-    // Diagram Donat Kelengkapan Dokumen
-    const documentCanvas = document.getElementById('dashboardDocumentChart');
+        // Diagram Donat Kelengkapan Dokumen
+        const documentCanvas = document.getElementById('dashboardDocumentChart');
 
-    if (documentCanvas && typeof Chart !== 'undefined') {
-        const completeDocuments = {{ $jumlahDokumenLengkap }};
-        const incompleteDocuments = {{ $jumlahDokumenBelumLengkap }};
+        if (documentCanvas && typeof Chart !== 'undefined') {
+            const completeDocuments = {
+                {
+                    $jumlahDokumenLengkap
+                }
+            };
+            const incompleteDocuments = {
+                {
+                    $jumlahDokumenBelumLengkap
+                }
+            };
 
-        new Chart(documentCanvas, {
-            type: 'doughnut',
+            new Chart(documentCanvas, {
+                type: 'doughnut',
 
-            data: {
-                labels: ['Tersedia', 'Belum tersedia'],
-                datasets: [{
-                    data: [completeDocuments, incompleteDocuments],
-                    backgroundColor: ['#10A779', '#DCE3ED'],
-                    borderWidth: 0,
-                    borderRadius: 5,
-                    spacing: 3,
-                    hoverOffset: 5
-                }]
-            },
+                data: {
+                    labels: ['Tersedia', 'Belum tersedia'],
+                    datasets: [{
+                        data: [completeDocuments, incompleteDocuments],
+                        backgroundColor: ['#10A779', '#DCE3ED'],
+                        borderWidth: 0,
+                        borderRadius: 5,
+                        spacing: 3,
+                        hoverOffset: 5
+                    }]
+                },
 
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '76%',
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '76%',
 
-                plugins: {
-                    legend: {
-                        display: false
-                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
 
-                    tooltip: {
-                        enabled: true,
-                        callbacks: {
-                            label: function (context) {
-                                return context.label + ': ' + context.raw;
+                        tooltip: {
+                            enabled: true,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.raw;
+                                }
                             }
                         }
                     }
                 }
-            }
-        });
-    }
-
-    // Tombol Rincian Dokumen
-    const detailToggle = document.getElementById('toggleDocumentDetails');
-    const documentDetails = document.getElementById('documentDetails');
-    const toggleText = document.getElementById('documentToggleText');
-    const toggleIcon = document.getElementById('documentToggleIcon');
-
-    if (detailToggle && documentDetails) {
-        detailToggle.addEventListener('click', function () {
-            const isExpanded =
-                detailToggle.getAttribute('aria-expanded') === 'true';
-
-            documentDetails.hidden = isExpanded;
-            detailToggle.setAttribute('aria-expanded', String(!isExpanded));
-
-            if (toggleText) {
-                toggleText.textContent = isExpanded
-                    ? 'Lihat Detail'
-                    : 'Tutup Detail';
-            }
-
-            if (toggleIcon) {
-                toggleIcon.classList.toggle('bi-chevron-down', isExpanded);
-                toggleIcon.classList.toggle('bi-chevron-up', !isExpanded);
-            }
-
-            if (!isExpanded) {
-                documentDetails.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'nearest'
-                });
-            }
-        });
-    }
-
-    // Pencarian Global
-    const searchInput = document.getElementById('headerGlobalSearch');
-    const searchForm = document.getElementById('headerSearchForm');
-
-    if (!searchInput || !searchForm) {
-        return;
-    }
-
-    const mappings = [
-        {
-            key: 'profil',
-            match: ['profil', 'profile', 'biodata', 'data saya'],
-            url: @json(route('profil'))
-        },
-        {
-            key: 'dokumen',
-            match: [
-                'dokumen', 'file', 'modul', 'atp', 'ap',
-                'prota', 'prosem', 'bank soal', 'materi', 'arsip'
-            ],
-            url: @json(route('dokumen.index'))
-        },
-        {
-            key: 'supervisi',
-            match: ['supervisi', 'pengawasan', 'monitoring', 'evaluasi'],
-            url: @json(route('guru.supervisi'))
-        },
-        {
-            key: 'agenda',
-            match: [
-                'agenda', 'jadwal', 'kegiatan', 'rapat',
-                'pengumpulan', 'evaluasi pembelajaran', 'supervisi guru'
-            ],
-            url: @json(route('guru.supervisi'))
+            });
         }
-    ];
 
-    const normalize = value => (value || '').toLowerCase().trim();
+        // Tombol Rincian Dokumen
+        const detailToggle = document.getElementById('toggleDocumentDetails');
+        const documentDetails = document.getElementById('documentDetails');
+        const toggleText = document.getElementById('documentToggleText');
+        const toggleIcon = document.getElementById('documentToggleIcon');
 
-    const handleSearch = function () {
-        const query = normalize(searchInput.value);
+        if (detailToggle && documentDetails) {
+            detailToggle.addEventListener('click', function() {
+                const isExpanded =
+                    detailToggle.getAttribute('aria-expanded') === 'true';
 
-        if (!query) {
+                documentDetails.hidden = isExpanded;
+                detailToggle.setAttribute('aria-expanded', String(!isExpanded));
+
+                if (toggleText) {
+                    toggleText.textContent = isExpanded ?
+                        'Lihat Detail' :
+                        'Tutup Detail';
+                }
+
+                if (toggleIcon) {
+                    toggleIcon.classList.toggle('bi-chevron-down', isExpanded);
+                    toggleIcon.classList.toggle('bi-chevron-up', !isExpanded);
+                }
+
+                if (!isExpanded) {
+                    documentDetails.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest'
+                    });
+                }
+            });
+        }
+
+        // Pencarian Global
+        const searchInput = document.getElementById('headerGlobalSearch');
+        const searchForm = document.getElementById('headerSearchForm');
+
+        if (!searchInput || !searchForm) {
             return;
         }
 
-        const matched = mappings.find(item =>
-            item.match.some(keyword => query.includes(keyword))
-        );
+        const mappings = [{
+                key: 'profil',
+                match: ['profil', 'profile', 'biodata', 'data saya'],
+                url: @json(route('profil'))
+            },
+            {
+                key: 'dokumen',
+                match: [
+                    'dokumen', 'file', 'modul', 'atp', 'ap',
+                    'prota', 'prosem', 'bank soal', 'materi', 'arsip'
+                ],
+                url: @json(route('dokumen.index'))
+            },
+            {
+                key: 'supervisi',
+                match: ['supervisi', 'pengawasan', 'monitoring', 'evaluasi'],
+                url: @json(route('guru.supervisi'))
+            },
+            {
+                key: 'agenda',
+                match: [
+                    'agenda', 'jadwal', 'kegiatan', 'rapat',
+                    'pengumpulan', 'evaluasi pembelajaran', 'supervisi guru'
+                ],
+                url: @json(route('guru.supervisi'))
+            }
+        ];
 
-        if (!matched) {
-            return;
-        }
+        const normalize = value => (value || '').toLowerCase().trim();
 
-        window.location.href = matched.url;
-    };
+        const handleSearch = function() {
+            const query = normalize(searchInput.value);
 
-    searchInput.addEventListener('keydown', function (event) {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            handleSearch();
-        }
+            if (!query) {
+                return;
+            }
+
+            const matched = mappings.find(item =>
+                item.match.some(keyword => query.includes(keyword))
+            );
+
+            if (!matched) {
+                return;
+            }
+
+            window.location.href = matched.url;
+        };
+
+        searchInput.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                handleSearch();
+            }
+        });
+
     });
-
-});
 </script>
 
 @endsection

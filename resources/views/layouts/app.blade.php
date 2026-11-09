@@ -72,16 +72,439 @@ License: For each use you must have a valid license purchased only from above li
             margin: 0 auto;
         }
     </style>
+    <style>
+        .dashboard-container {
+            padding-bottom: 2rem;
+        }
+
+        .dashboard-welcome {
+            color: var(--bs-gray-900, #181c32);
+            font-size: clamp(1.5rem, 2vw, 2rem);
+            letter-spacing: -0.5px;
+
+        }
+
+        .dashboard-description {
+            color: var(--bs-gray-600, #7e8299);
+            line-height: 1.7;
+            display: inline-block;
+            max-width: 100%;
+            width: 100%;
+        }
+
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 7fr) minmax(0, 4.3fr);
+            gap: 1.25rem;
+            align-items: start;
+        }
+
+        .dashboard-main,
+        .dashboard-agenda {
+            min-width: 0;
+        }
+
+        .dashboard-panel {
+            border: 1px solid var(--bs-border-color, #dce8f8);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(35, 75, 130, 0.025);
+            background: var(--bs-card-bg, #fff);
+            color: var(--bs-body-color, #181c32);
+        }
+
+        .dashboard-panel .card-header,
+        .dashboard-panel .card-body,
+        .dashboard-panel .card-footer {
+            color: var(--bs-body-color, #181c32);
+        }
+
+        .dashboard-heading,
+        .dashboard-agenda-title {
+            color: var(--bs-gray-900, #181c32) !important;
+        }
+
+        .dashboard-muted {
+            color: var(--bs-gray-600, #7e8299);
+        }
+
+        .dashboard-section-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 15px;
+            background: #e6f0ff;
+            color: #2478ed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+
+        .dashboard-action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            min-height: 34px;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1.4;
+            white-space: nowrap;
+        }
+
+        .dashboard-chart-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 1rem 0;
+        }
+
+        .dashboard-donut-chart {
+            width: 100%;
+            max-width: 230px;
+            aspect-ratio: 1 / 1;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .dashboard-donut-chart canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .dashboard-donut-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .dashboard-donut-percentage {
+            color: var(--bs-gray-900, #181c32);
+            font-size: 1.8rem;
+            font-weight: 800;
+            line-height: 1.25;
+        }
+
+        .dashboard-detail-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            border-radius: 22px;
+            padding: 8px 14px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .dashboard-document-details[hidden] {
+            display: none !important;
+        }
+
+        .dashboard-detail-panel {
+            border: 1px solid var(--bs-border-color, #e0e9f6);
+            border-radius: 10px;
+            background: var(--bs-card-bg, #fff);
+            color: var(--bs-body-color, #181c32);
+            padding: 1.25rem;
+            animation: dashboardDetailIn 0.2s ease;
+        }
+
+        .dashboard-detail-row {
+            display: grid;
+            grid-template-columns: minmax(110px, 0.8fr) minmax(80px, 1fr) 16px;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .dashboard-detail-label {
+            color: var(--bs-gray-700, #5e6278);
+            overflow-wrap: anywhere;
+        }
+
+        .dashboard-detail-row>div:first-child {
+            min-width: 0;
+        }
+
+        .dashboard-detail-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+
+        .detail-dot-success {
+            background: #10a779;
+        }
+
+        .detail-dot-danger {
+            background: #f04452;
+        }
+
+        .dashboard-detail-progress {
+            min-width: 0;
+        }
+
+        .dashboard-semester-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1.15rem;
+            border: 1px solid var(--bs-border-color, #e2edfc);
+            border-radius: 10px;
+            background: var(--bs-secondary-bg, #f5f9ff);
+            color: var(--bs-body-color, #181c32);
+        }
+
+        .dashboard-semester-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: #dfedff;
+            color: #2478ed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .dashboard-agenda-card .card-body {
+            padding-top: 1rem;
+        }
+
+        .dashboard-agenda-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            min-width: 0;
+            padding: 0.25rem;
+            text-decoration: none;
+            color: inherit;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+        }
+
+        .dashboard-agenda-item:hover {
+            color: inherit;
+            background: var(--bs-secondary-bg, #f5f9ff);
+        }
+
+        .dashboard-agenda-date {
+            width: 55px;
+            min-width: 55px;
+            min-height: 66px;
+            border-radius: 10px;
+            background: #edf5ff;
+            color: #2478ed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 7px 3px;
+        }
+
+        .dashboard-agenda-day {
+            font-size: 1.25rem;
+            font-weight: 800;
+            line-height: 1.3;
+        }
+
+        .dashboard-agenda-month {
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .dashboard-agenda-arrow {
+            color: #8ca2c2;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .dashboard-agenda-footer {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.85rem 1rem;
+            border-radius: 9px;
+            background: var(--bs-secondary-bg, #f1f7ff);
+        }
+
+        #supervisi-status,
+        #agenda-mendatang,
+        #kelengkapan-statistik {
+            scroll-margin-top: 100px;
+        }
+
+        /* Mode gelap */
+        [data-bs-theme="dark"] .dashboard-welcome,
+        [data-bs-theme="dark"] .dashboard-heading,
+        [data-bs-theme="dark"] .dashboard-donut-percentage,
+        [data-bs-theme="dark"] .dashboard-agenda-title {
+            color: #f5f8ff !important;
+        }
+
+        [data-bs-theme="dark"] .dashboard-description,
+        [data-bs-theme="dark"] .dashboard-muted,
+        [data-bs-theme="dark"] .dashboard-detail-label {
+            color: #b5b5c3 !important;
+        }
+
+        [data-bs-theme="dark"] .dashboard-panel,
+        [data-bs-theme="dark"] .dashboard-detail-panel {
+            background: #1e1e2d;
+            border-color: #343448;
+        }
+
+        [data-bs-theme="dark"] .dashboard-semester-card {
+            background: #252538;
+            border-color: #343448;
+        }
+
+        [data-bs-theme="dark"] .dashboard-agenda-date,
+        [data-bs-theme="dark"] .dashboard-agenda-footer {
+            background: #252d41;
+        }
+
+        [data-bs-theme="dark"] .dashboard-agenda-item:hover {
+            background: #252538;
+        }
+
+        [data-bs-theme="dark"] .dashboard-section-icon,
+        [data-bs-theme="dark"] .dashboard-semester-icon {
+            background: #252d41;
+            color: #79aaff;
+        }
+
+        [data-bs-theme="dark"] .dashboard-agenda-arrow {
+            color: #a1a5b7;
+        }
+
+        [data-bs-theme="dark"] .dashboard-panel .separator {
+            border-color: #343448 !important;
+        }
+
+        [data-bs-theme="dark"] .dashboard-panel .progress {
+            background-color: #343448;
+        }
+
+        [data-bs-theme="dark"] .dashboard-detail-panel .bg-gray-300 {
+            background-color: #45455a !important;
+        }
+
+        @keyframes dashboardDetailIn {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 1399.98px) {
+            .dashboard-layout {
+                grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+                gap: 1rem;
+            }
+
+            .dashboard-donut-chart {
+                max-width: 210px;
+            }
+        }
+
+        @media (max-width: 1199.98px) {
+            .dashboard-layout {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .dashboard-agenda {
+                width: 100%;
+            }
+
+            .dashboard-donut-chart {
+                max-width: 230px;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .dashboard-container {
+                padding-left: 0.75rem;
+                padding-right: 0.75rem;
+            }
+
+            .dashboard-welcome {
+                font-size: 1.4rem;
+            }
+
+            .dashboard-description {
+                font-size: 0.85rem !important;
+            }
+
+            .dashboard-panel .card-header {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+
+            .dashboard-panel .card-toolbar {
+                width: 100%;
+            }
+
+            .dashboard-panel .card-toolbar .dashboard-action-btn {
+                width: 100%;
+            }
+
+            .dashboard-donut-chart {
+                max-width: 195px;
+            }
+
+            .dashboard-detail-panel {
+                padding: 1rem;
+            }
+
+            .dashboard-detail-row {
+                grid-template-columns: minmax(95px, 0.9fr) minmax(50px, 1fr) 16px;
+                gap: 0.65rem;
+            }
+
+            .dashboard-agenda-item {
+                gap: 0.75rem;
+            }
+
+            .dashboard-agenda-date {
+                width: 48px;
+                min-width: 48px;
+                min-height: 60px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .dashboard-detail-panel {
+                animation: none;
+                transition: none;
+            }
+        }
+    </style>
 </head>
 <!--end::Head-->
 <!--begin::Body-->
 
 <body id="kt_body" class="header-fixed header-tablet-and-mobile-fixed aside-enabled aside-fixed">
-    <script>
-        if (localStorage.getItem('sikap-theme-mode') === 'dark') {
-            document.body.classList.add('dark-mode');
-        }
-    </script>
     <!--begin::Main-->
     <!--begin::Root-->
     <div class="d-flex flex-column flex-root">
@@ -128,244 +551,109 @@ License: For each use you must have a valid license purchased only from above li
     <!--end::Page Custom Javascript-->
 
     <script>
-        (() => {
-            const themeStylesheets = document.querySelectorAll(
-                '[data-light-href][data-dark-href]'
-            );
-
-            const themeModeToggle = document.getElementById(
-                'kt_header_theme_mode_toggle'
-            );
-
-            const darkModeToggle = document.getElementById(
-                'kt_user_menu_dark_mode_toggle'
-            );
-
-            // Hentikan script jika elemen toggle tema tidak tersedia.
-            if (!themeModeToggle || !darkModeToggle) {
-                return;
+        document.documentElement.setAttribute('data-bs-theme', 'light');
+        document.body.classList.remove('dark-mode');
+        document.querySelectorAll('[data-light-href][data-dark-href]').forEach((stylesheet) => {
+            stylesheet.media = 'all';
+            if (stylesheet.dataset.lightHref) {
+                stylesheet.href = stylesheet.dataset.lightHref;
             }
-
-            const baseThemeMode =
-                localStorage.getItem('sikap-theme-mode') === 'dark' ?
-                'dark' :
-                'light';
-
-            const alternateThemeStylesheets = new Map();
-
-            let themeMode = baseThemeMode;
-            let requestedThemeMode = themeMode;
-            let isChangingTheme = false;
-
-            const loadAlternateThemeStylesheets = async (mode) => {
-                if (alternateThemeStylesheets.has(mode)) {
-                    return alternateThemeStylesheets.get(mode);
-                }
-
-                const stylesheets = Array.from(
-                    themeStylesheets,
-                    (stylesheet) => {
-                        const alternateStylesheet =
-                            document.createElement('link');
-
-                        alternateStylesheet.rel = 'stylesheet';
-                        alternateStylesheet.media = 'not all';
-                        alternateStylesheet.href =
-                            stylesheet.dataset[`${mode}Href`];
-
-                        return alternateStylesheet;
-                    }
-                );
-
-                try {
-                    await Promise.all(
-                        stylesheets.map(
-                            (stylesheet) =>
-                            new Promise((resolve, reject) => {
-                                stylesheet.addEventListener(
-                                    'load',
-                                    resolve, {
-                                        once: true
-                                    }
-                                );
-
-                                stylesheet.addEventListener(
-                                    'error',
-                                    () => reject(
-                                        new Error(
-                                            `Gagal memuat stylesheet tema: ${stylesheet.href}`
-                                        )
-                                    ), {
-                                        once: true
-                                    }
-                                );
-
-                                document.head.append(stylesheet);
-                            })
-                        )
-                    );
-                } catch (error) {
-                    stylesheets.forEach((stylesheet) => {
-                        stylesheet.remove();
-                    });
-
-                    throw error;
-                }
-
-                alternateThemeStylesheets.set(mode, stylesheets);
-
-                return stylesheets;
-            };
-
-            const applyThemeMode = async (mode) => {
-                requestedThemeMode = mode;
-
-                if (isChangingTheme) {
-                    return;
-                }
-
-                isChangingTheme = true;
-
-                try {
-                    while (themeMode !== requestedThemeMode) {
-                        const nextMode = requestedThemeMode;
-
-                        const nextStylesheets =
-                            nextMode === baseThemeMode ?
-                            themeStylesheets :
-                            await loadAlternateThemeStylesheets(
-                                nextMode
-                            );
-
-                        if (nextMode !== requestedThemeMode) {
-                            continue;
-                        }
-
-                        document.body.classList.add(
-                            'theme-transitioning'
-                        );
-
-                        await new Promise((resolve) => {
-                            window.requestAnimationFrame(resolve);
-                        });
-
-                        const currentStylesheets =
-                            themeMode === baseThemeMode ?
-                            themeStylesheets :
-                            alternateThemeStylesheets.get(themeMode);
-
-                        currentStylesheets.forEach((stylesheet) => {
-                            stylesheet.media = 'not all';
-                        });
-
-                        nextStylesheets.forEach((stylesheet) => {
-                            stylesheet.media = 'all';
-                        });
-
-                        themeMode = nextMode;
-
-                        document.body.classList.toggle(
-                            'dark-mode',
-                            themeMode === 'dark'
-                        );
-
-                        darkModeToggle.checked = themeMode === 'dark';
-
-                        themeModeToggle.setAttribute(
-                            'aria-pressed',
-                            String(themeMode === 'dark')
-                        );
-
-                        themeModeToggle.setAttribute(
-                            'aria-label',
-                            themeMode === 'dark' ?
-                            'Aktifkan mode terang' :
-                            'Aktifkan mode gelap'
-                        );
-
-                        const themeIcon =
-                            themeModeToggle.querySelector('i');
-
-                        if (themeIcon) {
-                            themeIcon.className =
-                                themeMode === 'dark' ?
-                                'bi bi-sun fs-2' :
-                                'bi bi-moon-stars fs-2';
-                        }
-
-                        localStorage.setItem(
-                            'sikap-theme-mode',
-                            themeMode
-                        );
-
-                        await new Promise((resolve) => {
-                            window.setTimeout(resolve, 300);
-                        });
-                    }
-                } catch (error) {
-                    console.error(
-                        'Gagal mengganti mode tema.',
-                        error
-                    );
-                } finally {
-                    document.body.classList.remove(
-                        'theme-transitioning'
-                    );
-
-                    darkModeToggle.checked = themeMode === 'dark';
-
-                    isChangingTheme = false;
-                }
-            };
-
-            themeModeToggle.addEventListener('click', () => {
-                applyThemeMode(
-                    requestedThemeMode === 'dark' ? 'light' : 'dark'
-                );
-            });
-
-            darkModeToggle.checked = themeMode === 'dark';
-
-            darkModeToggle.addEventListener('change', () => {
-                applyThemeMode(
-                    darkModeToggle.checked ? 'dark' : 'light'
-                );
-            });
-        })();
+        });
+        try {
+            localStorage.setItem('sikap-theme-mode', 'light');
+        } catch (error) {
+            // ignore storage errors
+        }
     </script>
 
     {{-- Script khusus setiap halaman, termasuk Date Range Picker --}}
     @yield('scripts')
 
     <!-- SweetAlert2 -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const logoutButton = document.getElementById('logout-button');
-        const logoutForm = document.getElementById('logout-form');
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoutButton = document.getElementById('logout-button');
+            const logoutForm = document.getElementById('logout-form');
 
-        if (logoutButton && logoutForm) {
-            logoutButton.addEventListener('click', function () {
-                Swal.fire({
-                    title: 'Yakin ingin logout?',
-                    text: 'Kamu akan keluar dari sesi saat ini.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Ya, Logout',
-                    cancelButtonText: 'Batal',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        logoutForm.submit();
-                    }
+            if (logoutButton && logoutForm) {
+                logoutButton.addEventListener('click', function() {
+                    Swal.fire({
+                        title: 'Yakin ingin logout?',
+                        text: 'Kamu akan keluar dari sesi saat ini.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Ya, Logout',
+                        cancelButtonText: 'Batal',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            logoutForm.submit();
+                        }
+                    });
                 });
-            });
+            }
+        });
+    </script>
+    <style>
+        :root {
+            --siguru-bg: #f4f9ff;
+            --siguru-surface: #ffffff;
+            --siguru-surface-alt: #edf5ff;
+            --siguru-border: #dfeeff;
+            --siguru-text: #1d3557;
+            --siguru-muted: #59749a;
+            --siguru-primary: #2f6eea;
+            --siguru-primary-soft: rgba(47, 110, 234, 0.12);
         }
-    });
-</script>
+
+        body {
+            background: var(--siguru-bg);
+            color: var(--siguru-text);
+        }
+
+        #kt_wrapper,
+        #kt_page_content {
+            background: var(--siguru-bg);
+        }
+
+        #kt_aside.aside-light {
+            background: linear-gradient(180deg, #f6faff 0%, #edf5ff 100%) !important;
+            border-right: 1px solid var(--siguru-border) !important;
+            color: var(--siguru-text) !important;
+        }
+
+        #kt_aside.aside-light .menu-title,
+        #kt_aside.aside-light .menu-section,
+        #kt_aside.aside-light .menu-link,
+        #kt_aside.aside-light .menu-icon,
+        #kt_aside.aside-light .svg-icon {
+            color: var(--siguru-text) !important;
+        }
+
+        #kt_aside.aside-light .menu-link {
+            border-radius: 10px;
+            color: var(--siguru-text) !important;
+        }
+
+        #kt_aside.aside-light .menu-link.active,
+        #kt_aside.aside-light .menu-link:hover {
+            background: var(--siguru-primary-soft) !important;
+            color: var(--siguru-primary) !important;
+            box-shadow: inset 0 0 0 1px rgba(47, 110, 234, 0.08);
+        }
+
+        #kt_aside.aside-light .menu-icon {
+            color: var(--siguru-primary) !important;
+        }
+
+        #kt_aside.aside-light .separator {
+            border-color: rgba(47, 110, 234, 0.15) !important;
+        }
+    </style>
 </body>
 <!--end::Body-->
 

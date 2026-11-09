@@ -1,4 +1,3 @@
-
 <!--begin::Aside-->
 <div id="kt_aside"
     class="aside aside-dark aside-hoverable"
@@ -40,7 +39,7 @@
                         fill="currentColor" />
 
                     <path
-                        d="M8.2657 11.4343L12.45 7.25C12.8642 6.83579 12.8642 6.16421 12.45 5.75C12.0358 5.33579 11.3642 5.33579 10.95 5.75L5.40712 11.2929C5.01659 11.6834 5.01659 12.3166 5.40712 12.7071L10.95 18.25C11.3642 18.6642 12.0358 18.6642 12.45 18.25C12.8642 17.8358 12.8642 17.1642 12.45 16.75L8.2657 12.5657C7.95328 12.2533 8.2657 11.7467 8.2657 11.4343Z"
+                        d="M8.2657 11.4343L12.45 7.25C12.8642 6.83579 12.8642 6.16421 12.45 5.75C12.0358 5.33579 11.3642 5.33579 10.95 5.75L5.40712 11.2929C5.01659 11.6834 5.01659 12.3166 5.40712 12.7071L10.95 18.25C11.3642 18.6642 12.0358 18.6642 12.45 18.25C12.8642 17.8358 12.8642 17.1642 12.45 16.75L8.2657 12.5657C7.95328 12.2533 7.95328 11.7467 8.2657 11.4343Z"
                         fill="currentColor" />
                 </svg>
             </span>
@@ -70,14 +69,12 @@
                 data-kt-menu="true"
                 data-kt-menu-expand="false">
 
-                <!-- MENU UTAMA -->
                 <div class="menu-content p-5">
                     <span class="menu-section text-muted text-uppercase fs-8 ls-1">
-                        MENU ADMIN
+                        MENU UTAMA
                     </span>
                 </div>
 
-                <!-- DASHBOARD -->
                 <div class="menu-item">
                     <a href="{{ route('admin.dashboard') }}"
                         class="menu-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
@@ -89,16 +86,13 @@
                         <span class="menu-title">Dashboard</span>
                     </a>
                 </div>
-                <!-- END DASHBOARD -->
 
-                <!-- PEMBATAS -->
                 <div class="menu-item">
                     <div class="menu-content">
                         <div class="separator mx-1 my-4"></div>
                     </div>
                 </div>
 
-                <!-- DATA GURU -->
                 <div class="menu-content p-5">
                     <span class="menu-section text-muted text-uppercase fs-8 ls-1">
                         DATA SEKOLAH
@@ -116,9 +110,19 @@
                         <span class="menu-title">Data Guru</span>
                     </a>
                 </div>
-                <!-- END DATA GURU -->
 
-                <!-- JADWAL SUPERVISI -->
+                <div class="menu-item">
+                    <a href="{{ route('admin.mata-pelajaran.index') }}"
+                        class="menu-link {{ request()->routeIs('admin.mata-pelajaran.*') ? 'active' : '' }}">
+
+                        <span class="menu-icon">
+                            <i class="bi bi-journal-text fs-3"></i>
+                        </span>
+
+                        <span class="menu-title">Master Mata Pelajaran</span>
+                    </a>
+                </div>
+
                 <div class="menu-item">
                     <a href="{{ route('admin.supervisi.index') }}"
                         class="menu-link {{ request()->routeIs('admin.supervisi.*') ? 'active' : '' }}">
@@ -130,37 +134,32 @@
                         <span class="menu-title">Jadwal Supervisi</span>
                     </a>
                 </div>
-                <!-- END JADWAL SUPERVISI -->
 
-                <!-- PEMBATAS -->
                 <div class="menu-item">
                     <div class="menu-content">
                         <div class="separator mx-1 my-4"></div>
                     </div>
                 </div>
 
-               <!-- LOGOUT -->
-<div class="menu-item">
-    <form id="admin-logout-form"
-          action="{{ route('logout') }}"
-          method="POST"
-          class="w-100">
-        @csrf
+                <div class="menu-item">
+                    <form id="admin-logout-form"
+                        action="{{ route('logout') }}"
+                        method="POST"
+                        class="w-100">
+                        @csrf
 
-        <button type="button"
-                id="admin-logout-button"
-                class="menu-link border-0 bg-transparent w-100 text-start">
+                        <button type="button"
+                            id="admin-logout-button"
+                            class="menu-link border-0 bg-transparent w-100 text-start">
 
-            <span class="menu-icon">
-                <i class="bi bi-box-arrow-right fs-3"></i>
-            </span>
+                            <span class="menu-icon">
+                                <i class="bi bi-box-arrow-right fs-3"></i>
+                            </span>
 
-            <span class="menu-title">Logout</span>
-        </button>
-    </form>
-</div>
-<!-- END LOGOUT -->
-
+                            <span class="menu-title">Logout</span>
+                        </button>
+                    </form>
+                </div>
 
             </div>
             <!--end::Menu-->

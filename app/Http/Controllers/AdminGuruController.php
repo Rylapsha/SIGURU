@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Dokumen;
 use App\Models\Guru;
 use App\Models\KomentarDokumen;
+use App\Models\MataPelajaran;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class AdminGuruController extends Controller
 {
@@ -71,20 +74,10 @@ class AdminGuruController extends Controller
         }
 
         // Daftar mata pelajaran.
-        $daftarMataPelajaran = collect([
-            'Bahasa Indonesia',
-            'Bahasa Inggris',
-            'Bahasa Sunda',
-            'Bimbingan Konseling',
-            'Ilmu Pengetahuan Alam',
-            'Ilmu Pengetahuan Sosial',
-            'Matematika',
-            'Pendidikan Agama Islam',
-            'Pendidikan Agama Kristen',
-            'Pendidikan Jasmani dan Olahraga Kebugaran',
-            'Pendidikan Pancasila',
-            'Seni Budaya dan Keterampilan',
-        ])->sort()->values();
+        $daftarMataPelajaran = MataPelajaran::query()
+            ->orderBy('nama')
+            ->pluck('nama')
+            ->values();
 
         // Query data guru.
         $query = Guru::query();
@@ -130,7 +123,7 @@ class AdminGuruController extends Controller
 
             foreach ($this->kategoriDokumen() as $label => $jenisYangDiterima) {
                 $jenisNormal = array_map(
-                    fn ($jenis) => mb_strtolower(trim($jenis)),
+                    fn($jenis) => mb_strtolower(trim($jenis)),
                     $jenisYangDiterima
                 );
 
@@ -159,6 +152,81 @@ class AdminGuruController extends Controller
         ));
     }
 
+    public function store(Request $request)
+    {
+        $this->pastikanAdmin();
+
+        $validated = $request->validate([
+            'nip' => ['required', 'string', 'max:30', 'unique:gurus,nip'],
+            'nama_lengkap' => ['required', 'string', 'max:150'],
+            'golongan' => ['required', 'string', 'max:50'],
+            'mata_pelajaran' => ['required', 'string', 'max:100', Rule::exists('mata_pelajarans', 'nama')],
+        ], [
+            'nip.required' => 'NIP guru wajib diisi.',
+            'nip.unique' => 'NIP guru sudah terdaftar.',
+            'nama_lengkap.required' => 'Nama lengkap guru wajib diisi.',
+            'golongan.required' => 'Golongan guru wajib diisi.',
+            'mata_pelajaran.required' => 'Mata pelajaran wajib dipilih.',
+            'mata_pelajaran.exists' => 'Mata pelajaran tidak valid.',
+        ]);
+
+        Guru::create([
+            'nip' => trim($validated['nip']),
+            'nama_lengkap' => trim($validated['nama_lengkap']),
+            'golongan' => trim($validated['golongan']),
+            'mata_pelajaran' => trim($validated['mata_pelajaran']),
+            'password' => Hash::make('123456'),
+            'foto' => null,
+        ]);
+
+        return redirect()
+            ->route('admin.guru.index')
+            ->with('success', 'Data guru berhasil ditambahkan.');
+    }
+
+    public function update(Request $request, Guru $guru)
+    {
+        $this->pastikanAdmin();
+
+        $validated = $request->validate([
+            'nip' => ['required', 'string', 'max:30', Rule::unique('gurus', 'nip')->ignore($guru->id)],
+            'nama_lengkap' => ['required', 'string', 'max:150'],
+            'golongan' => ['required', 'string', 'max:50'],
+            'mata_pelajaran' => ['required', 'string', 'max:100', Rule::exists('mata_pelajarans', 'nama')],
+        ], [
+            'nip.required' => 'NIP guru wajib diisi.',
+            'nip.unique' => 'NIP guru sudah terdaftar.',
+            'nama_lengkap.required' => 'Nama lengkap guru wajib diisi.',
+            'golongan.required' => 'Golongan guru wajib diisi.',
+            'mata_pelajaran.required' => 'Mata pelajaran wajib dipilih.',
+            'mata_pelajaran.exists' => 'Mata pelajaran tidak valid.',
+        ]);
+
+        $guru->fill([
+            'nip' => trim($validated['nip']),
+            'nama_lengkap' => trim($validated['nama_lengkap']),
+            'golongan' => trim($validated['golongan']),
+            'mata_pelajaran' => trim($validated['mata_pelajaran']),
+        ]);
+
+        $guru->save();
+
+        return redirect()
+            ->route('admin.guru.index')
+            ->with('success', 'Data guru berhasil diperbarui.');
+    }
+
+    public function destroy(Guru $guru)
+    {
+        $this->pastikanAdmin();
+
+        $guru->delete();
+
+        return redirect()
+            ->route('admin.guru.index')
+            ->with('success', 'Data guru berhasil dihapus.');
+    }
+
     /**
      * Halaman detail guru, dokumen, dan riwayat komentar.
      */
@@ -178,7 +246,7 @@ class AdminGuruController extends Controller
 
         foreach ($this->kategoriDokumen() as $label => $jenisYangDiterima) {
             $jenisNormal = array_map(
-                fn ($jenis) => mb_strtolower(trim($jenis)),
+                fn($jenis) => mb_strtolower(trim($jenis)),
                 $jenisYangDiterima
             );
 

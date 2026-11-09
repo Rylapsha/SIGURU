@@ -33,9 +33,7 @@
     </div>
 
     @if(session('success'))
-    <div class="alert alert-success mb-5">
-        {{ session('success') }}
-    </div>
+    <div id="success-message" data-message="{{ session('success') }}" class="d-none"></div>
     @endif
 
     @if($errors->any())
@@ -50,28 +48,18 @@
     @endif
 
     @php
-        $isKelasRequired = !in_array(
-            $jenis,
-            ['prota-prosem', 'prota', 'prosem'],
-            true
-        );
+    $isKelasRequired = !in_array(
+    $jenis,
+    ['prota-prosem', 'prota', 'prosem'],
+    true
+    );
 
-        $mataPelajaranList = [
-            'Bahasa Indonesia',
-            'Bahasa Inggris',
-            'Bahasa Sunda',
-            'Bimbingan Konseling',
-            'Ilmu Pengetahuan Alam',
-            'Ilmu Pengetahuan Sosial',
-            'Matematika',
-            'Pendidikan Agama Islam',
-            'Pendidikan Agama Kristen',
-            'Pendidikan Jasmani dan Olahraga Kebugaran',
-            'Pendidikan Pancasila',
-            'Seni Budaya dan Keterampilan',
-        ];
+    $mataPelajaranList = \App\Models\MataPelajaran::query()
+    ->orderBy('nama')
+    ->pluck('nama')
+    ->all();
 
-        $kelasList = ['10', '11', '12'];
+    $kelasList = ['10', '11', '12'];
     @endphp
 
     {{-- FORM UPLOAD DOKUMEN --}}
@@ -86,6 +74,9 @@
                 @csrf
 
                 <div class="row g-4 align-items-end">
+                    <h3>
+                        Unggah Dokumen {{ $label }}
+                    </h3>
 
                     @if($isKelasRequired)
                     <div class="col-md-6 col-xl-3">
@@ -93,16 +84,30 @@
                             Kelas
                         </label>
 
-                        <select name="kelas" id="kelas" class="form-select" required>
-                            <option value="">Pilih kelas</option>
-                            @foreach($kelasList as $kelas)
-                            <option
-                                value="{{ $kelas }}"
-                                {{ old('kelas') == $kelas ? 'selected' : '' }}>
-                                Kelas {{ $kelas }}
-                            </option>
-                            @endforeach
-                        </select>
+                        <div class="custom-select-picker" data-custom-select>
+                            <button type="button"
+                                class="custom-select-trigger form-control text-start"
+                                aria-expanded="false">
+                                <span class="custom-select-value">
+                                    {{ old('kelas') ? 'Kelas ' . old('kelas') : 'Pilih kelas' }}
+                                </span>
+                                <i class="bi bi-chevron-down ms-auto"></i>
+                            </button>
+
+                            <div class="custom-select-menu d-none" role="listbox">
+                                <button type="button" class="custom-select-option {{ old('kelas') === '' ? 'selected' : '' }}" data-value="" data-label="Pilih kelas" disabled aria-disabled="true">
+                                    <span>Pilih kelas</span>
+                                </button>
+
+                                @foreach($kelasList as $kelas)
+                                <button type="button" class="custom-select-option {{ old('kelas') == $kelas ? 'selected' : '' }}" data-value="{{ $kelas }}" data-label="Kelas {{ $kelas }}">
+                                    <span>Kelas {{ $kelas }}</span>
+                                </button>
+                                @endforeach
+                            </div>
+
+                            <input type="hidden" name="kelas" value="{{ old('kelas') }}" id="kelas">
+                        </div>
                     </div>
                     @endif
 
@@ -111,15 +116,36 @@
                             Semester
                         </label>
 
-                        <select name="semester" id="semester" class="form-select" required>
-                            <option value="">Pilih semester</option>
-                            <option value="1" {{ old('semester') == '1' ? 'selected' : '' }}>
-                                Semester 1
-                            </option>
-                            <option value="2" {{ old('semester') == '2' ? 'selected' : '' }}>
-                                Semester 2
-                            </option>
-                        </select>
+                        <div class="custom-select-picker" data-custom-select>
+                            <button type="button"
+                                class="custom-select-trigger form-control text-start"
+                                aria-expanded="false">
+                                <span class="custom-select-value">
+                                    @if(old('semester') === '1')
+                                    Semester 1
+                                    @elseif(old('semester') === '2')
+                                    Semester 2
+                                    @else
+                                    Pilih semester
+                                    @endif
+                                </span>
+                                <i class="bi bi-chevron-down ms-auto"></i>
+                            </button>
+
+                            <div class="custom-select-menu d-none" role="listbox">
+                                <button type="button" class="custom-select-option {{ old('semester') === '' ? 'selected' : '' }}" data-value="" data-label="Pilih semester" disabled aria-disabled="true">
+                                    <span>Pilih semester</span>
+                                </button>
+                                <button type="button" class="custom-select-option {{ old('semester') == '1' ? 'selected' : '' }}" data-value="1" data-label="Semester 1">
+                                    <span>Semester 1</span>
+                                </button>
+                                <button type="button" class="custom-select-option {{ old('semester') == '2' ? 'selected' : '' }}" data-value="2" data-label="Semester 2">
+                                    <span>Semester 2</span>
+                                </button>
+                            </div>
+
+                            <input type="hidden" name="semester" value="{{ old('semester') }}" id="semester">
+                        </div>
                     </div>
 
                     <div class="col-md-6 col-xl-3">
@@ -127,19 +153,30 @@
                             Tahun Ajaran
                         </label>
 
-                        <input name="tahun_ajaran"
-                            id="tahun_ajaran"
-                            type="text"
-                            class="form-control"
-                            list="tahun-ajaran-options"
-                            pattern="\d{4}/\d{4}"
-                            value="{{ old('tahun_ajaran', $tahunAjaranAktif) }}"
-                            required>
-                        <datalist id="tahun-ajaran-options">
-                            @foreach($tahunAjaranOptions as $tahunAjaran)
-                            <option value="{{ $tahunAjaran }}">
-                            @endforeach
-                        </datalist>
+                        <div class="custom-select-picker" data-custom-select>
+                            <button type="button"
+                                class="custom-select-trigger form-control text-start"
+                                aria-expanded="false">
+                                <span class="custom-select-value">
+                                    {{ old('tahun_ajaran', $tahunAjaranAktif) ?: 'Pilih tahun ajaran' }}
+                                </span>
+                                <i class="bi bi-chevron-down ms-auto"></i>
+                            </button>
+
+                            <div class="custom-select-menu d-none" role="listbox">
+                                <button type="button" class="custom-select-option {{ old('tahun_ajaran', $tahunAjaranAktif) === '' ? 'selected' : '' }}" data-value="" data-label="Pilih tahun ajaran" disabled aria-disabled="true">
+                                    <span>Pilih tahun ajaran</span>
+                                </button>
+
+                                @foreach($tahunAjaranOptions as $tahunAjaran)
+                                <button type="button" class="custom-select-option {{ old('tahun_ajaran', $tahunAjaranAktif) == $tahunAjaran ? 'selected' : '' }}" data-value="{{ $tahunAjaran }}" data-label="{{ $tahunAjaran }}">
+                                    <span>{{ $tahunAjaran }}</span>
+                                </button>
+                                @endforeach
+                            </div>
+
+                            <input type="hidden" name="tahun_ajaran" value="{{ old('tahun_ajaran', $tahunAjaranAktif) }}" id="tahun_ajaran">
+                        </div>
                     </div>
 
                     <div class="col-md-6 col-xl-3">
@@ -147,32 +184,30 @@
                             Mata Pelajaran
                         </label>
 
-                        <select
-                            name="mata_pelajaran"
-                            id="mata_pelajaran"
-                            class="form-select"
-                            required>
+                        <div class="position-relative custom-subject-picker" data-custom-subject-picker>
+                            <input
+                                name="mata_pelajaran"
+                                id="mata_pelajaran"
+                                type="text"
+                                class="form-control custom-subject-input"
+                                value="{{ old('mata_pelajaran') }}"
+                                placeholder="Pilih mata pelajaran"
+                                autocomplete="off"
+                                required>
 
-                            <option value="">Pilih mata pelajaran</option>
-
-                            @foreach($mataPelajaranList as $item)
-                            <option
-                                value="{{ $item }}"
-                                {{ old('mata_pelajaran') == $item ? 'selected' : '' }}>
-                                {{ $item }}
-                            </option>
-                            @endforeach
-                        </select>
+                            <div class="custom-subject-suggestions d-none" role="listbox" aria-label="Pilihan mata pelajaran">
+                                <div class="custom-subject-list"></div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="col-md-12 col-xl-3">
+                    <div class="col-md-12 col-xl-12">
                         <div class="d-grid">
                             <label
                                 for="file-dokumen"
                                 class="btn btn-light-primary mb-0 w-100">
-
                                 <i class="bi bi-cloud-arrow-up me-1"></i>
-                                Pilih File PDF
+                                Unggah File
                             </label>
 
                             <input
@@ -198,15 +233,25 @@
             <h3 class="card-title fw-bold mb-0">
                 Daftar {{ $label }}
                 <span class="badge badge-light-primary ms-2">
-                    {{ $dokumens->count() }}
+                    {{ $dokumens->total() }}
                 </span>
             </h3>
 
             <form
                 action="{{ route('dokumen.kategori', ['jenis' => $jenis]) }}"
                 method="GET"
-                class="mb-0"
+                class="d-flex align-items-center gap-2 flex-wrap mb-0"
                 id="filter-mata-pelajaran-form">
+
+                <div class="position-relative">
+                    <input
+                        type="search"
+                        name="search"
+                        value="{{ request('search') }}"
+                        class="form-control form-control-sm"
+                        style="width: 220px;"
+                        placeholder="Cari dokumen...">
+                </div>
 
                 <div class="position-relative d-inline-block" id="document-filter">
 
@@ -244,15 +289,36 @@
                                 Semester
                             </label>
 
-                            <select name="semester" id="filter-semester" class="form-select">
-                                <option value="">Semua Semester</option>
-                                <option value="1" {{ request('semester') == '1' ? 'selected' : '' }}>
-                                    Semester 1
-                                </option>
-                                <option value="2" {{ request('semester') == '2' ? 'selected' : '' }}>
-                                    Semester 2
-                                </option>
-                            </select>
+                            <div class="custom-select-picker" data-custom-select>
+                                <button type="button"
+                                    class="custom-select-trigger form-control text-start"
+                                    aria-expanded="false">
+                                    <span class="custom-select-value">
+                                        @if(request('semester') === '1')
+                                        Semester 1
+                                        @elseif(request('semester') === '2')
+                                        Semester 2
+                                        @else
+                                        Semua semester
+                                        @endif
+                                    </span>
+                                    <i class="bi bi-chevron-down ms-auto"></i>
+                                </button>
+
+                                <div class="custom-select-menu d-none" role="listbox">
+                                    <button type="button" class="custom-select-option {{ request('semester') === '' ? 'selected' : '' }}" data-value="" data-label="Semua semester" disabled aria-disabled="true">
+                                        <span>Semua semester</span>
+                                    </button>
+                                    <button type="button" class="custom-select-option {{ request('semester') == '1' ? 'selected' : '' }}" data-value="1" data-label="Semester 1">
+                                        <span>Semester 1</span>
+                                    </button>
+                                    <button type="button" class="custom-select-option {{ request('semester') == '2' ? 'selected' : '' }}" data-value="2" data-label="Semester 2">
+                                        <span>Semester 2</span>
+                                    </button>
+                                </div>
+
+                                <input type="hidden" name="semester" value="{{ request('semester') }}" id="filter-semester">
+                            </div>
                         </div>
 
                         <div class="mb-4">
@@ -260,18 +326,30 @@
                                 Tahun Ajaran
                             </label>
 
-                            <input name="tahun_ajaran"
-                                id="filter-tahun-ajaran"
-                                type="text"
-                                class="form-control"
-                                list="filter-tahun-ajaran-options"
-                                value="{{ request('tahun_ajaran') }}"
-                                placeholder="Semua tahun ajaran">
-                            <datalist id="filter-tahun-ajaran-options">
-                                @foreach($tahunAjaranOptions as $tahunAjaran)
-                                <option value="{{ $tahunAjaran }}">
-                                @endforeach
-                            </datalist>
+                            <div class="custom-select-picker" data-custom-select>
+                                <button type="button"
+                                    class="custom-select-trigger form-control text-start"
+                                    aria-expanded="false">
+                                    <span class="custom-select-value">
+                                        {{ request('tahun_ajaran') ?: 'Semua tahun ajaran' }}
+                                    </span>
+                                    <i class="bi bi-chevron-down ms-auto"></i>
+                                </button>
+
+                                <div class="custom-select-menu d-none" role="listbox">
+                                    <button type="button" class="custom-select-option {{ request('tahun_ajaran') === '' ? 'selected' : '' }}" data-value="" data-label="Semua tahun ajaran" disabled aria-disabled="true">
+                                        <span>Semua tahun ajaran</span>
+                                    </button>
+
+                                    @foreach($tahunAjaranOptions as $tahunAjaran)
+                                    <button type="button" class="custom-select-option {{ request('tahun_ajaran') == $tahunAjaran ? 'selected' : '' }}" data-value="{{ $tahunAjaran }}" data-label="{{ $tahunAjaran }}">
+                                        <span>{{ $tahunAjaran }}</span>
+                                    </button>
+                                    @endforeach
+                                </div>
+
+                                <input type="hidden" name="tahun_ajaran" value="{{ request('tahun_ajaran') }}" id="filter-tahun-ajaran">
+                            </div>
                         </div>
 
                         <div class="mb-4">
@@ -279,21 +357,20 @@
                                 Mata Pelajaran
                             </label>
 
-                            <select
-                                name="mata_pelajaran"
-                                id="filter-mapel"
-                                class="form-select">
+                            <div class="position-relative custom-subject-picker" data-custom-subject-picker>
+                                <input
+                                    name="mata_pelajaran"
+                                    id="filter-mapel"
+                                    type="text"
+                                    class="form-control custom-subject-input"
+                                    value="{{ request('mata_pelajaran') }}"
+                                    placeholder="Pilih mata pelajaran"
+                                    autocomplete="off">
 
-                                <option value="">Semua Mata Pelajaran</option>
-
-                                @foreach($mataPelajaranList as $item)
-                                <option
-                                    value="{{ $item }}"
-                                    {{ request('mata_pelajaran') == $item ? 'selected' : '' }}>
-                                    {{ $item }}
-                                </option>
-                                @endforeach
-                            </select>
+                                <div class="custom-subject-suggestions d-none" role="listbox" aria-label="Pilihan mata pelajaran filter">
+                                    <div class="custom-subject-list"></div>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="d-flex gap-2">
@@ -321,267 +398,271 @@
 
             @if($isKelasRequired)
 
-                @foreach($kelasList as $kelas)
+            @foreach($kelasList as $kelas)
+            @php
+            $dokumenKelas = collect($dokumens->items())->where('kelas', (string) $kelas);
+            @endphp
+
+            <div class="mb-7">
+                <h4 class="fw-bold text-gray-800 mb-4">
+                    Kelas {{ $kelas }}
+                </h4>
+
+                @if($dokumenKelas->isEmpty())
+                <div class="border rounded p-5 text-center text-muted">
+                    Belum ada dokumen untuk kelas {{ $kelas }}.
+                </div>
+                @else
+
+                @foreach($dokumenKelas as $dokumen)
+                <div class="border rounded p-4 mb-4">
+
+                    <div class="d-flex flex-column flex-md-row align-items-md-center gap-4">
+
+                        <div class="symbol symbol-45px">
+                            <div class="symbol-label bg-light-danger">
+                                <i class="bi bi-file-earmark-pdf-fill fs-2 text-danger"></i>
+                            </div>
+                        </div>
+
+                        <div class="flex-grow-1 min-w-0">
+                            <div class="fw-bold text-gray-800 text-break">
+                                {{ $dokumen->nama_file }}
+                            </div>
+
+                            <div class="text-muted fs-7 mt-1">
+                                {{ $dokumen->mata_pelajaran ?? '-' }}
+                                <span class="mx-1">•</span>
+                                Semester {{ $dokumen->semester ?? '-' }}
+                                <span class="mx-1">•</span>
+                                Tahun Ajaran {{ $dokumen->tahun_ajaran ?? 'Belum ditentukan' }}
+                                <span class="mx-1">•</span>
+                                PDF
+                                <span class="mx-1">•</span>
+
+                                @if(\Illuminate\Support\Facades\Storage::disk('public')->exists($dokumen->file_path))
+                                {{ number_format(\Illuminate\Support\Facades\Storage::disk('public')->size($dokumen->file_path) / 1024, 1, ',', '.') }} KB
+                                @else
+                                File tidak ditemukan
+                                @endif
+
+                                <span class="mx-1">•</span>
+                                Diunggah {{ $dokumen->created_at->format('d/m/Y H:i') }}
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2">
+                            <a
+                                href="{{ route('dokumen.lihat', $dokumen->id) }}"
+                                target="_blank"
+                                class="btn btn-sm btn-light-primary">
+
+                                <i class="bi bi-eye me-1"></i> Lihat
+                            </a>
+
+                            <a
+                                href="{{ route('dokumen.unduh', $dokumen->id) }}"
+                                class="btn btn-sm btn-light-success">
+
+                                <i class="bi bi-download me-1"></i> Unduh
+                            </a>
+
+                            <form
+                                action="{{ route('dokumen.destroy', $dokumen->id) }}"
+                                method="POST"
+                                class="form-hapus-dokumen">
+
+                                @csrf
+                                @method('DELETE')
+
+                                <button type="submit" class="btn btn-sm btn-light-danger">
+                                    <i class="bi bi-trash me-1"></i> Hapus
+                                </button>
+                            </form>
+                        </div>
+
+                    </div>
+
                     @php
-                        $dokumenKelas = $dokumens->where('kelas', (string) $kelas);
+                    $komentarDokumen = $komentarPerDokumen->get(
+                    $dokumen->id,
+                    collect()
+                    );
                     @endphp
 
-                    <div class="mb-7">
-                        <h4 class="fw-bold text-gray-800 mb-4">
-                            Kelas {{ $kelas }}
-                        </h4>
+                    <div class="mt-4 pt-4 border-top">
+                        <div class="fw-bold text-gray-800 mb-3">
+                            <i class="bi bi-chat-left-text me-2"></i>
+                            Komentar Admin
+                        </div>
 
-                        @if($dokumenKelas->isEmpty())
-                            <div class="border rounded p-5 text-center text-muted">
-                                Belum ada dokumen untuk kelas {{ $kelas }}.
-                            </div>
-                        @else
+                        @forelse($komentarDokumen as $komentar)
+                        <div class="bg-light rounded p-3 mb-3">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <i class="bi bi-person-circle fs-3 text-primary"></i>
 
-                            @foreach($dokumenKelas as $dokumen)
-                                <div class="border rounded p-4 mb-4">
-
-                                    <div class="d-flex flex-column flex-md-row align-items-md-center gap-4">
-
-                                        <div class="symbol symbol-45px">
-                                            <div class="symbol-label bg-light-danger">
-                                                <i class="bi bi-file-earmark-pdf-fill fs-2 text-danger"></i>
-                                            </div>
-                                        </div>
-
-                                        <div class="flex-grow-1 min-w-0">
-                                            <div class="fw-bold text-gray-800 text-break">
-                                                {{ $dokumen->nama_file }}
-                                            </div>
-
-                                            <div class="text-muted fs-7 mt-1">
-                                                {{ $dokumen->mata_pelajaran ?? '-' }}
-                                                <span class="mx-1">•</span>
-                                                Kelas {{ $dokumen->kelas ?? '-' }}
-                                                <span class="mx-1">•</span>
-                                                Semester {{ $dokumen->semester ?? '-' }}
-                                                <span class="mx-1">•</span>
-                                                Tahun Ajaran {{ $dokumen->tahun_ajaran ?? 'Belum ditentukan' }}
-                                                <span class="mx-1">•</span>
-                                                PDF
-                                                <span class="mx-1">•</span>
-
-                                                @if(\Illuminate\Support\Facades\Storage::disk('public')->exists($dokumen->file_path))
-                                                    {{ number_format(\Illuminate\Support\Facades\Storage::disk('public')->size($dokumen->file_path) / 1024, 1, ',', '.') }} KB
-                                                @else
-                                                    File tidak ditemukan
-                                                @endif
-
-                                                <span class="mx-1">•</span>
-                                                Diunggah {{ $dokumen->created_at->format('d/m/Y H:i') }}
-                                            </div>
-                                        </div>
-
-                                        <div class="d-flex flex-wrap gap-2">
-                                            <a
-                                                href="{{ route('dokumen.lihat', $dokumen->id) }}"
-                                                target="_blank"
-                                                class="btn btn-sm btn-light-primary">
-
-                                                <i class="bi bi-eye me-1"></i> Lihat
-                                            </a>
-
-                                            <a
-                                                href="{{ route('dokumen.unduh', $dokumen->id) }}"
-                                                class="btn btn-sm btn-light-success">
-
-                                                <i class="bi bi-download me-1"></i> Unduh
-                                            </a>
-
-                                            <form
-                                                action="{{ route('dokumen.destroy', $dokumen->id) }}"
-                                                method="POST"
-                                                class="form-hapus-dokumen">
-
-                                                @csrf
-                                                @method('DELETE')
-
-                                                <button type="submit" class="btn btn-sm btn-light-danger">
-                                                    <i class="bi bi-trash me-1"></i> Hapus
-                                                </button>
-                                            </form>
-                                        </div>
-
+                                <div>
+                                    <div class="fw-semibold text-gray-800">
+                                        Admin
                                     </div>
 
-                                    {{-- TAMBAHAN: KOMENTAR ADMIN --}}
-                                    @php
-                                        $komentarDokumen = $komentarPerDokumen->get(
-                                            $dokumen->id,
-                                            collect()
-                                        );
-                                    @endphp
-
-                                    <div class="mt-4 pt-4 border-top">
-                                        <div class="fw-bold text-gray-800 mb-3">
-                                            <i class="bi bi-chat-left-text me-2"></i>
-                                            Komentar Admin
-                                        </div>
-
-                                        @forelse($komentarDokumen as $komentar)
-                                            <div class="bg-light rounded p-3 mb-3">
-                                                <div class="d-flex align-items-center gap-2 mb-2">
-                                                    <i class="bi bi-person-circle fs-3 text-primary"></i>
-
-                                                    <div>
-                                                        <div class="fw-semibold text-gray-800">
-                                                            Admin
-                                                        </div>
-
-                                                        <small class="text-muted">
-                                                            {{ $komentar->created_at->format('d/m/Y H:i') }}
-                                                        </small>
-                                                    </div>
-                                                </div>
-
-                                                <div class="text-gray-700"
-                                                    style="white-space: pre-line; overflow-wrap: anywhere;">{{ $komentar->komentar }}</div>
-                                            </div>
-                                        @empty
-                                            <div class="text-muted fs-7">
-                                                <i class="bi bi-chat-left me-1"></i>
-                                                Belum ada komentar dari admin untuk dokumen ini.
-                                            </div>
-                                        @endforelse
-                                    </div>
-
+                                    <small class="text-muted">
+                                        {{ $komentar->created_at->format('d/m/Y H:i') }}
+                                    </small>
                                 </div>
-                            @endforeach
+                            </div>
 
-                        @endif
+                            <div class="text-gray-700"
+                                style="white-space: pre-line; overflow-wrap: anywhere;">{{ $komentar->komentar }}</div>
+                        </div>
+                        @empty
+                        <div class="text-muted fs-7">
+                            <i class="bi bi-chat-left me-1"></i>
+                            Belum ada komentar dari admin untuk dokumen ini.
+                        </div>
+                        @endforelse
                     </div>
+
+                </div>
                 @endforeach
+
+                @endif
+            </div>
+            @endforeach
 
             @else
 
-                @if($dokumens->isEmpty())
-                    <div class="border rounded p-5 text-center text-muted">
-                        Belum ada dokumen untuk {{ $label }}.
-                    </div>
-                @else
+            @if($dokumens->isEmpty())
+            <div class="border rounded p-5 text-center text-muted">
+                Belum ada dokumen untuk {{ $label }}.
+            </div>
+            @else
 
-                    @foreach($dokumens as $dokumen)
-                        <div class="border rounded p-4 mb-4">
+            @foreach($dokumens as $dokumen)
+            <div class="border rounded p-4 mb-4">
 
-                            <div class="d-flex flex-column flex-md-row align-items-md-center gap-4">
+                <div class="d-flex flex-column flex-md-row align-items-md-center gap-4">
 
-                                <div class="symbol symbol-45px">
-                                    <div class="symbol-label bg-light-danger">
-                                        <i class="bi bi-file-earmark-pdf-fill fs-2 text-danger"></i>
-                                    </div>
-                                </div>
-
-                                <div class="flex-grow-1 min-w-0">
-                                    <div class="fw-bold text-gray-800 text-break">
-                                        {{ $dokumen->nama_file }}
-                                    </div>
-
-                                    <div class="text-muted fs-7 mt-1">
-                                        {{ $dokumen->mata_pelajaran ?? '-' }}
-                                        <span class="mx-1">•</span>
-                                        Semester {{ $dokumen->semester ?? '-' }}
-                                        <span class="mx-1">•</span>
-                                        Tahun Ajaran {{ $dokumen->tahun_ajaran ?? 'Belum ditentukan' }}
-                                        <span class="mx-1">•</span>
-                                        PDF
-                                        <span class="mx-1">•</span>
-
-                                        @if(\Illuminate\Support\Facades\Storage::disk('public')->exists($dokumen->file_path))
-                                            {{ number_format(\Illuminate\Support\Facades\Storage::disk('public')->size($dokumen->file_path) / 1024, 1, ',', '.') }} KB
-                                        @else
-                                            File tidak ditemukan
-                                        @endif
-
-                                        <span class="mx-1">•</span>
-                                        Diunggah {{ $dokumen->created_at->format('d/m/Y H:i') }}
-                                    </div>
-                                </div>
-
-                                <div class="d-flex flex-wrap gap-2">
-                                    <a
-                                        href="{{ route('dokumen.lihat', $dokumen->id) }}"
-                                        target="_blank"
-                                        class="btn btn-sm btn-light-primary">
-
-                                        <i class="bi bi-eye me-1"></i> Lihat
-                                    </a>
-
-                                    <a
-                                        href="{{ route('dokumen.unduh', $dokumen->id) }}"
-                                        class="btn btn-sm btn-light-success">
-
-                                        <i class="bi bi-download me-1"></i> Unduh
-                                    </a>
-
-                                    <form
-                                        action="{{ route('dokumen.destroy', $dokumen->id) }}"
-                                        method="POST"
-                                        class="form-hapus-dokumen">
-
-                                        @csrf
-                                        @method('DELETE')
-
-                                        <button type="submit" class="btn btn-sm btn-light-danger">
-                                            <i class="bi bi-trash me-1"></i> Hapus
-                                        </button>
-                                    </form>
-                                </div>
-
-                            </div>
-
-                            {{-- TAMBAHAN: KOMENTAR ADMIN --}}
-                            @php
-                                $komentarDokumen = $komentarPerDokumen->get(
-                                    $dokumen->id,
-                                    collect()
-                                );
-                            @endphp
-
-                            <div class="mt-4 pt-4 border-top">
-                                <div class="fw-bold text-gray-800 mb-3">
-                                    <i class="bi bi-chat-left-text me-2"></i>
-                                    Komentar Admin
-                                </div>
-
-                                @forelse($komentarDokumen as $komentar)
-                                    <div class="bg-light rounded p-3 mb-3">
-                                        <div class="d-flex align-items-center gap-2 mb-2">
-                                            <i class="bi bi-person-circle fs-3 text-primary"></i>
-
-                                            <div>
-                                                <div class="fw-semibold text-gray-800">
-                                                    Admin
-                                                </div>
-
-                                                <small class="text-muted">
-                                                    {{ $komentar->created_at->format('d/m/Y H:i') }}
-                                                </small>
-                                            </div>
-                                        </div>
-
-                                        <div class="text-gray-700"
-                                            style="white-space: pre-line; overflow-wrap: anywhere;">{{ $komentar->komentar }}</div>
-                                    </div>
-                                @empty
-                                    <div class="text-muted fs-7">
-                                        <i class="bi bi-chat-left me-1"></i>
-                                        Belum ada komentar dari admin untuk dokumen ini.
-                                    </div>
-                                @endforelse
-                            </div>
-
+                    <div class="symbol symbol-45px">
+                        <div class="symbol-label bg-light-danger">
+                            <i class="bi bi-file-earmark-pdf-fill fs-2 text-danger"></i>
                         </div>
-                    @endforeach
+                    </div>
 
-                @endif
+                    <div class="flex-grow-1 min-w-0">
+                        <div class="fw-bold text-gray-800 text-break">
+                            {{ $dokumen->nama_file }}
+                        </div>
+
+                        <div class="text-muted fs-7 mt-1">
+                            {{ $dokumen->mata_pelajaran ?? '-' }}
+                            <span class="mx-1">•</span>
+                            Semester {{ $dokumen->semester ?? '-' }}
+                            <span class="mx-1">•</span>
+                            Tahun Ajaran {{ $dokumen->tahun_ajaran ?? 'Belum ditentukan' }}
+                            <span class="mx-1">•</span>
+                            PDF
+                            <span class="mx-1">•</span>
+
+                            @if(\Illuminate\Support\Facades\Storage::disk('public')->exists($dokumen->file_path))
+                            {{ number_format(\Illuminate\Support\Facades\Storage::disk('public')->size($dokumen->file_path) / 1024, 1, ',', '.') }} KB
+                            @else
+                            File tidak ditemukan
+                            @endif
+
+                            <span class="mx-1">•</span>
+                            Diunggah {{ $dokumen->created_at->format('d/m/Y H:i') }}
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        <a
+                            href="{{ route('dokumen.lihat', $dokumen->id) }}"
+                            target="_blank"
+                            class="btn btn-sm btn-light-primary">
+
+                            <i class="bi bi-eye me-1"></i> Lihat
+                        </a>
+
+                        <a
+                            href="{{ route('dokumen.unduh', $dokumen->id) }}"
+                            class="btn btn-sm btn-light-success">
+
+                            <i class="bi bi-download me-1"></i> Unduh
+                        </a>
+
+                        <form
+                            action="{{ route('dokumen.destroy', $dokumen->id) }}"
+                            method="POST"
+                            class="form-hapus-dokumen">
+
+                            @csrf
+                            @method('DELETE')
+
+                            <button type="submit" class="btn btn-sm btn-light-danger">
+                                <i class="bi bi-trash me-1"></i> Hapus
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+
+                @php
+                $komentarDokumen = $komentarPerDokumen->get(
+                $dokumen->id,
+                collect()
+                );
+                @endphp
+
+                <div class="mt-4 pt-4 border-top">
+                    <div class="fw-bold text-gray-800 mb-3">
+                        <i class="bi bi-chat-left-text me-2"></i>
+                        Komentar Admin
+                    </div>
+
+                    @forelse($komentarDokumen as $komentar)
+                    <div class="bg-light rounded p-3 mb-3">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <i class="bi bi-person-circle fs-3 text-primary"></i>
+
+                            <div>
+                                <div class="fw-semibold text-gray-800">
+                                    Admin
+                                </div>
+
+                                <small class="text-muted">
+                                    {{ $komentar->created_at->format('d/m/Y H:i') }}
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="text-gray-700"
+                            style="white-space: pre-line; overflow-wrap: anywhere;">{{ $komentar->komentar }}</div>
+                    </div>
+                    @empty
+                    <div class="text-muted fs-7">
+                        <i class="bi bi-chat-left me-1"></i>
+                        Belum ada komentar dari admin untuk dokumen ini.
+                    </div>
+                    @endforelse
+                </div>
+
+            </div>
+            @endforeach
+
+            @endif
 
             @endif
 
         </div>
+
+        @if($dokumens->hasPages())
+        <div class="card-footer border-0 bg-transparent pb-5 pt-0">
+            <div class="d-flex justify-content-center">
+                {{ $dokumens->links('pagination::bootstrap-5') }}
+            </div>
+        </div>
+        @endif
     </div>
 </div>
 @endsection
@@ -593,6 +674,20 @@
     document.addEventListener('DOMContentLoaded', function() {
         const requiresKelas = @json($isKelasRequired);
         const labelDokumen = @json($label);
+        const successMessage = document.getElementById('success-message');
+
+        if (successMessage && successMessage.dataset.message) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil',
+                text: successMessage.dataset.message,
+                confirmButtonText: 'OK',
+                timer: 2500,
+                timerProgressBar: true,
+                showConfirmButton: false,
+                allowOutsideClick: false
+            });
+        }
 
         // ==========================================
         // FORM UPLOAD
@@ -852,6 +947,325 @@
                 }
             });
         });
+
+        // ==========================================
+        // CUSTOM DROPDOWN MATA PELAJARAN
+        // ==========================================
+
+        const subjectOptions = @json($mataPelajaranList);
+
+        function setupCustomSubjectPicker(root) {
+            if (!root) return;
+
+            const input = root.querySelector('.custom-subject-input');
+            const suggestionBox = root.querySelector('.custom-subject-suggestions');
+            const list = root.querySelector('.custom-subject-list');
+
+            if (!input || !suggestionBox || !list) return;
+
+            const renderOptions = (keyword = '') => {
+                const query = keyword.trim().toLowerCase();
+                const filtered = subjectOptions.filter(function(item) {
+                    return !query || item.toLowerCase().includes(query);
+                });
+
+                list.innerHTML = '';
+
+                if (filtered.length === 0) {
+                    const empty = document.createElement('div');
+                    empty.className = 'custom-subject-empty';
+                    empty.textContent = 'Tidak ada mata pelajaran';
+                    list.appendChild(empty);
+                    return;
+                }
+
+                filtered.forEach(function(item) {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'custom-subject-option';
+                    button.setAttribute('role', 'option');
+                    button.dataset.value = item;
+                    button.innerHTML = '<span class="subject-name">' + item + '</span>';
+
+                    button.addEventListener('click', function() {
+                        input.value = item;
+                        suggestionBox.classList.add('d-none');
+                        input.focus();
+                    });
+
+                    list.appendChild(button);
+                });
+            };
+
+            input.addEventListener('input', function() {
+                const keyword = input.value;
+                if (keyword.trim().length === 0) {
+                    suggestionBox.classList.add('d-none');
+                    return;
+                }
+
+                renderOptions(keyword);
+                suggestionBox.classList.remove('d-none');
+            });
+
+            input.addEventListener('focus', function() {
+                if (input.value.trim().length > 0) {
+                    renderOptions(input.value);
+                    suggestionBox.classList.remove('d-none');
+                    return;
+                }
+
+                renderOptions('');
+                suggestionBox.classList.remove('d-none');
+            });
+
+            document.addEventListener('click', function(event) {
+                if (!root.contains(event.target)) {
+                    suggestionBox.classList.add('d-none');
+                }
+            });
+
+            input.addEventListener('keydown', function(event) {
+                const buttons = [...list.querySelectorAll('.custom-subject-option')];
+                if (buttons.length === 0) return;
+
+                const activeIndex = buttons.findIndex(function(button) {
+                    return button.classList.contains('active');
+                });
+
+                if (event.key === 'ArrowDown') {
+                    event.preventDefault();
+                    const nextIndex = activeIndex >= 0 ? Math.min(activeIndex + 1, buttons.length - 1) : 0;
+                    buttons.forEach(function(button, index) {
+                        button.classList.toggle('active', index === nextIndex);
+                    });
+                    return;
+                }
+
+                if (event.key === 'ArrowUp') {
+                    event.preventDefault();
+                    const prevIndex = activeIndex > 0 ? activeIndex - 1 : 0;
+                    buttons.forEach(function(button, index) {
+                        button.classList.toggle('active', index === prevIndex);
+                    });
+                    return;
+                }
+
+                if (event.key === 'Enter') {
+                    const activeButton = buttons.find(function(button) {
+                        return button.classList.contains('active');
+                    });
+
+                    if (activeButton) {
+                        event.preventDefault();
+                        input.value = activeButton.dataset.value;
+                        suggestionBox.classList.add('d-none');
+                    }
+                }
+            });
+
+            renderOptions(input.value || '');
+            suggestionBox.classList.add('d-none');
+        }
+
+        document.querySelectorAll('[data-custom-subject-picker]').forEach(setupCustomSubjectPicker);
+
+        // ==========================================
+        // CUSTOM DROPDOWN KELAS DAN SEMESTER
+        // ==========================================
+
+        document.querySelectorAll('[data-custom-select]').forEach(function(picker) {
+            const trigger = picker.querySelector('.custom-select-trigger');
+            const menu = picker.querySelector('.custom-select-menu');
+            const hiddenInput = picker.querySelector('input[type="hidden"]');
+            const valueLabel = picker.querySelector('.custom-select-value');
+            const options = [...picker.querySelectorAll('.custom-select-option')];
+
+            if (!trigger || !menu || !hiddenInput || !valueLabel) return;
+
+            const setSelection = function(value, label) {
+                hiddenInput.value = value;
+                valueLabel.textContent = label || 'Pilih';
+                trigger.setAttribute('aria-expanded', 'false');
+                menu.classList.add('d-none');
+
+                options.forEach(function(option) {
+                    option.classList.toggle('selected', option.dataset.value === value);
+                });
+            };
+
+            trigger.addEventListener('click', function() {
+                const isOpen = !menu.classList.contains('d-none');
+                menu.classList.toggle('d-none', isOpen);
+                trigger.setAttribute('aria-expanded', String(!isOpen));
+            });
+
+            options.forEach(function(option) {
+                option.addEventListener('click', function() {
+                    if (option.disabled) return;
+                    setSelection(option.dataset.value, option.dataset.label || option.textContent.trim());
+                });
+            });
+
+            document.addEventListener('click', function(event) {
+                if (!picker.contains(event.target)) {
+                    menu.classList.add('d-none');
+                    trigger.setAttribute('aria-expanded', 'false');
+                }
+            });
+
+            const currentValue = hiddenInput.value;
+            const currentOption = options.find(function(option) {
+                return option.dataset.value === currentValue;
+            });
+
+            if (currentOption) {
+                setSelection(currentOption.dataset.value, currentOption.dataset.label || currentOption.textContent.trim());
+            }
+        });
     });
 </script>
+
+<style>
+    .custom-subject-picker {
+        position: relative;
+    }
+
+    .custom-subject-input {
+        width: 100%;
+    }
+
+    .custom-subject-suggestions {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        right: 0;
+        z-index: 1060;
+        max-height: 240px;
+        overflow-y: auto;
+        padding: 8px;
+        background: #fff;
+        border: 1px solid #e4e6ef;
+        border-radius: 10px;
+        box-shadow: 0 12px 32px rgba(16, 24, 40, 0.12);
+    }
+
+    .custom-subject-list {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .custom-subject-option {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        width: 100%;
+        padding: 10px 12px;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        color: #1f2a37;
+        text-align: left;
+        font-size: 0.92rem;
+        cursor: pointer;
+        transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .custom-subject-option:hover,
+    .custom-subject-option.active {
+        background: #eef5ff;
+        color: #0d6efd;
+    }
+
+    .custom-subject-option .subject-name {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .custom-subject-empty {
+        padding: 10px 12px;
+        color: #6b7280;
+        font-size: 0.88rem;
+    }
+
+    .custom-select-picker {
+        position: relative;
+    }
+
+    .custom-select-trigger {
+        display: flex !important;
+        align-items: center !important;
+        width: 100%;
+        gap: 12px;
+        background: #fff;
+        color: #1f2a37;
+        cursor: pointer;
+        text-align: left;
+    }
+
+    .custom-select-value {
+        display: inline-block;
+        min-width: 0;
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .custom-select-menu {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        right: 0;
+        z-index: 1060;
+        max-height: 240px;
+        overflow-y: auto;
+        padding: 8px;
+        background: #fff;
+        border: 1px solid #e4e6ef;
+        border-radius: 10px;
+        box-shadow: 0 12px 32px rgba(16, 24, 40, 0.12);
+    }
+
+    .custom-select-option {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding: 10px 12px;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        color: #1f2a37;
+        text-align: left;
+        font-size: 0.92rem;
+        cursor: pointer;
+        transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .custom-select-option:hover,
+    .custom-select-option.selected {
+        background: #eef5ff;
+        color: #0d6efd;
+    }
+
+    .custom-select-option:disabled,
+    .custom-select-option[aria-disabled="true"] {
+        opacity: 0.65;
+        cursor: not-allowed;
+        pointer-events: none;
+        background: transparent !important;
+        color: #7b8093 !important;
+    }
+
+    .custom-select-option:disabled:hover,
+    .custom-select-option[aria-disabled="true"]:hover {
+        background: transparent !important;
+        color: #7b8093 !important;
+    }
+</style>
 @endsection

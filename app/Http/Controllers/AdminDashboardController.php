@@ -147,9 +147,7 @@ class AdminDashboardController extends Controller
         foreach ($kombinasi as $data) {
             $jenisTersedia = $data['jenis'];
 
-            $jenisTahunan = $dokumenTanpaKelas[
-                $data['jenis_tahunan']
-            ] ?? [];
+            $jenisTahunan = $dokumenTanpaKelas[$data['jenis_tahunan']] ?? [];
 
             foreach ($jenisTanpaKelas as $jenis) {
                 if (isset($jenisTahunan[$jenis])) {
@@ -208,6 +206,27 @@ class AdminDashboardController extends Controller
             ->limit(5)
             ->get();
 
+        $supervisiSelesai = DB::table('supervisis')
+            ->where('status', 'selesai')
+            ->whereNotNull('guru_id')
+            ->select('guru_id', 'tanggal')
+            ->orderBy('tanggal')
+            ->get();
+
+        $jumlahGuruSupervisiSelesai = $supervisiSelesai
+            ->filter(function ($item) {
+                if (empty($item->tanggal)) {
+                    return false;
+                }
+
+                return Carbon::parse($item->tanggal)->between(
+                    Carbon::now()->startOfMonth(),
+                    Carbon::now()->endOfMonth()
+                );
+            })
+            ->unique('guru_id')
+            ->count();
+
         return view('admin.index', compact(
             'totalGuru',
             'statistikMapel',
@@ -215,7 +234,9 @@ class AdminDashboardController extends Controller
             'dokumenLengkap',
             'dokumenBelumLengkap',
             'persentaseLengkap',
-            'persentaseBelumLengkap'
+            'persentaseBelumLengkap',
+            'supervisiSelesai',
+            'jumlahGuruSupervisiSelesai'
         ));
     }
 }

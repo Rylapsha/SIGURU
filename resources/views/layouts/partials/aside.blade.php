@@ -128,20 +128,20 @@
                 </div>
                 <!-- END DOKUMEN -->
 
-                
-<!-- SUPERVISI -->
-<div class="menu-item">
-    <a href="{{ route('guru.supervisi') }}"
-        class="menu-link {{ request()->routeIs('guru.supervisi*') ? 'active' : '' }}">
 
-        <span class="menu-icon">
-            <i class="bi bi-clipboard2-check-fill fs-3"></i>
-        </span>
+                <!-- SUPERVISI -->
+                <div class="menu-item">
+                    <a href="{{ route('guru.supervisi') }}"
+                        class="menu-link {{ request()->routeIs('guru.supervisi*') ? 'active' : '' }}">
 
-        <span class="menu-title">Supervisi</span>
-    </a>
-</div>
-<!-- END SUPERVISI -->
+                        <span class="menu-icon">
+                            <i class="bi bi-clipboard2-check-fill fs-3"></i>
+                        </span>
+
+                        <span class="menu-title">Supervisi</span>
+                    </a>
+                </div>
+                <!-- END SUPERVISI -->
 
 
                 <!-- PEMBATAS -->
@@ -151,7 +151,7 @@
                     </div>
                 </div>
 
-                
+
                 <!-- LOGOUT -->
                 <div class="menu-item">
                     <form id="logout-form"
@@ -161,8 +161,8 @@
                         @csrf
 
                         <button type="button"
-                                id="logout-button"
-                                class="menu-link border-0 bg-transparent w-100 text-start">
+                            id="logout-button"
+                            class="menu-link border-0 bg-transparent w-100 text-start">
 
                             <span class="menu-icon">
                                 <i class="bi bi-box-arrow-right"></i>

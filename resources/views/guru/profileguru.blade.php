@@ -10,11 +10,7 @@
 
     <div class="container-fluid">
 
-
-        {{-- ========================================= --}}
-        {{-- HEADER PROFILE --}}
-        {{-- ========================================= --}}
-        <div class="card mt-10 mb-xl-10">
+        <div class="card dashboard-panel mt-10 mb-xl-10 ">
 
             <div class="card-body pt-9 pb-0">
 

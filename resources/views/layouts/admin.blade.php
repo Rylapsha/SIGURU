@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="id" data-admin-theme="dark">
+<html lang="id" data-admin-theme="light">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,74 +12,48 @@
 
     {{-- Font Metronic --}}
     <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700">
+        href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700">
 
     {{-- CSS Metronic Demo 1 --}}
     <link id="kt_plugins_stylesheet"
-          rel="stylesheet"
-          href="{{ asset('demo1/dist/assets/plugins/global/plugins.bundle.css') }}"
-          data-light-href="{{ asset('demo1/dist/assets/plugins/global/plugins.bundle.css') }}"
-          data-dark-href="{{ asset('demo1/dist/assets/plugins/global/plugins.dark.bundle.css') }}">
+        rel="stylesheet"
+        href="{{ asset('demo1/dist/assets/plugins/global/plugins.bundle.css') }}"
+        data-light-href="{{ asset('demo1/dist/assets/plugins/global/plugins.bundle.css') }}"
+        data-dark-href="{{ asset('demo1/dist/assets/plugins/global/plugins.dark.bundle.css') }}">
 
     <link id="kt_theme_stylesheet"
-          rel="stylesheet"
-          href="{{ asset('demo1/dist/assets/css/style.bundle.css') }}"
-          data-light-href="{{ asset('demo1/dist/assets/css/style.bundle.css') }}"
-          data-dark-href="{{ asset('demo1/dist/assets/css/style.dark.bundle.css') }}">
+        rel="stylesheet"
+        href="{{ asset('demo1/dist/assets/css/style.bundle.css') }}"
+        data-light-href="{{ asset('demo1/dist/assets/css/style.bundle.css') }}"
+        data-dark-href="{{ asset('demo1/dist/assets/css/style.dark.bundle.css') }}">
 
     {{-- Bootstrap Icons --}}
     <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     {{-- Tentukan tema sebelum halaman ditampilkan --}}
     <script>
-        (function () {
-            let theme = 'dark';
+        (function() {
+            document.documentElement.dataset.adminTheme = 'light';
+            document.documentElement.setAttribute('data-bs-theme', 'light');
+            document.body.classList.remove('dark-mode');
 
-            try {
-                theme = localStorage.getItem('siguru-admin-theme') || 'dark';
-            } catch (error) {}
-
-            document.documentElement.dataset.adminTheme = theme;
-
-            if (theme === 'dark') {
-                document.documentElement.setAttribute('data-bs-theme', 'dark');
-            } else {
-                document.documentElement.setAttribute('data-bs-theme', 'light');
-            }
-
-            document.querySelectorAll('[data-light-href][data-dark-href]')
-                .forEach(function (stylesheet) {
-                    const href = theme === 'dark'
-                        ? stylesheet.dataset.darkHref
-                        : stylesheet.dataset.lightHref;
-
-                    if (href) {
-                        stylesheet.href = href;
-                    }
-                });
+            document.querySelectorAll('[data-light-href][data-dark-href]').forEach(function(stylesheet) {
+                stylesheet.href = stylesheet.dataset.lightHref || stylesheet.href;
+                stylesheet.media = 'all';
+            });
         })();
     </script>
 
     <style>
         :root {
-            --admin-bg: #f5f8fa;
+            --admin-bg: #F7FBFC;
             --admin-card: #ffffff;
             --admin-header: #ffffff;
-            --admin-text: #181c32;
-            --admin-muted: #7e8299;
-            --admin-border: #eff2f5;
-            --admin-soft: #f1f6ff;
-        }
-
-        html[data-admin-theme="dark"] {
-            --admin-bg: #151521;
-            --admin-card: #1e1e2d;
-            --admin-header: #1e1e2d;
-            --admin-text: #f5f5fa;
-            --admin-muted: #9295b5;
-            --admin-border: #2b2b40;
-            --admin-soft: #252f48;
+            --admin-text: #1f3c57;
+            --admin-muted: #5b7c9c;
+            --admin-border: #D6E6F2;
+            --admin-soft: #EAF5FB;
         }
 
         html,
@@ -116,35 +91,56 @@
             border-bottom: 1px solid var(--admin-border);
         }
 
-        html[data-admin-theme="dark"] #kt_header .text-dark,
-        html[data-admin-theme="dark"] #kt_header .fw-bolder,
-        html[data-admin-theme="dark"] #kt_header h1,
-        html[data-admin-theme="dark"] #kt_header h2,
-        html[data-admin-theme="dark"] #kt_header .menu-title {
-            color: #f5f5fa !important;
-        }
-
-        /* Sidebar tetap mengikuti warna Metronic */
+        /* Sidebar mengikuti gaya default Metronic dark */
         #kt_aside {
-            background-color: #1e1e2d;
+            background-color: #1e1e2d !important;
         }
 
-        #kt_aside .menu-link {
-            font-family: Poppins, sans-serif;
-            font-size: 13px;
+        #kt_aside .aside-logo {
+            background-color: #1a1a27 !important;
         }
 
-        #kt_aside .menu-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
+        #kt_aside .menu-section,
+        #kt_aside .menu-title,
+        #kt_aside .menu-link,
+        #kt_aside .menu-icon,
+        #kt_aside .svg-icon {
+            color: #b5b5c3 !important;
         }
 
-        #kt_aside .menu-icon i,
-        #kt_aside .menu-icon .bi {
-            font-size: 18px;
-            line-height: 1;
+        #kt_aside .aside-toggle svg [fill]:not(.permanent):not(g) {
+            fill: #494b74 !important;
+        }
+
+        #kt_aside .separator {
+            border-bottom-color: #282a3d !important;
+        }
+
+        #kt_aside .menu-item:not(.here) .menu-link:hover:not(.disabled):not(.active):not(.here),
+        #kt_aside .menu-item.show>.menu-link,
+        #kt_aside .menu-item.here>.menu-link,
+        #kt_aside .menu-item .menu-link.active {
+            background-color: rgba(27, 27, 41, 0.8) !important;
+            color: #3699ff !important;
+        }
+
+        #kt_aside .menu-item:not(.here) .menu-link:hover:not(.disabled):not(.active):not(.here) .menu-title,
+        #kt_aside .menu-item.show>.menu-link .menu-title,
+        #kt_aside .menu-item.here>.menu-link .menu-title,
+        #kt_aside .menu-item .menu-link.active .menu-title {
+            color: #3699ff !important;
+        }
+
+        #kt_aside .menu-item:not(.here) .menu-link:hover:not(.disabled):not(.active):not(.here) .menu-icon i,
+        #kt_aside .menu-item.show>.menu-link .menu-icon i,
+        #kt_aside .menu-item.here>.menu-link .menu-icon i,
+        #kt_aside .menu-item .menu-link.active .menu-icon i,
+        #kt_aside .menu-item:not(.here) .menu-link:hover:not(.disabled):not(.active):not(.here) .menu-icon .svg-icon svg [fill]:not(.permanent):not(g),
+        #kt_aside .menu-item.show>.menu-link .menu-icon .svg-icon svg [fill]:not(.permanent):not(g),
+        #kt_aside .menu-item.here>.menu-link .menu-icon .svg-icon svg [fill]:not(.permanent):not(g),
+        #kt_aside .menu-item .menu-link.active .menu-icon .svg-icon svg [fill]:not(.permanent):not(g) {
+            fill: #3699ff !important;
+            color: #3699ff !important;
         }
 
         /* Area konten */
@@ -158,36 +154,6 @@
         #kt_content .card-header {
             background-color: transparent;
             border-bottom-color: var(--admin-border);
-        }
-
-        /* Teks mode gelap */
-        html[data-admin-theme="dark"] #kt_content h1,
-        html[data-admin-theme="dark"] #kt_content h2,
-        html[data-admin-theme="dark"] #kt_content h3,
-        html[data-admin-theme="dark"] #kt_content h4,
-        html[data-admin-theme="dark"] #kt_content .text-dark,
-        html[data-admin-theme="dark"] #kt_content .text-gray-900,
-        html[data-admin-theme="dark"] #kt_content .text-gray-700 {
-            color: #f5f5fa !important;
-        }
-
-        html[data-admin-theme="dark"] #kt_content .text-muted,
-        html[data-admin-theme="dark"] #kt_content .text-gray-500,
-        html[data-admin-theme="dark"] #kt_content .text-gray-600,
-        html[data-admin-theme="dark"] #kt_content .text-gray-400 {
-            color: var(--admin-muted) !important;
-        }
-
-        /* Form mode gelap */
-        html[data-admin-theme="dark"] #kt_content .form-control,
-        html[data-admin-theme="dark"] #kt_content .form-select {
-            color: var(--admin-text);
-            background-color: var(--admin-card);
-            border-color: var(--admin-border);
-        }
-
-        html[data-admin-theme="dark"] #kt_content .form-control::placeholder {
-            color: var(--admin-muted);
         }
 
         /* Tombol tema */
@@ -240,6 +206,7 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
+
             body.theme-transitioning,
             body.theme-transitioning * {
                 transition: none !important;
@@ -264,52 +231,56 @@
             }
         }
 
-        
-/* Animasi pergantian tema admin */
-body,
-#kt_aside,
-#kt_header,
-#kt_content,
-#kt_content .card,
-#kt_content .card-header,
-#kt_content .card-body,
-#kt_content .card-footer,
-#kt_content .form-control,
-#kt_content .form-select,
-#kt_content .table,
-#kt_content .btn,
-#kt_content .text-gray-800,
-#kt_content .text-gray-600 {
-    transition:
-        background-color 0.35s ease,
-        color 0.35s ease,
-        border-color 0.35s ease,
-        box-shadow 0.35s ease;
-}
 
-/* Animasi ikon tombol tema */
-#kt_admin_theme_icon {
-    display: inline-block;
-    transition: transform 0.35s ease;
-}
+        /* Animasi pergantian tema admin */
+        body,
+        #kt_aside,
+        #kt_header,
+        #kt_content,
+        #kt_content .card,
+        #kt_content .card-header,
+        #kt_content .card-body,
+        #kt_content .card-footer,
+        #kt_content .form-control,
+        #kt_content .form-select,
+        #kt_content .table,
+        #kt_content .btn,
+        #kt_content .text-gray-800,
+        #kt_content .text-gray-600 {
+            transition:
+                background-color 0.35s ease,
+                color 0.35s ease,
+                border-color 0.35s ease,
+                box-shadow 0.35s ease;
+        }
 
-#kt_admin_theme_toggle:hover #kt_admin_theme_icon {
-    transform: rotate(20deg) scale(1.1);
-}
+        /* Animasi ikon tombol tema */
+        #kt_admin_theme_icon {
+            display: inline-block;
+            transition: transform 0.35s ease;
+        }
 
+        #kt_admin_theme_toggle:hover #kt_admin_theme_icon {
+            transform: rotate(20deg) scale(1.1);
+        }
     </style>
 
     @stack('styles')
 </head>
 
 <body id="kt_body"
-      class="header-fixed header-tablet-and-mobile-fixed aside-enabled aside-fixed">
+    class="header-fixed header-tablet-and-mobile-fixed aside-enabled aside-fixed">
 
     {{-- Terapkan class tema pada body --}}
     <script>
-        if (document.documentElement.dataset.adminTheme === 'dark') {
-            document.body.classList.add('dark-mode');
-        }
+        document.documentElement.dataset.adminTheme = 'light';
+        document.documentElement.setAttribute('data-bs-theme', 'light');
+        document.body.classList.remove('dark-mode');
+
+        document.querySelectorAll('[data-light-href][data-dark-href]').forEach(function(stylesheet) {
+            stylesheet.href = stylesheet.dataset.lightHref || stylesheet.href;
+            stylesheet.media = 'all';
+        });
     </script>
 
     <div class="d-flex flex-column flex-root">
@@ -320,7 +291,7 @@ body,
 
             {{-- Wrapper halaman --}}
             <div class="wrapper d-flex flex-column flex-row-fluid"
-                 id="kt_wrapper">
+                id="kt_wrapper">
 
                 {{-- Header Admin --}}
                 @include('layouts.partials.header-admin')
@@ -361,77 +332,31 @@ body,
 
     {{-- Pengaturan tema admin: satu pengendali tema --}}
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const button = document.getElementById('kt_admin_theme_toggle');
             const icon = document.getElementById('kt_admin_theme_icon');
 
-            function applyTheme(theme) {
-                document.documentElement.dataset.adminTheme = theme;
+            document.documentElement.dataset.adminTheme = 'light';
+            document.documentElement.setAttribute('data-bs-theme', 'light');
+            document.body.classList.remove('dark-mode');
 
-                document.documentElement.setAttribute(
-                    'data-bs-theme',
-                    theme === 'dark' ? 'dark' : 'light'
-                );
-
-                document.body.classList.toggle('dark-mode', theme === 'dark');
-
-                document.querySelectorAll('[data-light-href][data-dark-href]')
-                    .forEach(function (stylesheet) {
-                        const href = theme === 'dark'
-                            ? stylesheet.dataset.darkHref
-                            : stylesheet.dataset.lightHref;
-
-                        if (href && stylesheet.href !== new URL(href, window.location.href).href) {
-                            stylesheet.href = href;
-                        }
-                    });
-
-                try {
-                    localStorage.setItem('siguru-admin-theme', theme);
-                } catch (error) {}
-
-                if (icon) {
-                    icon.className = theme === 'dark'
-                        ? 'bi bi-sun-fill fs-3'
-                        : 'bi bi-moon-stars-fill fs-3';
-                }
-
-                if (button) {
-                    button.title = theme === 'dark'
-                        ? 'Ganti ke mode terang'
-                        : 'Ganti ke mode gelap';
-
-                    button.setAttribute('aria-label', button.title);
-                    button.setAttribute(
-                        'aria-pressed',
-                        String(theme === 'dark')
-                    );
-                }
+            if (icon) {
+                icon.className = 'bi bi-moon-stars-fill fs-3';
             }
-
-            let currentTheme = 'dark';
-
-            try {
-                currentTheme = localStorage.getItem('siguru-admin-theme') || 'dark';
-            } catch (error) {}
-
-            applyTheme(currentTheme);
 
             if (button) {
-                button.addEventListener('click', function () {
-                    const current =
-                        document.documentElement.dataset.adminTheme || 'dark';
-
-                    applyTheme(current === 'dark' ? 'light' : 'dark');
-                });
+                button.disabled = true;
+                button.style.display = 'none';
+                button.title = 'Mode terang aktif';
+                button.setAttribute('aria-label', 'Mode terang aktif');
+                button.setAttribute('aria-pressed', 'false');
             }
 
-            /* Konfirmasi logout dari sidebar admin */
             const logoutButton = document.getElementById('admin-logout-button');
             const logoutForm = document.getElementById('admin-logout-form');
 
             if (logoutButton && logoutForm) {
-                logoutButton.addEventListener('click', function (event) {
+                logoutButton.addEventListener('click', function(event) {
                     event.preventDefault();
 
                     if (typeof Swal === 'undefined') {
@@ -449,42 +374,9 @@ body,
                         confirmButtonText: 'Ya, Logout',
                         cancelButtonText: 'Batal',
                         reverseButtons: true
-                    }).then(function (result) {
+                    }).then(function(result) {
                         if (result.isConfirmed) {
                             logoutForm.submit();
-                        }
-                    });
-                });
-            }
-
-            /* Konfirmasi logout dari header jika tombol tersedia */
-            const headerLogoutButton =
-                document.getElementById('header-logout-button');
-            const headerLogoutForm =
-                document.getElementById('header-logout-form');
-
-            if (headerLogoutButton && headerLogoutForm) {
-                headerLogoutButton.addEventListener('click', function (event) {
-                    event.preventDefault();
-
-                    if (typeof Swal === 'undefined') {
-                        headerLogoutForm.submit();
-                        return;
-                    }
-
-                    Swal.fire({
-                        title: 'Yakin ingin logout?',
-                        text: 'Kamu akan keluar dari sesi admin.',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#d33',
-                        cancelButtonColor: '#3085d6',
-                        confirmButtonText: 'Ya, Logout',
-                        cancelButtonText: 'Batal',
-                        reverseButtons: true
-                    }).then(function (result) {
-                        if (result.isConfirmed) {
-                            headerLogoutForm.submit();
                         }
                     });
                 });
@@ -495,4 +387,5 @@ body,
     @stack('scripts')
     @yield('scripts')
 </body>
+
 </html>
