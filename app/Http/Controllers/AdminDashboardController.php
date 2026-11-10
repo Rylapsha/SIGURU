@@ -185,26 +185,60 @@ class AdminDashboardController extends Controller
             : 0;
 
         // Maksimal lima jadwal mendatang berstatus terjadwal.
-        $jadwalMendatang = DB::table('supervisis')
-            ->leftJoin(
-                'gurus',
-                'supervisis.guru_id',
-                '=',
-                'gurus.id'
+        $agendaKegiatan = DB::table('agenda_kegiatans')
+            ->select(
+                'id',
+                'judul',
+                'tanggal',
+                'jam',
+                'lokasi',
+                'keterangan',
+                'status'
             )
+            ->where('status', '!=', 'dibatalkan')
+            ->whereDate('tanggal', '>=', Carbon::today())
+            ->orderBy('tanggal')
+            ->orderBy('jam')
+            ->get()
+            ->map(function ($item) {
+                $item->jenis = 'kegiatan';
+                $item->label = $item->judul;
+                return $item;
+            });
+
+        $jadwalAgenda = DB::table('supervisis')
+            ->leftJoin('gurus', 'supervisis.guru_id', '=', 'gurus.id')
             ->select(
                 'supervisis.id',
                 'supervisis.tanggal',
                 'supervisis.jam',
                 'supervisis.mata_pelajaran',
-                'gurus.nama_lengkap'
+                'gurus.nama_lengkap',
+                'supervisis.status'
             )
             ->where('supervisis.status', 'terjadwal')
             ->whereDate('supervisis.tanggal', '>=', Carbon::today())
             ->orderBy('supervisis.tanggal')
             ->orderBy('supervisis.jam')
-            ->limit(5)
-            ->get();
+            ->get()
+            ->map(function ($item) {
+                $item->jenis = 'supervisi';
+                $item->label = 'Supervisi Guru';
+                $item->judul = $item->label;
+                $item->lokasi = $item->mata_pelajaran ? 'Mata Pelajaran: ' . $item->mata_pelajaran : null;
+                return $item;
+            });
+
+        $agendaGabungan = $agendaKegiatan
+            ->merge($jadwalAgenda)
+            ->sortBy(function ($item) {
+                return Carbon::parse($item->tanggal)->format('Ymd') . ($item->jam ?? '23:59');
+            })
+            ->values();
+
+        $jadwalMendatang = $agendaGabungan->take(5);
+
+        $jumlahJadwalMendatang = $agendaGabungan->count();
 
         $supervisiSelesai = DB::table('supervisis')
             ->where('status', 'selesai')

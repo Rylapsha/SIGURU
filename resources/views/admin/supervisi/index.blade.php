@@ -71,6 +71,7 @@
                         <th>Supervisor</th>
                         <th>Status</th>
                         <th>Komentar Admin</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
 
@@ -164,10 +165,27 @@
                             </span>
                             @endif
                         </td>
+
+                        <td>
+                            <form
+                                action="{{ route('admin.supervisi.destroy', $item->id) }}"
+                                method="POST"
+                                class="inline-form delete-form">
+                                @csrf
+                                @method('DELETE')
+
+                                <button type="button"
+                                    class="btn-small btn-delete"
+                                    onclick="confirmDeleteSupervisi(this)">
+                                    <i class="ki-outline ki-trash"></i>
+                                    Hapus
+                                </button>
+                            </form>
+                        </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="empty-row">
+                        <td colspan="6" class="empty-row">
                             <i class="ki-outline ki-calendar"></i>
                             <strong>Belum ada jadwal supervisi</strong>
                             <span>Tambahkan jadwal melalui tombol Tambah Jadwal.</span>
@@ -377,6 +395,64 @@
                 button.innerHTML =
                     '<span class="spinner-border spinner-border-sm"></span> Menyimpan...';
 
+                form.submit();
+            }
+        });
+    }
+
+
+    // Konfirmasi penghapusan jadwal supervisi.
+    function confirmDelete(form) {
+        const row = form.closest('tr');
+        const guru = row.querySelector('.teacher-name').innerText;
+        const tanggal = row.querySelector('.date-text').innerText;
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Hapus jadwal supervisi?',
+            html: 'Anda akan menghapus jadwal supervisi untuk <strong>' +
+                guru + '</strong> pada tanggal <strong>' + tanggal + '</strong>.',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, hapus jadwal',
+            cancelButtonText: 'Batal',
+            reverseButtons: true,
+            buttonsStyling: false,
+            customClass: {
+                confirmButton: 'swal-confirm-btn',
+                cancelButton: 'swal-cancel-btn',
+                popup: 'supervisi-swal-popup'
+            }
+        }).then(function(result) {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+
+        return false; // Mencegah pengiriman formulir default
+    }
+
+    // Konfirmasi penghapusan jadwal supervisi (dari tombol Hapus di kolom komentar).
+    function confirmDeleteSupervisi(button) {
+        const form = button.closest('form');
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Hapus jadwal supervisi?',
+            text: 'Jadwal yang dihapus tidak dapat dikembalikan.',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, hapus',
+            cancelButtonText: 'Batal',
+            reverseButtons: true,
+            buttonsStyling: false,
+            customClass: {
+                confirmButton: 'swal-confirm-btn',
+                cancelButton: 'swal-cancel-btn',
+                popup: 'supervisi-swal-popup'
+            }
+        }).then(function(result) {
+            if (result.isConfirmed) {
+                button.disabled = true;
+                button.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Menghapus...';
                 form.submit();
             }
         });
@@ -687,6 +763,15 @@
     .admin-supervisi .btn-small {
         padding: 8px 10px;
         font-size: 10px;
+    }
+
+    .admin-supervisi .btn-delete {
+        color: #fff;
+        background: #dc2626;
+    }
+
+    .admin-supervisi .btn-delete:hover {
+        background: #b91c1c;
     }
 
     .admin-supervisi .btn-small:disabled {

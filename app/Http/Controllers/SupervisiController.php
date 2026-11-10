@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Guru;
 use App\Models\Supervisi;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class SupervisiController extends Controller
 {
@@ -79,6 +80,27 @@ class SupervisiController extends Controller
         $supervisi = Supervisi::where('guru_id', $guru->id)
             ->findOrFail($id);
 
-        return view('guru.supervisi-detail', compact('guru', 'supervisi'));
+        return view('guru.detailsupervisi', compact('guru', 'supervisi'));
+    }
+
+    public function lihatSurat($id)
+    {
+        $guru = auth()->user();
+
+        abort_unless($guru instanceof Guru, 403, 'Akun guru tidak ditemukan.');
+
+        $supervisi = Supervisi::where('guru_id', $guru->id)
+            ->findOrFail($id);
+
+        if (!$supervisi->surat_pemberitahuan_path || !Storage::disk('public')->exists($supervisi->surat_pemberitahuan_path)) {
+            abort(404, 'Surat pemberitahuan tidak ditemukan.');
+        }
+
+        return response()->file(
+            Storage::disk('public')->path($supervisi->surat_pemberitahuan_path),
+            [
+                'Content-Disposition' => 'inline; filename="' . ($supervisi->nama_surat_pemberitahuan ?: 'surat-pemberitahuan.pdf') . '"',
+            ]
+        );
     }
 }

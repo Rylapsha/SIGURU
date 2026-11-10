@@ -20,6 +20,8 @@ class Supervisi extends Model
         'status',
         'hasil_observasi',
         'tindak_lanjut',
+        'surat_pemberitahuan_path',
+        'nama_surat_pemberitahuan',
     ];
 
     protected function casts(): array

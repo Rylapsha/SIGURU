@@ -499,6 +499,66 @@ License: For each use you must have a valid license purchased only from above li
                 transition: none;
             }
         }
+
+        /* Select konsisten dengan custom dropdown halaman dokumen */
+        select.form-select,
+        .form-select,
+        select:not([multiple]):not([size]) {
+            -webkit-appearance: none;
+            appearance: none;
+            background-color: #fff;
+            border: 1px solid #e4e6ef;
+            border-radius: 10px;
+            color: #1f2a37;
+            font-size: 0.95rem;
+            font-weight: 500;
+            line-height: 1.5;
+            min-height: 46px;
+            padding: 0.75rem 2.75rem 0.75rem 1rem;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4.5 6.5L8 10L11.5 6.5' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1rem;
+            box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+            transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+        }
+
+        select.form-select:focus,
+        .form-select:focus,
+        select:not([multiple]):not([size]):focus {
+            border-color: #b7d8ff;
+            box-shadow: 0 0 0 4px rgba(40, 120, 255, 0.08);
+            outline: none;
+        }
+
+        select.form-select:hover,
+        .form-select:hover,
+        select:not([multiple]):not([size]):hover {
+            border-color: #d4d9e8;
+        }
+
+        select.form-select option,
+        .form-select option {
+            color: #1f2a37;
+        }
+
+        .custom-select-trigger,
+        .custom-select-trigger.form-control {
+            min-height: 46px;
+            border: 1px solid #e4e6ef;
+            border-radius: 10px;
+            background: #fff;
+            color: #1f2a37;
+            box-shadow: none;
+            padding: 0.75rem 2.75rem 0.75rem 1rem;
+        }
+
+        .custom-select-trigger:focus,
+        .custom-select-trigger.form-control:focus {
+            border-color: #b7d8ff;
+            box-shadow: 0 0 0 4px rgba(40, 120, 255, 0.08);
+            outline: none;
+        }
     </style>
 </head>
 <!--end::Head-->

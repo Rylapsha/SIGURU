@@ -263,6 +263,135 @@
         #kt_admin_theme_toggle:hover #kt_admin_theme_icon {
             transform: rotate(20deg) scale(1.1);
         }
+
+        /* Select konsisten dengan custom dropdown halaman dokumen */
+        select.form-select,
+        .form-select,
+        select:not([multiple]):not([size]) {
+            color-scheme: light;
+            -webkit-appearance: none;
+            appearance: none;
+            background-color: #fff;
+            border: 1px solid #e4e6ef;
+            border-radius: 10px;
+            color: #1f2a37;
+            font-size: 0.95rem;
+            font-weight: 500;
+            line-height: 1.5;
+            min-height: 46px;
+            padding: 0.75rem 2.75rem 0.75rem 1rem;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4.5 6.5L8 10L11.5 6.5' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1rem;
+            box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+            transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+        }
+
+        select.form-select option,
+        .form-select option,
+        select option,
+        select.form-select-solid option,
+        .form-select-solid option,
+        optgroup {
+            background-color: #ffffff !important;
+            color: #1f2a37 !important;
+        }
+
+        select.form-select option:checked,
+        .form-select option:checked,
+        select option:checked,
+        select.form-select-solid option:checked,
+        .form-select-solid option:checked {
+            background: linear-gradient(0deg, #eef5ff 0%, #eef5ff 100%) !important;
+            color: #0d6efd !important;
+        }
+
+        select.form-select option:hover,
+        .form-select option:hover,
+        select option:hover,
+        select.form-select-solid option:hover,
+        .form-select-solid option:hover,
+        select.form-select option:focus,
+        .form-select option:focus,
+        select option:focus,
+        select.form-select-solid option:focus,
+        .form-select-solid option:focus {
+            background: #eef5ff !important;
+            color: #0d6efd !important;
+        }
+
+        select.form-select:focus,
+        .form-select:focus,
+        select:not([multiple]):not([size]):focus {
+            border-color: #b7d8ff;
+            box-shadow: 0 0 0 4px rgba(40, 120, 255, 0.08);
+            outline: none;
+        }
+
+        select.form-select:hover,
+        .form-select:hover,
+        select:not([multiple]):not([size]):hover {
+            border-color: #d4d9e8;
+        }
+
+        select.form-select option,
+        .form-select option {
+            color: #1f2a37;
+        }
+
+        .custom-select-trigger,
+        .custom-select-trigger.form-control {
+            min-height: 46px;
+            border: 1px solid #e4e6ef;
+            border-radius: 10px;
+            background: #fff;
+            color: #1f2a37;
+            box-shadow: none;
+            padding: 0.75rem 2.75rem 0.75rem 1rem;
+        }
+
+        .custom-select-trigger:focus,
+        .custom-select-trigger.form-control:focus {
+            border-color: #b7d8ff;
+            box-shadow: 0 0 0 4px rgba(40, 120, 255, 0.08);
+            outline: none;
+        }
+
+        select.form-select-solid,
+        select.form-select-solid.form-select,
+        .form-select-solid {
+            -webkit-appearance: none;
+            appearance: none;
+            background-color: #fff !important;
+            border: 1px solid #e4e6ef !important;
+            border-radius: 10px !important;
+            color: #1f2a37 !important;
+            font-size: 0.95rem;
+            font-weight: 500;
+            line-height: 1.5;
+            min-height: 46px;
+            padding: 0.75rem 2.75rem 0.75rem 1rem !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4.5 6.5L8 10L11.5 6.5' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 1rem center !important;
+            background-size: 1rem !important;
+            box-shadow: none !important;
+            transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+        }
+
+        select.form-select-solid:focus,
+        select.form-select-solid.form-select:focus,
+        .form-select-solid:focus {
+            border-color: #b7d8ff !important;
+            box-shadow: 0 0 0 4px rgba(40, 120, 255, 0.08) !important;
+            outline: none !important;
+        }
+
+        select.form-select-solid option,
+        .form-select-solid option {
+            color: #1f2a37 !important;
+        }
     </style>
 
     @stack('styles')

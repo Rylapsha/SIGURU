@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MataPelajaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -29,7 +30,12 @@ class AdminSupervisiController extends Controller
             ->orderBy('nama_lengkap')
             ->get();
 
-        return view('admin.supervisi.create', compact('guru'));
+        $mataPelajaran = MataPelajaran::query()
+            ->orderBy('nama')
+            ->pluck('nama')
+            ->all();
+
+        return view('admin.supervisi.create', compact('guru', 'mataPelajaran'));
     }
 
     public function index()
@@ -83,13 +89,74 @@ class AdminSupervisiController extends Controller
             'mata_pelajaran' => ['required', 'string', 'max:255'],
             'semester' => ['required', 'string', 'max:255'],
             'keterangan' => ['nullable', 'string'],
+            'surat_pemberitahuan' => [
+                'required',
+                'file',
+                'mimes:pdf',
+                'max:10240',
+            ],
+        ], [
+            'surat_pemberitahuan.required' => 'Wajib unggah surat pemberitahuan dalam format PDF.',
+            'surat_pemberitahuan.file' => 'File surat pemberitahuan tidak valid.',
+            'surat_pemberitahuan.mimes' => 'Format surat pemberitahuan harus PDF.',
+            'surat_pemberitahuan.max' => 'Ukuran surat pemberitahuan maksimal 10 MB.',
         ]);
 
+        $guru = DB::table('gurus')->where('id', $request->guru_id)->first();
+        $allowedMapels = [];
+
+        if ($guru && !empty($guru->mata_pelajaran)) {
+            $allowedMapels = array_values(array_filter(array_map('trim', preg_split('/[;,]/', (string) $guru->mata_pelajaran))));
+        }
+
+        if ($guru && !empty($allowedMapels) && !in_array($data['mata_pelajaran'], $allowedMapels, true)) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'mata_pelajaran' => 'Mata pelajaran yang dipilih tidak sesuai dengan mata pelajaran yang diampu guru tersebut.',
+                ]);
+        }
+
+        if ($guru && empty($allowedMapels)) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'guru_id' => 'Guru yang dipilih belum memiliki mata pelajaran yang valid.',
+                ]);
+        }
+
+        $suratFile = $request->file('surat_pemberitahuan');
+        $suratPath = $suratFile->store('supervisi', 'public');
+
+        if (!$suratPath) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'surat_pemberitahuan' => 'Surat pemberitahuan gagal disimpan. Silakan coba kembali.',
+                ]);
+        }
+
+        $data['surat_pemberitahuan_path'] = $suratPath;
+        $data['nama_surat_pemberitahuan'] = $suratFile->getClientOriginalName();
         $data['status'] = 'terjadwal';
         $data['created_at'] = now();
         $data['updated_at'] = now();
 
-        DB::table('supervisis')->insert($data);
+        try {
+            DB::table('supervisis')->insert($data);
+        } catch (\Throwable $e) {
+            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($suratPath)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($suratPath);
+            }
+
+            report($e);
+
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'surat_pemberitahuan' => 'Jadwal supervisi gagal disimpan. Silakan coba kembali.',
+                ]);
+        }
 
         return redirect()
             ->route('admin.supervisi.index')
@@ -185,5 +252,24 @@ class AdminSupervisiController extends Controller
         return redirect()
             ->route('admin.supervisi.index')
             ->with('success', 'Hasil supervisi berhasil disimpan.');
+    }
+
+    public function destroy($id)
+    {
+        if (!session()->has('admin_id')) {
+            return redirect()->route('login');
+        }
+
+        $exists = DB::table('supervisis')->where('id', $id)->exists();
+
+        if (!$exists) {
+            abort(404);
+        }
+
+        DB::table('supervisis')->where('id', $id)->delete();
+
+        return redirect()
+            ->route('admin.supervisi.index')
+            ->with('success', 'Jadwal supervisi berhasil dihapus.');
     }
 }

@@ -12,9 +12,37 @@
         </div>
 
         <a href="{{ route('guru.supervisi') }}"
-           class="btn btn-light">
+            class="btn btn-light">
             Kembali
         </a>
+    </div>
+
+    <div class="card mb-5">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title fw-bold">Surat Pemberitahuan</h3>
+            @if ($supervisi->surat_pemberitahuan_path)
+            <a href="{{ route('guru.supervisi.surat', $supervisi->id) }}" class="btn btn-sm btn-primary" target="_blank" rel="noopener">
+                <i class="bi bi-file-earmark-pdf-fill me-2"></i>
+                Lihat Surat
+            </a>
+            @endif
+        </div>
+        <div class="card-body">
+            @if ($supervisi->surat_pemberitahuan_path)
+            <div class="d-flex align-items-center justify-content-between gap-3 p-3 border rounded bg-light">
+                <div>
+                    <div class="fw-semibold text-gray-800">{{ $supervisi->nama_surat_pemberitahuan ?: 'Surat pemberitahuan supervisi' }}</div>
+                    <div class="text-muted fs-7">File PDF telah dilampirkan oleh admin.</div>
+                </div>
+                <a href="{{ route('guru.supervisi.surat', $supervisi->id) }}" class="btn btn-light-primary" target="_blank" rel="noopener">
+                    <i class="bi bi-download me-2"></i>
+                    Buka
+                </a>
+            </div>
+            @else
+            <p class="mb-0 text-muted">Surat pemberitahuan belum tersedia.</p>
+            @endif
+        </div>
     </div>
 
     <div class="card mb-5">

@@ -349,9 +349,11 @@
                             {{-- AKSI --}}
                             <td class="text-end">
                                 <a href="{{ route('guru.supervisi.detail', $item->id) }}"
-                                    class="btn btn-sm btn-light-primary"
-                                    title="Lihat detail supervisi">
+                                    class="btn btn-sm btn-light-primary d-inline-flex align-items-center gap-2"
+                                    title="Lihat Surat"
+                                    aria-label="Lihat Surat">
                                     <i class="bi bi-file-earmark-pdf-fill fs-2"></i>
+
                                 </a>
                             </td>
 

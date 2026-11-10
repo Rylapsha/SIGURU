@@ -525,7 +525,7 @@ $jumlahJadwalMendatang = isset($jadwalMendatang)
 
 
                 {{-- ==================================================
-                    JUMLAH GURU PER MATA PELAJARAN
+                    JUMLAH GURU
                 =================================================== --}}
                 <div class="card dashboard-panel">
 
@@ -543,13 +543,13 @@ $jumlahJadwalMendatang = isset($jadwalMendatang)
 
                                 <h3 class="dashboard-heading fw-bold mb-1">
 
-                                    Jumlah Guru per Mata Pelajaran
+                                    Jumlah Guru
 
                                 </h3>
 
                                 <span class="dashboard-muted fs-7">
 
-                                    Distribusi guru berdasarkan mata pelajaran
+                                    Total guru terdaftar di sistem
 
                                 </span>
 
@@ -562,70 +562,26 @@ $jumlahJadwalMendatang = isset($jadwalMendatang)
 
                     <div class="card-body pt-4">
 
-                        @forelse(($statistikMapel ?? []) as $item)
+                        <div class="d-flex align-items-center justify-content-between gap-4 py-2">
 
-                        @php
-                        $mapel = $item->mata_pelajaran ?? 'Tidak diketahui';
-                        $jumlah = (int) ($item->jumlah ?? 0);
+                            <div>
 
-                        $maksimumGuru = max(
-                        1,
-                        (int) collect($statistikMapel ?? [])->pluck('jumlah')->max()
-                        );
+                                <div class="dashboard-heading fw-bolder display-6 mb-1">
 
-                        $persentaseMapel = round(
-                        ($jumlah / $maksimumGuru) * 100
-                        );
-                        @endphp
+                                    {{ $totalGuru ?? 0 }} <span class="fs-7 text-muted">Orang</span>
 
-                        <div class="mb-5">
-
-                            <div class="d-flex align-items-center justify-content-between mb-2">
-
-                                <span class="dashboard-muted fs-7">
-
-                                    {{ $mapel }}
-
-                                </span>
-
-                                <span class="dashboard-heading fw-bold fs-7">
-
-                                    {{ $jumlah }} guru
-
-                                </span>
-
-                            </div>
-
-                            <div class="progress h-6px">
-
-                                <div
-                                    class="progress-bar bg-primary"
-                                    role="progressbar"
-                                    style="width: {{ $persentaseMapel }}%;"
-                                    aria-valuenow="{{ $persentaseMapel }}"
-                                    aria-valuemin="0"
-                                    aria-valuemax="100">
                                 </div>
 
                             </div>
 
-                        </div>
-
-                        @empty
-
-                        <div class="text-center py-8">
-
-                            <i class="bi bi-people fs-2x text-muted d-block mb-3"></i>
-
-                            <div class="dashboard-muted fs-7">
-
-                                Belum ada data guru.
-
-                            </div>
+                            <a
+                                href="{{ route('admin.guru.index') }}"
+                                class="btn btn-sm btn-light-primary dashboard-action-btn mt-3">
+                                Lihat Detail
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
 
                         </div>
-
-                        @endforelse
 
                     </div>
 
@@ -674,6 +630,28 @@ $jumlahJadwalMendatang = isset($jadwalMendatang)
 
                         @forelse(($jadwalMendatang ?? collect()) as $jadwal)
 
+                        @php
+                        $agendaLabel = ($jadwal->jenis ?? 'supervisi') === 'supervisi'
+                        ? 'Supervisi Guru'
+                        : ($jadwal->judul ?? 'Kegiatan');
+
+                        $agendaRoute = ($jadwal->jenis ?? 'supervisi') === 'supervisi'
+                        ? route('admin.supervisi.index')
+                        : route('admin.agenda.index');
+
+                        $agendaWaktu = $jadwal->jam
+                        ? \Illuminate\Support\Str::substr($jadwal->jam, 0, 5) . ' WIB'
+                        : 'Waktu belum ditentukan';
+
+                        $agendaPengisi = $jadwal->nama_lengkap
+                        ?? $jadwal->guru->nama_lengkap
+                        ?? null;
+
+                        $agendaLokasi = $jadwal->lokasi ?? null;
+                        $agendaKeterangan = $jadwal->keterangan ?? null;
+                        $agendaStatus = $jadwal->status ?? 'terjadwal';
+                        @endphp
+
                         @if(!$loop->first)
 
                         <div class="separator separator-dashed my-5"></div>
@@ -682,7 +660,7 @@ $jumlahJadwalMendatang = isset($jadwalMendatang)
 
 
                         <a
-                            href="{{ route('admin.supervisi.index') }}"
+                            href="{{ $agendaRoute }}"
                             class="dashboard-agenda-item">
 
 
@@ -713,12 +691,31 @@ $jumlahJadwalMendatang = isset($jadwalMendatang)
                                 <span
                                     class="dashboard-agenda-title fw-bold d-block fs-6 mb-2">
 
-                                    {{ $jadwal->nama_guru
-                                            ?? $jadwal->guru->nama_lengkap
-                                            ?? 'Nama guru' }}
+                                    {{ $agendaLabel }}
 
                                 </span>
 
+                                <span class="dashboard-muted fs-7 d-block mb-1">
+
+                                    <i class="bi bi-clock me-1"></i>
+
+                                    {{ $agendaWaktu }}
+
+                                </span>
+
+                                @if(($jadwal->jenis ?? 'supervisi') === 'supervisi')
+
+                                @if($agendaPengisi)
+
+                                <span class="dashboard-muted fs-7 d-block mb-1">
+
+                                    <i class="bi bi-person me-1"></i>
+
+                                    {{ $agendaPengisi }}
+
+                                </span>
+
+                                @endif
 
                                 @if($jadwal->mata_pelajaran)
 
@@ -732,25 +729,41 @@ $jumlahJadwalMendatang = isset($jadwalMendatang)
 
                                 @endif
 
+                                @else
+
+                                @if($agendaLokasi)
 
                                 <span class="dashboard-muted fs-7 d-block mb-1">
 
-                                    <i class="bi bi-clock me-1"></i>
+                                    <i class="bi bi-geo-alt me-1"></i>
 
-                                    {{ $jadwal->jam
-                                            ? \Illuminate\Support\Str::substr($jadwal->jam, 0, 5) . ' WIB'
-                                            : 'Waktu belum ditentukan' }}
+                                    {{ $agendaLokasi }}
 
                                 </span>
 
+                                @endif
 
-                                @if(isset($jadwal->status))
+                                @if($agendaKeterangan)
+
+                                <span class="dashboard-muted fs-7 d-block mb-1">
+
+                                    <i class="bi bi-card-text me-1"></i>
+
+                                    {{ \Illuminate\Support\Str::limit($agendaKeterangan, 80) }}
+
+                                </span>
+
+                                @endif
+
+                                @endif
+
+                                @if(isset($jadwal->status) || ($jadwal->jenis ?? 'supervisi') === 'kegiatan')
 
                                 <span class="dashboard-muted fs-7 d-block">
 
                                     <i class="bi bi-check-circle me-1"></i>
 
-                                    {{ ucfirst($jadwal->status) }}
+                                    {{ ucfirst($agendaStatus) }}
 
                                 </span>
 
@@ -781,13 +794,13 @@ $jumlahJadwalMendatang = isset($jadwalMendatang)
 
                             <div class="fw-semibold mb-1">
 
-                                Belum ada jadwal supervisi
+                                Belum ada agenda kegiatan
 
                             </div>
 
                             <div class="fs-8">
 
-                                Belum terdapat agenda supervisi yang akan datang.
+                                Belum terdapat agenda supervisi maupun kegiatan tambahan yang akan datang.
 
                             </div>
 
@@ -809,7 +822,7 @@ $jumlahJadwalMendatang = isset($jadwalMendatang)
                             <span class="dashboard-muted fs-7">
 
                                 {{ $jumlahJadwalMendatang }}
-                                jadwal supervisi mendatang
+                                agenda mendatang
 
                             </span>
 
@@ -1115,6 +1128,7 @@ $jumlahJadwalMendatang = isset($jadwalMendatang)
     ========================================================== */
 
     .dashboard-agenda-item {
+        position: relative;
         display: flex;
 
         align-items: flex-start;
@@ -1123,7 +1137,7 @@ $jumlahJadwalMendatang = isset($jadwalMendatang)
 
         min-width: 0;
 
-        padding: 0.25rem;
+        padding: 0.75rem 0.85rem 0.75rem 1rem;
 
         text-decoration: none;
 
@@ -1136,11 +1150,17 @@ $jumlahJadwalMendatang = isset($jadwalMendatang)
     }
 
 
-    .dashboard-agenda-item:hover {
-        color: inherit;
-
-        background:
-            var(--bs-secondary-bg, #f5f9ff);
+    .dashboard-agenda-item::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0.35rem;
+        bottom: 0.35rem;
+        width: 3px;
+        border-radius: 999px;
+        background: linear-gradient(180deg,
+                #2478ed 0%,
+                #71a9ff 100%);
     }
 
 

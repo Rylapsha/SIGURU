@@ -11,6 +11,7 @@ use App\Http\Controllers\AdminSupervisiController;
 use App\Http\Controllers\AdminGuruController;
 use App\Http\Controllers\AdminKomentarDokumenController;
 use App\Http\Controllers\AdminMataPelajaranController;
+use App\Http\Controllers\AdminAgendaKegiatanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -101,6 +102,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/supervisi/{id}', [SupervisiController::class, 'show'])
         ->whereNumber('id')
         ->name('guru.supervisi.detail');
+
+    Route::get('/supervisi/{id}/surat', [SupervisiController::class, 'lihatSurat'])
+        ->whereNumber('id')
+        ->name('guru.supervisi.surat');
 });
 
 /*
@@ -198,4 +203,25 @@ Route::prefix('admin')
 
         Route::delete('/mata-pelajaran/{mataPelajaran}', [AdminMataPelajaranController::class, 'destroy'])
             ->name('mata-pelajaran.destroy');
+
+        // Agenda kegiatan admin
+        Route::get('/agenda-kegiatan', [AdminAgendaKegiatanController::class, 'index'])
+            ->name('agenda.index');
+
+        Route::post('/agenda-kegiatan', [AdminAgendaKegiatanController::class, 'store'])
+            ->name('agenda.store');
+
+        Route::put('/agenda-kegiatan/{agendaKegiatan}', [AdminAgendaKegiatanController::class, 'update'])
+            ->name('agenda.update');
+
+        Route::delete('/agenda-kegiatan/{agendaKegiatan}', [AdminAgendaKegiatanController::class, 'destroy'])
+            ->name('agenda.destroy');
+
+        // Hapus jadwal supervisi
+        Route::delete('/supervisi/{id}', [
+            AdminSupervisiController::class,
+            'destroy',
+        ])
+            ->whereNumber('id')
+            ->name('supervisi.destroy');
     });

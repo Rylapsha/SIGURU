@@ -136,6 +136,18 @@
                 </div>
 
                 <div class="menu-item">
+                    <a href="{{ route('admin.agenda.index') }}"
+                        class="menu-link {{ request()->routeIs('admin.agenda.*') ? 'active' : '' }}">
+
+                        <span class="menu-icon">
+                            <i class="bi bi-calendar-event fs-3"></i>
+                        </span>
+
+                        <span class="menu-title">Agenda Kegiatan</span>
+                    </a>
+                </div>
+
+                <div class="menu-item">
                     <div class="menu-content">
                         <div class="separator mx-1 my-4"></div>
                     </div>

@@ -491,36 +491,46 @@
                     @endphp
 
                     <div class="mt-4 pt-4 border-top">
-                        <div class="fw-bold text-gray-800 mb-3">
-                            <i class="bi bi-chat-left-text me-2"></i>
-                            Komentar Admin
-                        </div>
+                        <button class="btn btn-link text-gray-800 fw-bold px-0 d-flex align-items-center gap-2"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#komentar-dokumen-{{ $dokumen->id }}"
+                            aria-expanded="false"
+                            aria-controls="komentar-dokumen-{{ $dokumen->id }}">
+                            <i class="bi bi-chat-left-text me-1"></i>
+                            Komentar
+                            <i class="bi bi-chevron-down fs-7"></i>
+                        </button>
 
-                        @forelse($komentarDokumen as $komentar)
-                        <div class="bg-light rounded p-3 mb-3">
-                            <div class="d-flex align-items-center gap-2 mb-2">
-                                <i class="bi bi-person-circle fs-3 text-primary"></i>
+                        <div id="komentar-dokumen-{{ $dokumen->id }}" class="collapse mt-3">
+                            @if($komentarDokumen->isNotEmpty())
+                            @foreach($komentarDokumen as $komentar)
+                            <div class="bg-light rounded p-3 mb-3">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <i class="bi bi-person-circle fs-3 text-primary"></i>
 
-                                <div>
-                                    <div class="fw-semibold text-gray-800">
-                                        Admin
+                                    <div>
+                                        <div class="fw-semibold text-gray-800">
+                                            Admin
+                                        </div>
+
+                                        <small class="text-muted">
+                                            {{ $komentar->created_at->format('d/m/Y H:i') }}
+                                        </small>
                                     </div>
-
-                                    <small class="text-muted">
-                                        {{ $komentar->created_at->format('d/m/Y H:i') }}
-                                    </small>
                                 </div>
-                            </div>
 
-                            <div class="text-gray-700"
-                                style="white-space: pre-line; overflow-wrap: anywhere;">{{ $komentar->komentar }}</div>
+                                <div class="text-gray-700"
+                                    style="white-space: pre-line; overflow-wrap: anywhere;">{{ $komentar->komentar }}</div>
+                            </div>
+                            @endforeach
+                            @else
+                            <div class="text-muted fs-7">
+                                <i class="bi bi-chat-left me-1"></i>
+                                Tidak ada komentar.
+                            </div>
+                            @endif
                         </div>
-                        @empty
-                        <div class="text-muted fs-7">
-                            <i class="bi bi-chat-left me-1"></i>
-                            Belum ada komentar dari admin untuk dokumen ini.
-                        </div>
-                        @endforelse
                     </div>
 
                 </div>
@@ -615,36 +625,46 @@
                 @endphp
 
                 <div class="mt-4 pt-4 border-top">
-                    <div class="fw-bold text-gray-800 mb-3">
-                        <i class="bi bi-chat-left-text me-2"></i>
-                        Komentar Admin
-                    </div>
+                    <button class="btn btn-link text-gray-800 fw-bold px-0 d-flex align-items-center gap-2"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#komentar-dokumen-{{ $dokumen->id }}"
+                        aria-expanded="false"
+                        aria-controls="komentar-dokumen-{{ $dokumen->id }}">
+                        <i class="bi bi-chat-left-text me-1"></i>
+                        Komentar
+                        <i class="bi bi-chevron-down fs-7"></i>
+                    </button>
 
-                    @forelse($komentarDokumen as $komentar)
-                    <div class="bg-light rounded p-3 mb-3">
-                        <div class="d-flex align-items-center gap-2 mb-2">
-                            <i class="bi bi-person-circle fs-3 text-primary"></i>
+                    <div id="komentar-dokumen-{{ $dokumen->id }}" class="collapse mt-3">
+                        @if($komentarDokumen->isNotEmpty())
+                        @foreach($komentarDokumen as $komentar)
+                        <div class="bg-light rounded p-3 mb-3">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <i class="bi bi-person-circle fs-3 text-primary"></i>
 
-                            <div>
-                                <div class="fw-semibold text-gray-800">
-                                    Admin
+                                <div>
+                                    <div class="fw-semibold text-gray-800">
+                                        Admin
+                                    </div>
+
+                                    <small class="text-muted">
+                                        {{ $komentar->created_at->format('d/m/Y H:i') }}
+                                    </small>
                                 </div>
-
-                                <small class="text-muted">
-                                    {{ $komentar->created_at->format('d/m/Y H:i') }}
-                                </small>
                             </div>
-                        </div>
 
-                        <div class="text-gray-700"
-                            style="white-space: pre-line; overflow-wrap: anywhere;">{{ $komentar->komentar }}</div>
+                            <div class="text-gray-700"
+                                style="white-space: pre-line; overflow-wrap: anywhere;">{{ $komentar->komentar }}</div>
+                        </div>
+                        @endforeach
+                        @else
+                        <div class="text-muted fs-7">
+                            <i class="bi bi-chat-left me-1"></i>
+                            Belum ada komentar.
+                        </div>
+                        @endif
                     </div>
-                    @empty
-                    <div class="text-muted fs-7">
-                        <i class="bi bi-chat-left me-1"></i>
-                        Belum ada komentar dari admin untuk dokumen ini.
-                    </div>
-                    @endforelse
                 </div>
 
             </div>

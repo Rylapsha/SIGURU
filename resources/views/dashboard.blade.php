@@ -176,9 +176,17 @@ $jumlahSupervisiMendatang = isset($agendaMendatang)
                                         Rincian Kelengkapan Dokumen
                                     </h4>
 
-                                    <span class="badge badge-light-primary">
-                                        {{ $jumlahDokumenLengkap }}/{{ $totalKategoriDokumen }}
-                                    </span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge badge-light-primary">
+                                            {{ $jumlahDokumenLengkap }}/{{ $totalKategoriDokumen }}
+                                        </span>
+
+                                        <a href="{{ route('dokumen.index') }}"
+                                            class="btn btn-sm btn-light-primary dashboard-action-btn">
+                                            Kelola Dokumen
+                                            <i class="bi bi-chevron-right"></i>
+                                        </a>
+                                    </div>
                                 </div>
 
                                 <div class="d-flex flex-column gap-4">
@@ -222,12 +230,6 @@ $jumlahSupervisiMendatang = isset($agendaMendatang)
                                     @endforelse
 
                                 </div>
-
-                                <a href="{{ route('dokumen.index') }}"
-                                    class="btn btn-sm btn-light-primary dashboard-action-btn mt-3">
-                                    Kelola Dokumen
-                                    <i class="bi bi-arrow-right ms-2"></i>
-                                </a>
 
                             </div>
                         </div>
