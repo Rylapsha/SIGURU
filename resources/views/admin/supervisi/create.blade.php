@@ -110,12 +110,23 @@
 
                     <div class="col-md-6">
                         <label for="tanggal" class="form-label fw-semibold">Tanggal</label>
-                        <input type="date"
-                            name="tanggal"
-                            id="tanggal"
-                            class="form-control form-control-solid"
-                            value="{{ old('tanggal') }}"
-                            required>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-calendar3"></i>
+                            </span>
+                            <input
+                                type="text"
+                                name="tanggal"
+                                id="tanggal"
+                                class="form-control form-control-solid"
+                                data-date-picker="single"
+                                placeholder="YYYY-MM-DD"
+                                pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"
+                                title="Gunakan format YYYY-MM-DD"
+                                autocomplete="off"
+                                value="{{ old('tanggal') }}"
+                                required>
+                        </div>
                     </div>
 
                     <div class="col-md-6">

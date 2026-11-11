@@ -64,37 +64,12 @@ $jumlahJadwalMendatang = isset($jadwalMendatang)
             HEADER DASHBOARD
         =========================================================== --}}
         <div class="d-flex flex-wrap flex-stack mb-7 mt-4">
-
             <div>
-
-                <h1 class="fw-lighter mt-3 mb-10 dashboard-welcome">
-
-                    Selamat Datang
-                    <span class="fw-bolder">
-                        {{ Auth::user()->nama_lengkap ?? 'Admin' }}
-                    </span>
-
-                    di Sistem Informasi Direktori Guru SMP Negeri 2 Purwakarta
-
-                </h1>
-
-                <p class="dashboard-description">
-
-                    Dashboard ini menampilkan ringkasan data guru, kelengkapan
-                    dokumen, jadwal supervisi, dan aktivitas pembelajaran
-                    untuk membantu admin melakukan pemantauan secara terpusat.
-
-                    <br>
-
-                    Silakan gunakan informasi yang tersedia untuk memantau
-                    kondisi data dan kegiatan guru di sekolah.
-
-                </p>
-
-            </div>
-
+                    <h1 class="fw-lighter mt-3 mb-10 dashboard-welcome">
+                        Selamat Datang <span class="fw-bolder"> {{ Auth::user()->nama_lengkap ?? 'Admin' }}</span>
+                    </h1>
+              </div>
         </div>
-
 
         {{-- ==========================================================
             INFORMASI TAHUN AJARAN
@@ -1061,7 +1036,7 @@ $jumlahJadwalMendatang = isset($jadwalMendatang)
 
 
     .dashboard-detail-label {
-        color: var(--bs-gray-700, #5e6278);
+        color: var(--bs-gray-700, #454e85);
     }
 
 

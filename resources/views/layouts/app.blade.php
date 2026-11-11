@@ -29,12 +29,7 @@ License: For each use you must have a valid license purchased only from above li
     <link id="kt_plugins_stylesheet" href="{{ asset('demo1/dist/assets/plugins/global/plugins.bundle.css') }}" data-light-href="{{ asset('demo1/dist/assets/plugins/global/plugins.bundle.css') }}" data-dark-href="{{ asset('demo1/dist/assets/plugins/global/plugins.dark.bundle.css') }}" rel="stylesheet" type="text/css" />
     <link id="kt_theme_stylesheet" href="{{ asset('demo1/dist/assets/css/style.bundle.css') }}" data-light-href="{{ asset('demo1/dist/assets/css/style.bundle.css') }}" data-dark-href="{{ asset('demo1/dist/assets/css/style.dark.bundle.css') }}" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
-
-    <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/min/moment.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    @include('layouts.partials.date-range-picker-styles')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!--end::Global Stylesheets Bundle-->
     <script>
@@ -593,6 +588,7 @@ License: For each use you must have a valid license purchased only from above li
 
     <!--begin::Global Javascript Bundle(used by all pages)-->
     <script src="{{ asset('demo1/dist/assets/plugins/global/plugins.bundle.js') }}"></script>
+    @include('layouts.partials.date-range-picker-scripts')
     <script src="{{ asset('demo1/dist/assets/js/scripts.bundle.js') }}"></script>
     <!--end::Global Javascript Bundle-->
 

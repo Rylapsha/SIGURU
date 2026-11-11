@@ -6,11 +6,6 @@
 <div class="admin-supervisi">
 
     <div class="page-heading">
-        <div>
-            <h1>Jadwal Supervisi</h1>
-            <p>Kelola jadwal dan hasil supervisi guru.</p>
-
-        </div>
 
     </div>
 

@@ -31,6 +31,8 @@
     <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
+    @include('layouts.partials.date-range-picker-styles')
+
     {{-- Tentukan tema sebelum halaman ditampilkan --}}
     <script>
         (function() {
@@ -459,6 +461,7 @@
 
     {{-- JavaScript Metronic --}}
     <script src="{{ asset('demo1/dist/assets/plugins/global/plugins.bundle.js') }}"></script>
+    @include('layouts.partials.date-range-picker-scripts')
     <script src="{{ asset('demo1/dist/assets/js/scripts.bundle.js') }}"></script>
 
     {{-- SweetAlert2 untuk konfirmasi logout --}}

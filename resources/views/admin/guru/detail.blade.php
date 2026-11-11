@@ -4,6 +4,16 @@
 @section('page_title', 'Detail Guru')
 
 @section('content')
+<style>
+    .document-comments-chevron {
+        transition: transform .2s ease;
+    }
+
+    [aria-expanded="true"] .document-comments-chevron {
+        transform: rotate(180deg);
+    }
+</style>
+
 <div class="container-fluid px-0">
 
     {{-- HEADER HALAMAN --}}
@@ -163,8 +173,22 @@
 
                             </div>
 
-                            {{-- TOMBOL LIHAT PDF --}}
-                            <div class="flex-shrink-0">
+                            {{-- TOMBOL KOMENTAR DAN LIHAT PDF --}}
+                            <div class="d-flex align-items-center gap-2 flex-shrink-0">
+
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-light-primary"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#komentar-riwayat-{{ $dokumen->id }}"
+                                    aria-expanded="false"
+                                    aria-controls="komentar-riwayat-{{ $dokumen->id }}"
+                                    aria-label="Tampilkan komentar dan riwayat {{ $dokumen->nama_file }}">
+
+                                    <i class="bi bi-chat-left-text-fill me-1"></i>
+                                    Komentar
+                                </button>
+
                                 <a
                                     href="{{ route('admin.guru.dokumen.lihat', $dokumen->id) }}"
                                     target="_blank"
@@ -178,115 +202,117 @@
 
                         </div>
 
-                        {{-- FORM KOMENTAR ADMIN --}}
-                        <div class="mt-5 p-4 rounded border border-gray-200">
+                        <div id="komentar-riwayat-{{ $dokumen->id }}" class="collapse">
+                            {{-- FORM KOMENTAR ADMIN --}}
+                            <div class="mt-5 p-4 rounded border border-gray-200">
 
-                            <label
-                                for="komentar-{{ $dokumen->id }}"
-                                class="form-label fw-bold text-gray-800">
+                                <label
+                                    for="komentar-{{ $dokumen->id }}"
+                                    class="form-label fw-bold text-gray-800">
 
-                                <i class="bi bi-chat-left-text me-2"></i>
-                                Berikan Komentar
-                            </label>
+                                    <i class="bi bi-chat-left-text me-2"></i>
+                                    Berikan Komentar
+                                </label>
 
-                            <form
-                                action="{{ route('admin.guru.dokumen.komentar.store', $dokumen->id) }}"
-                                method="POST">
+                                <form
+                                    action="{{ route('admin.guru.dokumen.komentar.store', $dokumen->id) }}"
+                                    method="POST">
 
-                                @csrf
+                                    @csrf
 
-                                <textarea
-                                    id="komentar-{{ $dokumen->id }}"
-                                    name="komentar"
-                                    class="form-control form-control-solid mb-3"
-                                    rows="3"
-                                    maxlength="5000"
-                                    placeholder="Tulis catatan atau masukan untuk dokumen ini..."
-                                    required>{{ old('komentar') }}</textarea>
+                                    <textarea
+                                        id="komentar-{{ $dokumen->id }}"
+                                        name="komentar"
+                                        class="form-control form-control-solid mb-3"
+                                        rows="3"
+                                        maxlength="5000"
+                                        placeholder="Tulis catatan atau masukan untuk dokumen ini..."
+                                        required>{{ old('komentar') }}</textarea>
 
-                                <div class="d-flex justify-content-end">
-                                    <button
-                                        type="submit"
-                                        class="btn btn-sm btn-primary">
+                                    <div class="d-flex justify-content-end">
+                                        <button
+                                            type="submit"
+                                            class="btn btn-sm btn-primary">
 
-                                        <i class="bi bi-send me-1"></i>
-                                        Kirim Komentar
-                                    </button>
-                                </div>
+                                            <i class="bi bi-send me-1"></i>
+                                            Kirim Komentar
+                                        </button>
+                                    </div>
 
-                            </form>
-                        </div>
-
-                        {{-- RIWAYAT KOMENTAR --}}
-                        <div class="mt-5">
-
-                            <div class="fw-bold text-gray-800 mb-3">
-                                <i class="bi bi-chat-square-text me-2"></i>
-                                Riwayat Komentar
+                                </form>
                             </div>
 
-                            @php
-                                $riwayatKomentar = $komentarPerDokumen->get(
-                                    $dokumen->id,
-                                    collect()
-                                );
-                            @endphp
+                            {{-- RIWAYAT KOMENTAR --}}
+                            <div class="mt-5">
 
-                            @forelse ($riwayatKomentar as $komentar)
-                                <div class="rounded border border-gray-200 p-4 mb-3">
+                                <div class="fw-bold text-gray-800 mb-3">
+                                    <i class="bi bi-chat-square-text me-2"></i>
+                                    Riwayat Komentar
+                                </div>
 
-                                    {{-- HEADER KOMENTAR --}}
-                                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+                                @php
+                                    $riwayatKomentar = $komentarPerDokumen->get(
+                                        $dokumen->id,
+                                        collect()
+                                    );
+                                @endphp
 
-                                        <div class="d-flex align-items-center gap-2">
-                                            <i class="bi bi-person-circle fs-2 text-primary"></i>
+                                @forelse ($riwayatKomentar as $komentar)
+                                    <div class="rounded border border-gray-200 p-4 mb-3">
 
-                                            <div>
-                                                <div class="fw-semibold text-gray-800">
-                                                    Admin
-                                                </div>
+                                        {{-- HEADER KOMENTAR --}}
+                                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
 
-                                                <div class="text-muted fs-8">
-                                                    {{ $komentar->created_at?->format('d/m/Y H:i') ?? '-' }}
+                                            <div class="d-flex align-items-center gap-2">
+                                                <i class="bi bi-person-circle fs-2 text-primary"></i>
+
+                                                <div>
+                                                    <div class="fw-semibold text-gray-800">
+                                                        Admin
+                                                    </div>
+
+                                                    <div class="text-muted fs-8">
+                                                        {{ $komentar->created_at?->format('d/m/Y H:i') ?? '-' }}
+                                                    </div>
                                                 </div>
                                             </div>
+
+                                            {{-- TOMBOL HAPUS KOMENTAR --}}
+                                            <form
+                                                action="{{ route('admin.guru.dokumen.komentar.destroy', $komentar->id) }}"
+                                                method="POST"
+                                                class="form-hapus-komentar">
+
+                                                @csrf
+                                                @method('DELETE')
+
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-sm btn-light-danger">
+
+                                                    <i class="bi bi-trash me-1"></i>
+                                                    Hapus
+                                                </button>
+
+                                            </form>
+
                                         </div>
 
-                                        {{-- TOMBOL HAPUS KOMENTAR --}}
-                                        <form
-                                            action="{{ route('admin.guru.dokumen.komentar.destroy', $komentar->id) }}"
-                                            method="POST"
-                                            class="form-hapus-komentar">
-
-                                            @csrf
-                                            @method('DELETE')
-
-                                            <button
-                                                type="submit"
-                                                class="btn btn-sm btn-light-danger">
-
-                                                <i class="bi bi-trash me-1"></i>
-                                                Hapus
-                                            </button>
-
-                                        </form>
+                                        {{-- ISI KOMENTAR --}}
+                                        <div
+                                            class="text-gray-700"
+                                            style="white-space: pre-line; overflow-wrap: anywhere;">{{ $komentar->komentar }}</div>
 
                                     </div>
 
-                                    {{-- ISI KOMENTAR --}}
-                                    <div
-                                        class="text-gray-700"
-                                        style="white-space: pre-line; overflow-wrap: anywhere;">{{ $komentar->komentar }}</div>
+                                @empty
+                                    <div class="text-muted fs-7 py-2">
+                                        <i class="bi bi-chat-left me-1"></i>
+                                        Belum ada komentar untuk dokumen ini.
+                                    </div>
+                                @endforelse
 
-                                </div>
-
-                            @empty
-                                <div class="text-muted fs-7 py-2">
-                                    <i class="bi bi-chat-left me-1"></i>
-                                    Belum ada komentar untuk dokumen ini.
-                                </div>
-                            @endforelse
-
+                            </div>
                         </div>
 
                     </div>

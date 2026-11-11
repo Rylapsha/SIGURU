@@ -119,7 +119,7 @@
                             <i class="bi bi-journal-text fs-3"></i>
                         </span>
 
-                        <span class="menu-title">Master Mata Pelajaran</span>
+                        <span class="menu-title">Mata Pelajaran</span>
                     </a>
                 </div>
 
