@@ -8,13 +8,10 @@
     <div class="page-heading">
         <div>
             <h1>Jadwal Supervisi</h1>
-            <p>Kelola jadwal, hasil observasi, dan komentar supervisi guru.</p>
+            <p>Kelola jadwal dan hasil supervisi guru.</p>
+
         </div>
 
-        <a href="{{ route('admin.supervisi.create') }}" class="btn-primary">
-            <i class="ki-outline ki-plus"></i>
-            Tambah Jadwal
-        </a>
     </div>
 
     {{-- Pesan SweetAlert --}}
@@ -56,139 +53,143 @@
         <div class="section-heading">
             <div>
                 <h2>Daftar Supervisi</h2>
-                <p>Perbarui status dan kelola komentar untuk setiap jadwal.</p>
+                <p>Kelola jadwal dan status supervisi guru.</p>
             </div>
 
-            <span class="total-badge">{{ $jadwal->count() }} jadwal</span>
+            <div class="section-heading-tools">
+                <span class="total-badge">{{ $jadwal->count() }} jadwal</span>
+                <a href="{{ route('admin.supervisi.create') }}" class="btn btn-sm btn-light-primary dashboard-action-btn">
+                    <i class="bi bi-plus-lg me-2"></i>
+                    Tambah Jadwal
+                </a>
+            </div>
         </div>
 
-        <div class="table-wrapper">
-            <table class="supervisi-table">
+        <div class="table-responsive">
+            <table class="table table-row-bordered table-row-gray-300 align-middle gy-5">
                 <thead>
-                    <tr>
-                        <th>Guru dan Mata Pelajaran</th>
-                        <th>Jadwal</th>
-                        <th>Supervisor</th>
-                        <th>Status</th>
-                        <th>Komentar Admin</th>
-                        <th>Aksi</th>
+                    <tr class="fw-bold text-uppercase fs-7">
+                        <th class="min-w-180px">Guru & Mata Pelajaran</th>
+                        <th class="min-w-160px">Jadwal</th>
+                        <th class="min-w-150px">Supervisor</th>
+                        <th class="min-w-120px">Status</th>
+                        <th class="text-end min-w-160px">Aksi</th>
                     </tr>
                 </thead>
 
                 <tbody>
                     @forelse($jadwal as $item)
+                    @php
+                    $statusRiwayat = strtolower($item->status ?? '');
+                    $badgeStatus = $statusRiwayat === 'terjadwal'
+                    ? 'badge-light-primary'
+                    : ($statusRiwayat === 'selesai'
+                    ? 'badge-light-success'
+                    : ($statusRiwayat === 'dibatalkan'
+                    ? 'badge-light-danger'
+                    : 'badge-light-secondary'));
+                    @endphp
                     <tr>
                         <td>
-                            <div class="teacher-name">
+                            <div class="fw-bold text-gray-800">
                                 {{ $item->nama_lengkap ?? 'Guru tidak ditemukan' }}
                             </div>
 
-                            <div class="muted-text">
-                                {{ $item->mata_pelajaran }}
+                            <div class="text-muted fs-7 mt-1">
+                                {{ $item->mata_pelajaran ?: '-' }}
                             </div>
 
-                            <div class="muted-text">
-                                Semester {{ $item->semester }}
+                            <div class="text-muted fs-7 mt-1">
+                                Semester {{ $item->semester ?: '-' }}
                             </div>
                         </td>
 
                         <td>
-                            <div class="date-text">
+                            <div class="fw-bold text-gray-800">
                                 {{ \Carbon\Carbon::parse($item->tanggal)->locale('id')->translatedFormat('d M Y') }}
                             </div>
 
-                            <div class="muted-text">
+                            <div class="text-muted fs-7 mt-1">
                                 {{ $item->jam ? substr((string) $item->jam, 0, 5) . ' WIB' : '-' }}
                             </div>
                         </td>
 
-                        <td>{{ $item->nama_supervisor ?: '-' }}</td>
-
-                        {{-- UBAH STATUS --}}
                         <td>
-                            <form
-                                action="{{ route('admin.supervisi.status', $item->id) }}"
-                                method="POST"
-                                class="inline-form status-form">
+                            <span class="text-gray-700">
+                                {{ $item->nama_supervisor ?: '-' }}
+                            </span>
+                        </td>
+
+                        <td>
+                            @php
+                            $statusValue = strtolower($item->status ?? '');
+                            $statusBadgeClass = match ($statusValue) {
+                            'terjadwal' => 'status-terjadwal',
+                            'selesai' => 'status-selesai',
+                            'dibatalkan' => 'status-dibatalkan',
+                            default => 'status-default',
+                            };
+                            @endphp
+
+                            <form action="{{ route('admin.supervisi.status', $item->id) }}" method="POST" class="inline-form status-form">
                                 @csrf
                                 @method('PATCH')
 
                                 <select name="status"
-                                    class="status-select"
+                                    class="status-select {{ $statusBadgeClass }}"
                                     aria-label="Status supervisi"
                                     data-current-status="{{ $item->status }}"
                                     onchange="confirmStatusChange(this)">
 
-                                    <option value="terjadwal"
-                                        @selected($item->status === 'terjadwal')>
-                                        Terjadwal
-                                    </option>
-
-                                    <option value="selesai"
-                                        @selected($item->status === 'selesai')>
-                                        Selesai
-                                    </option>
-
-                                    <option value="dibatalkan"
-                                        @selected($item->status === 'dibatalkan')>
-                                        Dibatalkan
-                                    </option>
+                                    <option value="terjadwal" @selected($item->status === 'terjadwal')>Terjadwal</option>
+                                    <option value="selesai" @selected($item->status === 'selesai')>Selesai</option>
+                                    <option value="dibatalkan" @selected($item->status === 'dibatalkan')>Dibatalkan</option>
                                 </select>
                             </form>
                         </td>
 
-                        {{-- KOMENTAR ADMIN --}}
-                        <td class="comment-cell">
-                            <form
-                                action="{{ route('admin.supervisi.komentar', $item->id) }}"
-                                method="POST"
-                                class="comment-form">
-                                @csrf
-                                @method('PATCH')
+                        <td class="text-end">
+                            <div class="d-flex justify-content-end gap-2 flex-wrap">
+                                <a href="{{ route('admin.supervisi.detail', $item->id) }}"
+                                    class="btn btn-sm btn-light-primary d-inline-flex align-items-center gap-2"
+                                    title="Lihat Detail"
+                                    aria-label="Lihat Detail">
+                                    <i class="bi bi-eye fs-2"></i>
+                                    <span class="fw-semibold">Detail</span>
+                                </a>
 
-                                <textarea name="komentar_admin"
-                                    rows="3"
-                                    placeholder="Tulis komentar untuk guru...">{{ $item->komentar_admin }}</textarea>
+                                <a href="{{ route('admin.supervisi.feedback', $item->id) }}"
+                                    class="btn btn-sm btn-light-success d-inline-flex align-items-center gap-2"
+                                    title="Feedback"
+                                    aria-label="Feedback">
+                                    <i class="bi bi-chat-dots fs-2"></i>
+                                    <span class="fw-semibold">Feedback</span>
+                                </a>
 
-                                <button type="button"
-                                    class="btn-small"
-                                    onclick="confirmCommentSave(this)">
-                                    <i class="ki-outline ki-check"></i>
-                                    Simpan Komentar
-                                </button>
-                            </form>
+                                <form action="{{ route('admin.supervisi.destroy', $item->id) }}" method="POST" class="inline-form delete-form">
+                                    @csrf
+                                    @method('DELETE')
 
-                            @if($item->komentar_admin)
-                            <span class="comment-saved">
-                                <i class="ki-outline ki-check-circle"></i>
-                                Komentar tersimpan
-                            </span>
-                            @endif
-                        </td>
-
-                        <td>
-                            <form
-                                action="{{ route('admin.supervisi.destroy', $item->id) }}"
-                                method="POST"
-                                class="inline-form delete-form">
-                                @csrf
-                                @method('DELETE')
-
-                                <button type="button"
-                                    class="btn-small btn-delete"
-                                    onclick="confirmDeleteSupervisi(this)">
-                                    <i class="ki-outline ki-trash"></i>
-                                    Hapus
-                                </button>
-                            </form>
+                                    <button type="button"
+                                        class="btn btn-sm btn-light-danger d-inline-flex align-items-center gap-2"
+                                        onclick="confirmDeleteSupervisi(this)"
+                                        title="Hapus"
+                                        aria-label="Hapus">
+                                        <i class="bi bi-trash fs-2"></i>
+                                        <span class="fw-semibold">Hapus</span>
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
+
                     @empty
                     <tr>
-                        <td colspan="6" class="empty-row">
-                            <i class="ki-outline ki-calendar"></i>
-                            <strong>Belum ada jadwal supervisi</strong>
-                            <span>Tambahkan jadwal melalui tombol Tambah Jadwal.</span>
+                        <td colspan="5" class="text-center py-10">
+                            <i class="bi bi-inbox fs-3x text-muted mb-4 d-block"></i>
+                            <div class="text-muted fs-7">
+                                Belum Ada Jadwal Supervisi
+                            </div>
                         </td>
                     </tr>
                     @endforelse
@@ -670,41 +671,6 @@
         outline-offset: 2px;
     }
 
-    .admin-supervisi .table-wrapper {
-        width: 100%;
-        overflow-x: auto;
-    }
-
-    .admin-supervisi .supervisi-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 12px;
-    }
-
-    .admin-supervisi .supervisi-table th {
-        padding: 13px 12px;
-        color: var(--sup-muted);
-        background: rgba(148, 163, 184, .08);
-        border-bottom: 1px solid var(--sup-border);
-        text-align: left;
-        font-size: 10px;
-        font-weight: 700;
-        text-transform: uppercase;
-        white-space: nowrap;
-    }
-
-    .admin-supervisi .supervisi-table td {
-        min-width: 125px;
-        padding: 16px 12px;
-        color: var(--sup-text);
-        border-bottom: 1px solid var(--sup-border);
-        vertical-align: top;
-    }
-
-    .admin-supervisi .supervisi-table tbody tr:last-child td {
-        border-bottom: 0;
-    }
-
     .admin-supervisi .teacher-name {
         margin-bottom: 6px;
         font-weight: 700;
@@ -723,19 +689,61 @@
     }
 
     .admin-supervisi .status-select {
-        width: 130px;
-        padding: 8px;
+        min-width: 128px;
+        width: 100%;
+        max-width: 150px;
+        min-height: 42px;
+        padding: 0.72rem 2.5rem 0.72rem 0.9rem;
         color: var(--sup-text);
-        background: var(--sup-bg);
-        border: 1px solid var(--sup-border);
-        border-radius: 7px;
-        font-size: 11px;
+        background-color: #fff;
+        border: 1px solid #dfeeff;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 600;
         cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: linear-gradient(45deg, transparent 50%, #5b7aa7 50%), linear-gradient(135deg, #5b7aa7 50%, transparent 50%);
+        background-position: calc(100% - 18px) calc(50% - 2px), calc(100% - 12px) calc(50% - 2px);
+        background-size: 6px 6px, 6px 6px;
+        background-repeat: no-repeat;
+        box-shadow: none;
+        transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
     }
 
-    .admin-supervisi .status-select:disabled {
-        opacity: .65;
-        cursor: wait;
+    .admin-supervisi .status-select:focus {
+        border-color: #b7d8ff;
+        box-shadow: 0 0 0 4px rgba(40, 120, 255, 0.08);
+        outline: none;
+    }
+
+    .admin-supervisi .status-select.status-terjadwal {
+        background-color: #eef5ff;
+        color: #1e5cc7;
+        border-color: #cfe1ff;
+        font-weight: 700;
+    }
+
+    .admin-supervisi .status-select.status-selesai {
+        background-color: #ebfaf3;
+        color: #0f8f5f;
+        border-color: #cfeee0;
+        font-weight: 700;
+    }
+
+    .admin-supervisi .status-select.status-dibatalkan {
+        background-color: #fff1f2;
+        color: #c82333;
+        border-color: #ffd7db;
+        font-weight: 700;
+    }
+
+    .admin-supervisi .status-select.status-default {
+        background-color: #f5f7fb;
+        color: #596f8d;
+        border-color: #dde6f3;
+        font-weight: 700;
     }
 
     .admin-supervisi .inline-form {
@@ -893,6 +901,109 @@
         .admin-supervisi .stat-card strong {
             font-size: 24px;
         }
+    }
+
+    .admin-supervisi .action-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+    }
+
+    .admin-supervisi .btn-detail {
+        color: #1d4f96;
+        background: #eaf2ff;
+    }
+
+    .admin-supervisi .btn-detail:hover {
+        background: #dfeeff;
+    }
+
+    .admin-supervisi .detail-modal-card {
+        padding: 12px 14px;
+        border: 1px solid var(--sup-border);
+        border-radius: 10px;
+        background: #f9fbff;
+    }
+
+    .admin-supervisi .detail-label {
+        margin-bottom: 6px;
+        color: var(--sup-muted);
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+    }
+
+    .admin-supervisi .detail-value {
+        color: var(--sup-text);
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.6;
+    }
+
+    .admin-supervisi .modal-content {
+        border-radius: 16px;
+        border: 1px solid var(--sup-border);
+    }
+
+    .admin-supervisi .modal-header,
+    .admin-supervisi .modal-body {
+        background: #fff;
+    }
+
+    .admin-supervisi .modal-body .form-control,
+    .admin-supervisi .modal-body .form-select {
+        border: 1px solid var(--sup-border);
+        border-radius: 10px;
+        background: #fff;
+        color: var(--sup-text);
+        font-size: 12px;
+        padding: 10px 12px;
+    }
+
+    .admin-supervisi .modal-body .form-control:focus,
+    .admin-supervisi .modal-body .form-select:focus {
+        border-color: #438cf5;
+        box-shadow: 0 0 0 3px rgba(67, 140, 245, .1);
+    }
+
+    .admin-supervisi .section-heading-tools {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-left: auto;
+    }
+
+    .admin-supervisi .table thead th {
+        color: #5f728d;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
+
+    .admin-supervisi .table tbody td {
+        padding-top: 14px;
+        padding-bottom: 14px;
+        color: var(--sup-text);
+        font-size: 12px;
+        font-weight: 500;
+        vertical-align: middle;
+    }
+
+    .admin-supervisi .table tbody td .fw-bold,
+    .admin-supervisi .table tbody td .fw-semibold {
+        font-weight: 700 !important;
+    }
+
+    .admin-supervisi .table tbody td .text-muted,
+    .admin-supervisi .table tbody td .text-gray-700,
+    .admin-supervisi .table tbody td .text-gray-800 {
+        font-size: 12px;
     }
 </style>
 @endsection

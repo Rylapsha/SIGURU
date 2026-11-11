@@ -106,6 +106,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/supervisi/{id}/surat', [SupervisiController::class, 'lihatSurat'])
         ->whereNumber('id')
         ->name('guru.supervisi.surat');
+
+    Route::get('/supervisi/{id}/feedback', [SupervisiController::class, 'feedback'])
+        ->whereNumber('id')
+        ->name('guru.supervisi.feedback');
 });
 
 /*
@@ -186,6 +190,20 @@ Route::prefix('admin')
             ->whereNumber('id')
             ->name('supervisi.hasil');
 
+        Route::patch('/supervisi/{id}/penilaian', [
+            AdminSupervisiController::class,
+            'updatePenilaian',
+        ])
+            ->whereNumber('id')
+            ->name('supervisi.penilaian');
+
+        Route::get('/supervisi/{id}/feedback', [
+            AdminSupervisiController::class,
+            'feedback',
+        ])
+            ->whereNumber('id')
+            ->name('supervisi.feedback');
+
         Route::delete(
             '/guru/dokumen/komentar/{id}',
             [AdminKomentarDokumenController::class, 'destroy']
@@ -224,4 +242,11 @@ Route::prefix('admin')
         ])
             ->whereNumber('id')
             ->name('supervisi.destroy');
+
+        Route::get('/supervisi/{id}/detail', [
+            AdminSupervisiController::class,
+            'show',
+        ])
+            ->whereNumber('id')
+            ->name('supervisi.detail');
     });

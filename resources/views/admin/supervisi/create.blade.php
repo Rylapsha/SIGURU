@@ -283,12 +283,73 @@
         background: transparent !important;
         color: #7b8093 !important;
     }
+
+    .semester-select {
+        color-scheme: light;
+        -webkit-appearance: none;
+        appearance: none;
+        background-color: #fff;
+        border: 1px solid #e4e6ef;
+        border-radius: 10px;
+        color: #1f2a37;
+        font-size: 0.95rem;
+        font-weight: 500;
+        line-height: 1.5;
+        min-height: 46px;
+        padding: 0.75rem 2.75rem 0.75rem 1rem;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4.5 6.5L8 10L11.5 6.5' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1rem;
+        box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+        transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+    }
+
+    .semester-select:focus {
+        border-color: #b7d8ff;
+        box-shadow: 0 0 0 4px rgba(40, 120, 255, 0.08);
+        outline: none;
+    }
+
+    .custom-select-picker[data-semester-picker] .custom-select-trigger {
+        min-height: 46px;
+        border: 1px solid #e4e6ef;
+        border-radius: 10px;
+        background: #fff;
+        color: #1f2a37;
+        box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+        padding: 0.75rem 2.75rem 0.75rem 1rem;
+    }
+
+    .custom-select-picker[data-semester-picker] .custom-select-trigger:focus,
+    .custom-select-picker[data-semester-picker] .custom-select-trigger:focus-visible {
+        border-color: #b7d8ff;
+        box-shadow: 0 0 0 4px rgba(40, 120, 255, 0.08);
+        outline: none;
+    }
+
+    .custom-select-picker[data-semester-picker] .custom-select-menu {
+        border: 1px solid #e4e6ef;
+        border-radius: 10px;
+        box-shadow: 0 12px 32px rgba(16, 24, 40, 0.12);
+    }
+
+    .custom-select-picker[data-semester-picker] .custom-select-option:hover,
+    .custom-select-picker[data-semester-picker] .custom-select-option.selected {
+        background: #eef5ff;
+        color: #0d6efd;
+    }
+
+    .semester-select {
+        display: none !important;
+    }
 </style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const guruPicker = document.querySelector('[data-guru-picker]');
         const subjectPicker = document.querySelector('[data-subject-picker]');
+        const semesterPicker = document.querySelector('[data-semester-picker]');
 
         function parseMapels(value) {
             if (Array.isArray(value)) {
@@ -472,6 +533,10 @@
 
         if (subjectPicker) {
             initCustomSelect(subjectPicker);
+        }
+
+        if (semesterPicker) {
+            initCustomSelect(semesterPicker);
         }
 
         if (guruPicker) {

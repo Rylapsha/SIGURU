@@ -102,6 +102,8 @@ class AdminSupervisiController extends Controller
             'surat_pemberitahuan.max' => 'Ukuran surat pemberitahuan maksimal 10 MB.',
         ]);
 
+        unset($data['surat_pemberitahuan']);
+
         $guru = DB::table('gurus')->where('id', $request->guru_id)->first();
         $allowedMapels = [];
 
@@ -231,7 +233,6 @@ class AdminSupervisiController extends Controller
         }
 
         $data = $request->validate([
-            'hasil_observasi' => ['nullable', 'string', 'max:10000'],
             'tindak_lanjut' => ['nullable', 'string', 'max:10000'],
         ]);
 
@@ -244,14 +245,51 @@ class AdminSupervisiController extends Controller
         DB::table('supervisis')
             ->where('id', $id)
             ->update([
-                'hasil_observasi' => $data['hasil_observasi'],
                 'tindak_lanjut' => $data['tindak_lanjut'],
                 'updated_at' => now(),
             ]);
 
         return redirect()
             ->route('admin.supervisi.index')
-            ->with('success', 'Hasil supervisi berhasil disimpan.');
+            ->with('success', 'Catatan tindak lanjut berhasil disimpan.');
+    }
+
+    public function updatePenilaian(Request $request, $id)
+    {
+        if (!session()->has('admin_id')) {
+            return redirect()->route('login');
+        }
+
+        $data = $request->validate([
+            'predikat' => ['nullable', 'string', Rule::in(['Kurang', 'Cukup', 'Baik', 'Sangat Baik'])],
+            'feedback_admin' => ['nullable', 'string', 'max:10000'],
+        ]);
+
+        $exists = DB::table('supervisis')->where('id', $id)->exists();
+
+        if (!$exists) {
+            abort(404);
+        }
+
+        $skorMap = [
+            'Kurang' => 25,
+            'Cukup' => 50,
+            'Baik' => 75,
+            'Sangat Baik' => 100,
+        ];
+
+        DB::table('supervisis')
+            ->where('id', $id)
+            ->update([
+                'predikat' => $data['predikat'] ?? null,
+                'skor' => $data['predikat'] ? ($skorMap[$data['predikat']] ?? null) : null,
+                'feedback_admin' => $data['feedback_admin'] ?? null,
+                'updated_at' => now(),
+            ]);
+
+        return redirect()
+            ->route('admin.supervisi.index')
+            ->with('success', 'Feedback dan penilaian supervisi berhasil disimpan.');
     }
 
     public function destroy($id)
@@ -271,5 +309,49 @@ class AdminSupervisiController extends Controller
         return redirect()
             ->route('admin.supervisi.index')
             ->with('success', 'Jadwal supervisi berhasil dihapus.');
+    }
+
+    public function show($id)
+    {
+        if (!session()->has('admin_id')) {
+            return redirect()->route('login');
+        }
+
+        $item = DB::table('supervisis')
+            ->leftJoin('gurus', 'supervisis.guru_id', '=', 'gurus.id')
+            ->select(
+                'supervisis.*',
+                'gurus.nama_lengkap'
+            )
+            ->where('supervisis.id', $id)
+            ->first();
+
+        if (!$item) {
+            abort(404);
+        }
+
+        return view('admin.supervisi.show', compact('item'));
+    }
+
+    public function feedback($id)
+    {
+        if (!session()->has('admin_id')) {
+            return redirect()->route('login');
+        }
+
+        $item = DB::table('supervisis')
+            ->leftJoin('gurus', 'supervisis.guru_id', '=', 'gurus.id')
+            ->select(
+                'supervisis.*',
+                'gurus.nama_lengkap'
+            )
+            ->where('supervisis.id', $id)
+            ->first();
+
+        if (!$item) {
+            abort(404);
+        }
+
+        return view('admin.supervisi.feedback', compact('item'));
     }
 }

@@ -10,10 +10,6 @@
             <h2 class="fw-bold text-gray-900 mb-1">Master Mata Pelajaran</h2>
             <div class="text-muted fs-6">Kelola daftar mata pelajaran yang tersedia untuk guru dan dokumen.</div>
         </div>
-
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambahMapelModal">
-            <i class="bi bi-plus-lg me-2"></i>Tambah Mata Pelajaran
-        </button>
     </div>
 
     @if (session('success'))
@@ -34,22 +30,32 @@
     </div>
     @endif
 
-    <div class="card">
-        <div class="card-body p-0">
+    <div class="card dashboard-panel overflow-hidden">
+        <div class="card-body pt-3">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 px-2">
+                <button type="button" class="btn btn-sm btn-light-primary dashboard-action-btn mt-3" data-bs-toggle="modal" data-bs-target="#tambahMapelModal">
+                    <i class="bi bi-plus-lg me-2"></i>Tambah Mata Pelajaran
+                </button>
+            </div>
+
             <div class="table-responsive">
-                <table class="table align-middle table-row-dashed table-row-gray-300 gy-4">
+                <table class="table table-sm table-row-bordered table-row-gray-300 align-middle gy-5">
                     <thead>
-                        <tr class="fw-bold text-muted">
-                            <th class="min-w-100px">No</th>
-                            <th class="min-w-250px">Nama Mata Pelajaran</th>
+                        <tr class="fw-bold text-uppercase fs-7">
+                            <th class="min-w-100px text-start">No</th>
+                            <th class="min-w-250px text-center">Nama Mata Pelajaran</th>
                             <th class="min-w-150px text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($mataPelajarans as $index => $mapel)
                         <tr>
-                            <td>{{ $mataPelajarans->firstItem() + $index }}</td>
-                            <td class="fw-semibold text-gray-800">{{ $mapel->nama }}</td>
+                            <td class="text-start">{{ $mataPelajarans->firstItem() + $index }}</td>
+                            <td class="text-start">
+                                <div class="d-flex justify-content-center">
+                                    <span class="fw-semibold text-gray-800">{{ $mapel->nama }}</span>
+                                </div>
+                            </td>
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
                                     <button type="button"

@@ -417,6 +417,20 @@ $jumlahSupervisiMendatang = isset($agendaMendatang)
 
                         @forelse(($agendaMendatang ?? collect()) as $agenda)
 
+                        @php
+                        $agendaLabel = ($agenda->jenis ?? 'supervisi') === 'supervisi'
+                        ? 'Supervisi Guru'
+                        : ($agenda->judul ?? 'Kegiatan');
+
+                        $agendaJam = $agenda->jam
+                        ? \Illuminate\Support\Str::substr($agenda->jam, 0, 5) . ' WIB'
+                        : 'Waktu belum ditentukan';
+
+                        $agendaLokasi = $agenda->lokasi ?? null;
+                        $agendaKeterangan = $agenda->keterangan ?? null;
+                        $agendaPengisi = $agenda->nama_supervisor ?? $agenda->nama_lengkap ?? null;
+                        @endphp
+
                         @if(!$loop->first)
                         <div class="separator separator-dashed my-5"></div>
                         @endif
@@ -437,16 +451,15 @@ $jumlahSupervisiMendatang = isset($agendaMendatang)
                             <div class="flex-grow-1 min-w-0">
 
                                 <span class="dashboard-agenda-title fw-bold d-block fs-6 mb-2">
-                                    Supervisi Guru
+                                    {{ $agendaLabel }}
                                 </span>
 
                                 <span class="dashboard-muted fs-7 d-block mb-1">
                                     <i class="bi bi-clock me-1"></i>
-                                    {{ $agenda->jam
-                                            ? \Illuminate\Support\Str::substr($agenda->jam, 0, 5) . ' WIB'
-                                            : 'Waktu belum ditentukan' }}
+                                    {{ $agendaJam }}
                                 </span>
 
+                                @if(($agenda->jenis ?? 'supervisi') === 'supervisi')
                                 @if($agenda->mata_pelajaran)
                                 <span class="dashboard-muted fs-7 d-block mb-1">
                                     <i class="bi bi-book me-1"></i>
@@ -454,11 +467,26 @@ $jumlahSupervisiMendatang = isset($agendaMendatang)
                                 </span>
                                 @endif
 
-                                @if($agenda->nama_supervisor)
+                                @if($agendaPengisi)
                                 <span class="dashboard-muted fs-7 d-block">
                                     <i class="bi bi-person me-1"></i>
-                                    {{ $agenda->nama_supervisor }}
+                                    {{ $agendaPengisi }}
                                 </span>
+                                @endif
+                                @else
+                                @if($agendaLokasi)
+                                <span class="dashboard-muted fs-7 d-block mb-1">
+                                    <i class="bi bi-geo-alt me-1"></i>
+                                    {{ $agendaLokasi }}
+                                </span>
+                                @endif
+
+                                @if($agendaKeterangan)
+                                <span class="dashboard-muted fs-7 d-block mb-1">
+                                    <i class="bi bi-card-text me-1"></i>
+                                    {{ \Illuminate\Support\Str::limit($agendaKeterangan, 80) }}
+                                </span>
+                                @endif
                                 @endif
 
                             </div>
@@ -484,7 +512,7 @@ $jumlahSupervisiMendatang = isset($agendaMendatang)
                             <i class="bi bi-calendar-check fs-3 text-primary"></i>
 
                             <span class="dashboard-muted fs-7">
-                                {{ $jumlahSupervisiMendatang }} agenda mendatang
+                                {{ $agendaMendatang->count() }} agenda mendatang
                             </span>
                         </div>
                     </div>
@@ -715,15 +743,27 @@ $jumlahSupervisiMendatang = isset($agendaMendatang)
     }
 
     .dashboard-agenda-item {
+        position: relative;
         display: flex;
         align-items: flex-start;
         gap: 1rem;
         min-width: 0;
-        padding: 0.25rem;
+        padding: 0.75rem 0.85rem 0.75rem 1rem;
         text-decoration: none;
         color: inherit;
         border-radius: 8px;
         transition: background 0.2s ease;
+    }
+
+    .dashboard-agenda-item::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0.35rem;
+        bottom: 0.35rem;
+        width: 3px;
+        border-radius: 999px;
+        background: linear-gradient(180deg, #2478ed 0%, #71a9ff 100%);
     }
 
     .dashboard-agenda-item:hover {

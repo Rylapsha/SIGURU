@@ -608,7 +608,6 @@ $jumlahJadwalMendatang = isset($jadwalMendatang)
                             <div>
 
                                 <h3 class="dashboard-heading fw-bold mb-1">
-
                                     Agenda
 
                                 </h3>
@@ -620,6 +619,13 @@ $jumlahJadwalMendatang = isset($jadwalMendatang)
                                 </span>
 
                             </div>
+
+                            <a
+                                href="{{ route('admin.agenda.index') }}"
+                                class="btn btn-sm btn-light-primary dashboard-action-btn mt-3">
+                                Lihat detail
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
 
                         </div>
 

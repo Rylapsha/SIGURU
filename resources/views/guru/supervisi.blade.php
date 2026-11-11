@@ -224,9 +224,11 @@
                     </div>
 
                     <div class="mt-5 d-flex justify-content-start">
-                        <a href="{{ route('guru.supervisi.detail', $jadwalBerikutnya->id) }}"
+                        <a href="{{ route('guru.supervisi.surat', $jadwalBerikutnya->id) }}"
                             class="btn btn-primary d-flex align-items-center justify-content-center gap-2 px-4 py-3 w-100 shadow-sm border-0"
-                            style="max-width: 280px; border-radius: 12px;">
+                            style="max-width: 280px; border-radius: 12px;"
+                            target="_blank"
+                            rel="noopener noreferrer">
                             <i class="bi bi-file-earmark-pdf-fill fs-2"></i>
                             <span class="fw-semibold">Surat Pemberitahuan</span>
                         </a>
@@ -348,13 +350,25 @@
 
                             {{-- AKSI --}}
                             <td class="text-end">
-                                <a href="{{ route('guru.supervisi.detail', $item->id) }}"
-                                    class="btn btn-sm btn-light-primary d-inline-flex align-items-center gap-2"
-                                    title="Lihat Surat"
-                                    aria-label="Lihat Surat">
-                                    <i class="bi bi-file-earmark-pdf-fill fs-2"></i>
+                                <div class="d-flex justify-content-end gap-2 flex-wrap">
+                                    <a href="{{ route('guru.supervisi.detail', $item->id) }}"
+                                        class="btn btn-sm btn-light-primary d-inline-flex align-items-center"
+                                        title="Lihat Detail"
+                                        aria-label="Lihat Detail">
+                                        <i class="bi bi-eye fs-2"></i>
+                                        <span class="fw-semibold">Detail</span>
+                                    </a>
 
-                                </a>
+                                    @if (!empty($item->feedback_admin) || !empty($item->tindak_lanjut))
+                                    <a href="{{ route('guru.supervisi.feedback', $item->id) }}"
+                                        class="btn btn-sm btn-light-success d-inline-flex align-items-center"
+                                        title="Lihat Feedback"
+                                        aria-label="Lihat Feedback">
+                                        <i class="bi bi-chat-dots fs-2"></i>
+                                        <span class="fw-semibold">Feedback</span>
+                                    </a>
+                                    @endif
+                                </div>
                             </td>
 
                         </tr>

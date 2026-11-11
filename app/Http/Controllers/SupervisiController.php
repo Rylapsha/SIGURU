@@ -103,4 +103,16 @@ class SupervisiController extends Controller
             ]
         );
     }
+
+    public function feedback($id)
+    {
+        $guru = auth()->user();
+
+        abort_unless($guru instanceof Guru, 403, 'Akun guru tidak ditemukan.');
+
+        $supervisi = Supervisi::where('guru_id', $guru->id)
+            ->findOrFail($id);
+
+        return view('guru.feedbacksupervisi', compact('guru', 'supervisi'));
+    }
 }

@@ -20,12 +20,6 @@
     <div class="card mb-5">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h3 class="card-title fw-bold">Surat Pemberitahuan</h3>
-            @if ($supervisi->surat_pemberitahuan_path)
-            <a href="{{ route('guru.supervisi.surat', $supervisi->id) }}" class="btn btn-sm btn-primary" target="_blank" rel="noopener">
-                <i class="bi bi-file-earmark-pdf-fill me-2"></i>
-                Lihat Surat
-            </a>
-            @endif
         </div>
         <div class="card-body">
             @if ($supervisi->surat_pemberitahuan_path)
@@ -36,7 +30,7 @@
                 </div>
                 <a href="{{ route('guru.supervisi.surat', $supervisi->id) }}" class="btn btn-light-primary" target="_blank" rel="noopener">
                     <i class="bi bi-download me-2"></i>
-                    Buka
+                    Unduh Surat
                 </a>
             </div>
             @else
@@ -69,10 +63,10 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label class="text-muted fs-7">Jam</label>
+                    <label class="text-muted fs-7">Waktu Pelaksanaan</label>
                     <div class="fw-semibold mt-1">
                         {{ $supervisi->jam
-                            ? substr($supervisi->jam, 0, 5)
+                            ? substr($supervisi->jam, 0, 5) . ' WIB'
                             : '-' }}
                     </div>
                 </div>
@@ -111,24 +105,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <div class="card mb-5">
-        <div class="card-header">
-            <h3 class="card-title fw-bold">Hasil Observasi</h3>
-        </div>
-        <div class="card-body">
-            <p class="mb-0" style="white-space: pre-line">{{ $supervisi->hasil_observasi ?: 'Hasil observasi belum tersedia.' }}</p>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title fw-bold">Tindak Lanjut</h3>
-        </div>
-        <div class="card-body">
-            <p class="mb-0" style="white-space: pre-line">{{ $supervisi->tindak_lanjut ?: 'Tindak lanjut belum tersedia.' }}</p>
         </div>
     </div>
 

@@ -20,6 +20,9 @@ class Supervisi extends Model
         'status',
         'hasil_observasi',
         'tindak_lanjut',
+        'predikat',
+        'skor',
+        'feedback_admin',
         'surat_pemberitahuan_path',
         'nama_surat_pemberitahuan',
     ];

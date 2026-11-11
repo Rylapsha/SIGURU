@@ -74,7 +74,7 @@
     </div>
 
     <div class="d-flex justify-content-end mb-5">
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambahGuruModal">
+        <button type="button" class="btn btn-sm btn-light-primary dashboard-action-btn" data-bs-toggle="modal" data-bs-target="#tambahGuruModal">
             <i class="bi bi-plus-lg me-2"></i>Tambah Guru
         </button>
     </div>

@@ -11,7 +11,7 @@
             <div class="text-muted fs-6">Kelola kegiatan tambahan selain jadwal supervisi yang ditampilkan di dashboard.</div>
         </div>
 
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambahAgendaModal">
+        <button type="button" class="btn btn-sm btn-light-primary dashboard-action-btn" data-bs-toggle="modal" data-bs-target="#tambahAgendaModal">
             <i class="bi bi-plus-lg me-2"></i>Tambah Agenda
         </button>
     </div>
