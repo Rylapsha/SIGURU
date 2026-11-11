@@ -1,3 +1,4 @@
+
 @extends('layouts.admin')
 
 @section('title', 'Data Guru')
@@ -24,69 +25,72 @@
     </div>
     @endif
 
-    <div class="card mb-3">
-        <div class="card-body py-5">
-            <div class="row g-4 align-items-end">
-                <div class="col-12 col-md-6">
-                    <label for="cari" class="form-label fw-semibold">
-                        Cari Nama Guru
-                    </label>
-                    <input
-                        type="text"
-                        id="cari"
-                        name="cari"
-                        class="form-control form-control-solid"
-                        placeholder="Masukkan nama guru..."
-                        value="{{ request('cari') }}">
-                </div>
+    <form action="{{ route('admin.guru.index') }}" method="GET">
+        <div class="card mb-3">
+            <div class="card-body py-5">
+                <div class="row g-4 align-items-end">
 
-                <div class="col-12 col-md-4">
-                    <label for="mata_pelajaran" class="form-label fw-semibold">
-                        Mata Pelajaran
-                    </label>
-                    <select
-                        id="mata_pelajaran"
-                        name="mata_pelajaran"
-                        class="form-select form-select-solid">
+                    <div class="col-12 col-md-5">
+                        <label for="cari" class="form-label fw-semibold">
+                            Cari Nama Guru
+                        </label>
+                        <input
+                            type="text"
+                            id="cari"
+                            name="cari"
+                            class="form-control form-control-solid"
+                            placeholder="Masukkan nama guru..."
+                            value="{{ request('cari') }}">
+                    </div>
 
-                        <option value="">Semua Mata Pelajaran</option>
+                    <div class="col-12 col-md-4">
+                        <label for="mata_pelajaran" class="form-label fw-semibold">
+                            Mata Pelajaran
+                        </label>
+                        <select
+                            id="mata_pelajaran"
+                            name="mata_pelajaran"
+                            class="form-select form-select-solid">
 
-                        @foreach ($daftarMataPelajaran as $mapel)
-                        <option
-                            value="{{ $mapel }}"
-                            @selected(request('mata_pelajaran')===$mapel)>
-                            {{ $mapel }}
-                        </option>
-                        @endforeach
-                    </select>
-                </div>
+                            <option value="">Semua Mata Pelajaran</option>
 
-                <div class="col-12 col-md-2 d-flex gap-2">
-                    <a
-                        href="{{ route('admin.guru.index') }}"
-                        class="btn btn-light"
-                        title="Reset pencarian dan filter">
-                        <i class="bi bi-arrow-counterclockwise"></i>
-                    </a>
+                            @foreach ($daftarMataPelajaran as $mapel)
+                            <option
+                                value="{{ $mapel }}"
+                                @selected(request('mata_pelajaran') === $mapel)>
+                                {{ $mapel }}
+                            </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-md-3 d-flex align-items-end justify-content-end gap-3">
+    <a
+        href="{{ route('admin.guru.index') }}"
+        class="btn btn-light btn-icon"
+        title="Reset pencarian dan filter">
+        <i class="bi bi-arrow-counterclockwise fs-4"></i>
+    </a>
+
+    <button
+    type="button"
+    class="btn btn-light-primary dashboard-action-btn fw-semibold px-5 py-3 fs-6"
+    style="min-height: 43px;"
+    data-bs-toggle="modal"
+    data-bs-target="#tambahGuruModal">
+
+    <i class="bi bi-plus-lg me-2"></i>
+    Tambah Guru
+</button>
+</div>
+
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="d-flex justify-content-end mb-5">
-        <button type="button" class="btn btn-sm btn-light-primary dashboard-action-btn" data-bs-toggle="modal" data-bs-target="#tambahGuruModal">
-            <i class="bi bi-plus-lg me-2"></i>Tambah Guru
-        </button>
-    </div>
+    </form>
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <div class="fw-semibold text-gray-700">
-            Daftar Guru
-        </div>
 
-        <span class="text-muted fs-7">
-            {{ $gurus->total() }} guru ditemukan
-        </span>
     </div>
 
     <div class="row g-5">

@@ -53,7 +53,10 @@
 
             <div class="section-heading-tools">
                 <span class="total-badge">{{ $jadwal->count() }} jadwal</span>
-                <a href="{{ route('admin.supervisi.create') }}" class="btn btn-sm btn-light-primary dashboard-action-btn">
+                <a
+                    href="{{ route('admin.supervisi.create') }}"
+                    class="btn btn-light-primary dashboard-action-btn fw-semibold px-5 py-3 fs-6"
+                    style="min-height: 43px;">
                     <i class="bi bi-plus-lg me-2"></i>
                     Tambah Jadwal
                 </a>

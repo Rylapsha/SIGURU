@@ -200,8 +200,9 @@
                         <div class="d-grid">
                             <label
                                 for="file-dokumen"
-                                class="btn btn-light-primary mb-0 w-100">
-                                <i class="bi bi-cloud-arrow-up me-1"></i>
+                                class="btn btn-light-primary dashboard-action-btn fw-semibold px-5 py-3 fs-6 mb-0 w-100"
+                                style="min-height: 43px;">
+                                <i class="bi bi-plus-lg me-2"></i>
                                 Unggah File
                             </label>
 

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id" data-admin-theme="light">
 
@@ -49,13 +50,13 @@
 
     <style>
         :root {
-            --admin-bg: #F7FBFC;
+            --admin-bg: #e9eef5;
             --admin-card: #ffffff;
             --admin-header: #ffffff;
             --admin-text: #1f3c57;
             --admin-muted: #5b7c9c;
-            --admin-border: #D6E6F2;
-            --admin-soft: #EAF5FB;
+            --admin-border: #CFDCEB;
+            --admin-soft: #EAF0F8;
         }
 
         html,
@@ -64,6 +65,41 @@
             width: 100%;
             margin: 0;
             overflow-x: hidden;
+        }
+
+        body#kt_body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #kt_body > .flex-root {
+            min-height: 100vh;
+            width: 100%;
+            display: flex;
+            flex: 1 0 auto;
+            flex-direction: column;
+        }
+
+        #kt_body .page {
+            min-height: 100vh;
+            flex: 1 0 auto;
+        }
+
+        #kt_wrapper {
+            min-height: 100vh;
+            display: flex;
+            flex: 1 1 auto;
+            flex-direction: column;
+        }
+
+        #kt_page_content {
+            flex: 1 0 auto;
+        }
+
+        #kt_footer {
+            flex: 0 0 auto;
+            margin-top: auto;
         }
 
         body {
@@ -85,6 +121,10 @@
         #kt_post {
             background-color: var(--admin-bg);
             color: var(--admin-text);
+        }
+
+        #kt_page_content {
+            background-color: var(--admin-bg);
         }
 
         /* Header */
@@ -157,6 +197,40 @@
         #kt_content .card-header {
             background-color: transparent;
             border-bottom-color: var(--admin-border);
+        }
+
+        /* Tabel seluruh halaman admin */
+        #kt_content .table {
+            background-color: #ffffff !important;
+            color: var(--admin-text);
+            border-color: var(--admin-border);
+        }
+
+        #kt_content .table thead,
+        #kt_content .table thead tr,
+        #kt_content .table thead th {
+            background-color: #ffffff !important;
+            color: #1f3c57 !important;
+            border-color: var(--admin-border) !important;
+            font-weight: 700;
+        }
+
+        #kt_content .table tbody,
+        #kt_content .table tbody tr,
+        #kt_content .table tbody td {
+            background-color: #ffffff !important;
+            color: var(--admin-text);
+            border-color: var(--admin-border) !important;
+        }
+
+        #kt_content .table tbody tr:hover,
+        #kt_content .table tbody tr:hover td {
+            background-color: #F3F6FA !important;
+        }
+
+        #kt_content .table-striped>tbody>tr:nth-of-type(odd)>* {
+            background-color: #F8FAFC !important;
+            color: var(--admin-text);
         }
 
         #kt_content .table thead th {
@@ -439,21 +513,7 @@
                     </div>
                 </div>
 
-                {{-- Footer --}}
-                <div class="footer py-4 d-flex flex-lg-column">
-                    <div class="container-fluid d-flex flex-column flex-md-row
-                                align-items-center justify-content-between
-                                px-5 px-lg-8">
-
-                        <span class="text-muted fs-7">
-                            {{ date('Y') }} © SIGURU - SMP Negeri 2 Purwakarta
-                        </span>
-
-                        <span class="text-muted fs-7">
-                            Panel Administrator
-                        </span>
-                    </div>
-                </div>
+                @include('layouts.partials.footer', ['footerRole' => 'admin'])
 
             </div>
         </div>

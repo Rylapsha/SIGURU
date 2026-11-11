@@ -18,29 +18,34 @@
         <!--end::Copyright-->
 
         <!--begin::Menu-->
-        <ul class="menu menu-gray-600 menu-hover-primary fw-bold order-1">
-
-            <li class="menu-item">
-                <a href="{{ route('dashboard') }}"
-                    class="menu-link px-2">
-                    Dashboard
-                </a>
-            </li>
-
-            <li class="menu-item">
-                <a href="{{ route('profil') }}"
-                    class="menu-link px-2">
-                    Profil
-                </a>
-            </li>
-
-            <li class="menu-item">
-                <a href="{{ route('dokumen.index') }}"
-                    class="menu-link px-2">
-                    Dokumen
-                </a>
-            </li>
-
+        <ul class="menu menu-gray-600 menu-hover-primary fw-bold order-1 flex-wrap justify-content-center">
+            @if (($footerRole ?? 'guru') === 'admin')
+                <li class="menu-item">
+                    <a href="{{ route('admin.dashboard') }}" class="menu-link px-2">Dashboard</a>
+                </li>
+                <li class="menu-item">
+                    <a href="{{ route('admin.guru.index') }}" class="menu-link px-2">Data Guru</a>
+                </li>
+                <li class="menu-item">
+                    <a href="{{ route('admin.mata-pelajaran.index') }}" class="menu-link px-2">Mata Pelajaran</a>
+                </li>
+                <li class="menu-item">
+                    <a href="{{ route('admin.supervisi.index') }}" class="menu-link px-2">Jadwal Supervisi</a>
+                </li>
+                <li class="menu-item">
+                    <a href="{{ route('admin.agenda.index') }}" class="menu-link px-2">Agenda Kegiatan</a>
+                </li>
+            @else
+                <li class="menu-item">
+                    <a href="{{ route('dashboard') }}" class="menu-link px-2">Dashboard</a>
+                </li>
+                <li class="menu-item">
+                    <a href="{{ route('profil') }}" class="menu-link px-2">Profil</a>
+                </li>
+                <li class="menu-item">
+                    <a href="{{ route('dokumen.index') }}" class="menu-link px-2">Dokumen</a>
+                </li>
+            @endif
         </ul>
         <!--end::Menu-->
 

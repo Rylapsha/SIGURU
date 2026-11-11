@@ -10,9 +10,6 @@
     {{-- HEADER HALAMAN --}}
     <div class="page-heading">
         <div>
-            <h1>Agenda Kegiatan</h1>
-            <p>Kelola kegiatan tambahan selain jadwal supervisi yang ditampilkan di dashboard.</p>
-        </div>
     </div>
 
     {{-- NOTIFIKASI --}}
@@ -50,7 +47,8 @@
 
                 <button
                     type="button"
-                    class="btn btn-sm btn-light-primary dashboard-action-btn"
+                    class="btn btn-light-primary dashboard-action-btn fw-semibold px-5 py-3 fs-6"
+                    style="min-height: 43px;"
                     data-bs-toggle="modal"
                     data-bs-target="#tambahAgendaModal">
 
@@ -790,8 +788,9 @@
     }
 
     .admin-agenda .dashboard-action-btn {
-        padding: 13px 20px;
-        font-size: 15px;
+        padding: 0.75rem 1.25rem;
+        font-size: 1rem;
+        font-weight: 600;
     }
 
     /* MODAL */

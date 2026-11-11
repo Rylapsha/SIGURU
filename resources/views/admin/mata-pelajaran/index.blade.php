@@ -6,10 +6,6 @@
 @section('content')
 <div class="container-fluid px-0">
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-6">
-        <div>
-            <h2 class="fw-bold text-gray-900 mb-1">Master Mata Pelajaran</h2>
-            <div class="text-muted fs-6">Kelola daftar mata pelajaran yang tersedia untuk guru dan dokumen.</div>
-        </div>
     </div>
 
     @if (session('success'))
@@ -33,8 +29,14 @@
     <div class="card dashboard-panel overflow-hidden">
         <div class="card-body pt-3">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 px-2">
-                <button type="button" class="btn btn-sm btn-light-primary dashboard-action-btn mt-3" data-bs-toggle="modal" data-bs-target="#tambahMapelModal">
-                    <i class="bi bi-plus-lg me-2"></i>Tambah Mata Pelajaran
+                <button
+                    type="button"
+                    class="btn btn-light-primary dashboard-action-btn fw-semibold px-5 py-3 fs-6 mt-3"
+                    style="min-height: 43px;"
+                    data-bs-toggle="modal"
+                    data-bs-target="#tambahMapelModal">
+                    <i class="bi bi-plus-lg me-2"></i>
+                    Tambah Mata Pelajaran
                 </button>
             </div>
 

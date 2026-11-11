@@ -47,7 +47,13 @@
                                align-items-center my-1">
 
                         @if (request()->routeIs('admin.supervisi.*'))
-                            Dashboard
+                            Jadwal Supervisi
+                        @elseif (request()->routeIs('admin.guru.*'))
+                            Data Guru
+                        @elseif (request()->routeIs('admin.mata-pelajaran.*'))
+                            Mata Pelajaran
+                        @elseif (request()->routeIs('admin.agenda.*'))
+                            Agenda Kegiatan
                         @else
                             @yield('page_title', 'Dashboard')
                         @endif
@@ -136,6 +142,14 @@
                             </a>
                         </div>
 
+                        {{-- Mata Pelajaran --}}
+                        <div class="menu-item px-5">
+                            <a href="{{ route('admin.mata-pelajaran.index') }}"
+                                class="menu-link px-5">
+                                Mata Pelajaran
+                            </a>
+                        </div>
+
                         {{-- Jadwal Supervisi --}}
                         <div class="menu-item px-5">
                             <a href="{{ route('admin.supervisi.index') }}"
@@ -144,11 +158,11 @@
                             </a>
                         </div>
 
-                        {{-- Mata Pelajaran --}}
+                        {{-- Agenda Kegiatan --}}
                         <div class="menu-item px-5">
-                            <a href="{{ route('admin.mata-pelajaran.index') }}"
+                            <a href="{{ route('admin.agenda.index') }}"
                                 class="menu-link px-5">
-                                Mata Pelajaran
+                                Agenda Kegiatan
                             </a>
                         </div>
 
@@ -210,6 +224,64 @@
 
 </div>
 <!--end::Header-->
+
+<style>
+    #kt_header {
+        min-height: 70px;
+        border-bottom: 1px solid #d6e6f2;
+        box-shadow: none;
+    }
+
+    #kt_header > .container-fluid {
+        min-height: inherit;
+        padding-right: 1.5rem;
+        padding-left: 1.5rem;
+    }
+
+    #kt_header .page-title h1 {
+        color: #1d3557 !important;
+        font-family: Poppins, sans-serif;
+        font-size: 1.125rem !important;
+        letter-spacing: 0;
+    }
+
+    #kt_header #kt_header_user_menu_toggle > .symbol {
+        display: inline-flex;
+        width: 40px;
+        height: 40px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.475rem;
+        color: #1d3557;
+        background-color: #eaf5fb;
+    }
+
+    #kt_header #kt_header_user_menu_toggle > .symbol i {
+        font-size: 1.375rem !important;
+    }
+
+    #kt_header .menu-sub-dropdown .menu-link {
+        min-height: 40px;
+        border-radius: 0.375rem;
+    }
+
+    @media (max-width: 991.98px) {
+        #kt_header {
+            min-height: 64px;
+        }
+
+        #kt_header > .container-fluid {
+            padding-right: 1rem;
+            padding-left: 1rem;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        #kt_header .page-title h1 {
+            font-size: 1rem !important;
+        }
+    }
+</style>
 
 {{-- Konfirmasi Logout dengan SweetAlert2 --}}
 <script>

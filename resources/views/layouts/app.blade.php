@@ -40,6 +40,46 @@ License: For each use you must have a valid license purchased only from above li
         }
     </script>
     <style>
+        html,
+        body {
+            min-height: 100%;
+        }
+
+        body#kt_body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #kt_body > .flex-root {
+            min-height: 100vh;
+            width: 100%;
+            display: flex;
+            flex: 1 0 auto;
+            flex-direction: column;
+        }
+
+        #kt_body .page {
+            min-height: 100vh;
+            flex: 1 0 auto;
+        }
+
+        #kt_wrapper {
+            min-height: 100vh;
+            display: flex;
+            flex: 1 1 auto;
+            flex-direction: column;
+        }
+
+        #kt_page_content {
+            flex: 1 0 auto;
+        }
+
+        #kt_footer {
+            flex: 0 0 auto;
+            margin-top: auto;
+        }
+
         body.theme-transitioning,
         body.theme-transitioning * {
             transition: background-color 280ms ease-in-out, color 280ms ease-in-out, border-color 280ms ease-in-out, box-shadow 280ms ease-in-out, fill 280ms ease-in-out, stroke 280ms ease-in-out !important;
@@ -573,6 +613,8 @@ License: For each use you must have a valid license purchased only from above li
                 <div class="flex-column-fluid" id="kt_page_content">
                     @yield('content')
                 </div>
+
+                @include('layouts.partials.footer', ['footerRole' => 'guru'])
             </div>
             <!--end::Wrapper-->
         </div>
@@ -656,7 +698,7 @@ License: For each use you must have a valid license purchased only from above li
     </script>
     <style>
         :root {
-            --siguru-bg: #f4f9ff;
+            --siguru-bg: #e9eef5;
             --siguru-surface: #ffffff;
             --siguru-surface-alt: #edf5ff;
             --siguru-border: #dfeeff;
@@ -747,6 +789,74 @@ License: For each use you must have a valid license purchased only from above li
         #kt_page_content .guru-supervisi-table tbody td .text-gray-800 {
             font-size: 12px;
         }
+
+
+/* Jarak menu sidebar guru */
+#kt_aside .menu {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+#kt_aside .menu-item > .menu-link {
+    border-radius: 8px !important;
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+/* Menu aktif dan hover */
+#kt_aside .menu-item .menu-link.active,
+#kt_aside .menu-item .menu-link:hover,
+#kt_aside .menu-item.show > .menu-link,
+#kt_aside .menu-item.here > .menu-link {
+    border-radius: 8px !important;
+}
+
+/* Sidebar Guru - Jarak dan tampilan menu */
+#kt_aside {
+    background-color: #ffffff !important;
+    border-right: 1px solid #CFDCEB;
+}
+
+#kt_aside .aside-logo {
+    background-color: #ffffff !important;
+}
+
+/* Jarak kiri dan kanan seluruh menu */
+#kt_aside .menu {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+/* Jarak antar pilihan menu */
+#kt_aside .menu-item {
+    margin-bottom: 5px;
+}
+
+/* Tampilan setiap pilihan */
+#kt_aside .menu-item > .menu-link {
+    min-height: 44px;
+    padding: 10px 12px !important;
+    border-radius: 8px !important;
+}
+
+/* Menu aktif */
+#kt_aside .menu-item .menu-link.active {
+    background-color: rgba(47, 110, 234, 0.12) !important;
+    border-radius: 8px !important;
+}
+
+/* Menu saat diarahkan */
+#kt_aside .menu-item .menu-link:hover {
+    background-color: rgba(47, 110, 234, 0.08) !important;
+    border-radius: 8px !important;
+}
+
+/* Jarak pembatas antarkelompok menu */
+#kt_aside .separator {
+    margin-top: 12px !important;
+    margin-bottom: 12px !important;
+}
+
     </style>
 </body>
 <!--end::Body-->

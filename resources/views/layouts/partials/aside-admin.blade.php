@@ -1,6 +1,6 @@
 <!--begin::Aside-->
 <div id="kt_aside"
-    class="aside aside-light aside-hoverable"
+    class="aside aside-light aside-hoverable admin-aside"
     data-kt-drawer="true"
     data-kt-drawer-name="aside"
     data-kt-drawer-activate="{default: true, lg: false}"
@@ -182,3 +182,50 @@
 
 </div>
 <!--end::Aside-->
+
+<style>
+    #kt_aside.admin-aside {
+        color: #1d3557;
+    }
+
+    #kt_aside.admin-aside #kt_aside_logo {
+        min-height: 70px;
+        padding: 0 1.25rem;
+        border-bottom: 1px solid #d6e6f2;
+    }
+
+    #kt_aside.admin-aside .menu-content {
+        padding-right: 1.25rem !important;
+        padding-left: 1.25rem !important;
+    }
+
+    #kt_aside.admin-aside .menu-item > .menu-link {
+        min-height: 44px;
+        margin: 2px 0.75rem;
+        padding: 0.625rem 0.875rem;
+        border-radius: 0.475rem;
+    }
+
+    #kt_aside.admin-aside .menu-item > .menu-link .menu-icon {
+        display: inline-flex;
+        width: 2rem;
+        min-width: 2rem;
+        justify-content: center;
+        margin-right: 0.5rem;
+    }
+
+    #kt_aside.admin-aside .menu-item > .menu-link .menu-icon i {
+        font-size: 1.125rem !important;
+    }
+
+    #kt_aside.admin-aside .menu-item > .menu-link .menu-title {
+        font-size: 0.925rem;
+        font-weight: 500;
+    }
+
+    @media (max-width: 991.98px) {
+        #kt_aside.admin-aside #kt_aside_logo {
+            min-height: 64px;
+        }
+    }
+</style>
