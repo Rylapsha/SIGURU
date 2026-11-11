@@ -54,11 +54,6 @@
     true
     );
 
-    $mataPelajaranList = \App\Models\MataPelajaran::query()
-    ->orderBy('nama')
-    ->pluck('nama')
-    ->all();
-
     $kelasList = ['10', '11', '12'];
     @endphp
 
@@ -762,8 +757,8 @@
                     return 'File harus berformat PDF.';
                 }
 
-                if (file.size > 10 * 1024 * 1024) {
-                    return 'Ukuran PDF maksimal 10 MB.';
+                if (file.size > 50 * 1024 * 1024) {
+                    return 'Ukuran PDF maksimal 50 MB.';
                 }
 
                 return null;

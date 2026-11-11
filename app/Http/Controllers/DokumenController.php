@@ -34,14 +34,6 @@ class DokumenController extends Controller
         return ['10', '11', '12'];
     }
 
-    private function daftarMataPelajaran(): array
-    {
-        return MataPelajaran::query()
-            ->orderBy('nama')
-            ->pluck('nama')
-            ->all();
-    }
-
     private function slugJenisDokumen(string $jenis): string
     {
         $map = [
@@ -135,7 +127,7 @@ class DokumenController extends Controller
             'mata_pelajaran' => [
                 'required',
                 'string',
-                Rule::in($this->daftarMataPelajaran()),
+                Rule::exists('mata_pelajarans', 'nama'),
             ],
             'semester' => [
                 'required',
@@ -161,9 +153,9 @@ class DokumenController extends Controller
             'kelas.required' => 'Pilih kelas dokumen terlebih dahulu.',
             'kelas.in' => 'Kelas dokumen tidak valid.',
             'mata_pelajaran.required' =>
-            'Pilih mata pelajaran dokumen terlebih dahulu.',
-            'mata_pelajaran.in' =>
-            'Mata pelajaran dokumen tidak valid.',
+                'Pilih mata pelajaran dokumen terlebih dahulu.',
+            'mata_pelajaran.exists' =>
+                'Mata pelajaran dokumen tidak valid.',
             'tahun_ajaran.required' => 'Pilih tahun ajaran dokumen terlebih dahulu.',
             'tahun_ajaran.regex' => 'Format tahun ajaran harus seperti 2026/2027.',
         ]);
@@ -202,7 +194,7 @@ class DokumenController extends Controller
                 ->withInput()
                 ->withErrors([
                     'file' =>
-                    'Dokumen gagal disimpan ke database. Silakan coba kembali.',
+                        'Dokumen gagal disimpan ke database. Silakan coba kembali.',
                 ]);
         }
 
@@ -238,8 +230,8 @@ class DokumenController extends Controller
             abort(404, 'File dokumen tidak ditemukan.');
         }
 
-        return response()->download(
-            Storage::disk('public')->path($dokumen->file_path),
+        return Storage::disk('public')->download(
+            $dokumen->file_path,
             $dokumen->nama_file
         );
     }
@@ -328,21 +320,15 @@ class DokumenController extends Controller
             $query->where('tahun_ajaran', request('tahun_ajaran'));
         }
 
-        if (request()->filled('search')) {
-            $search = trim(request('search'));
-
-            $query->where(function ($q) use ($search) {
-                $q->where('nama_file', 'like', "%{$search}%")
-                    ->orWhere('mata_pelajaran', 'like', "%{$search}%")
-                    ->orWhere('tahun_ajaran', 'like', "%{$search}%")
-                    ->orWhere('kelas', 'like', "%{$search}%")
-                    ->orWhere('semester', 'like', "%{$search}%");
-            });
-        }
-
-        $dokumens = $query->latest()->paginate(5);
-        $dokumens->appends(request()->query());
+        $dokumens = $query
+            ->latest()
+            ->paginate(5)
+            ->withQueryString();
         $tahunAjaranAktif = $this->tahunAjaranAktif();
+        $mataPelajaranList = MataPelajaran::query()
+            ->orderBy('nama')
+            ->pluck('nama')
+            ->all();
         $tahunAjaranOptions = Dokumen::where('guru_id', Auth::id())
             ->whereNotNull('tahun_ajaran')
             ->distinct()
@@ -356,7 +342,7 @@ class DokumenController extends Controller
         // Komentar hanya diambil untuk dokumen pada kategori yang sedang dibuka.
         $komentarPerDokumen = KomentarDokumen::whereIn(
             'dokumen_id',
-            $dokumens->getCollection()->pluck('id')
+            $dokumens->pluck('id')
         )
             ->latest()
             ->get()
@@ -367,6 +353,7 @@ class DokumenController extends Controller
             'label',
             'jenis',
             'komentarPerDokumen',
+            'mataPelajaranList',
             'tahunAjaranOptions',
             'tahunAjaranAktif'
         ));

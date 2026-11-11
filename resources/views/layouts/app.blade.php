@@ -681,9 +681,13 @@ License: For each use you must have a valid license purchased only from above li
         }
 
         #kt_aside.aside-light {
-            background: linear-gradient(180deg, #f6faff 0%, #edf5ff 100%) !important;
+            background: #fff !important;
             border-right: 1px solid var(--siguru-border) !important;
             color: var(--siguru-text) !important;
+        }
+
+        #kt_aside.aside-light .aside-logo {
+            background: #fff !important;
         }
 
         #kt_aside.aside-light .menu-title,
@@ -712,6 +716,40 @@ License: For each use you must have a valid license purchased only from above li
 
         #kt_aside.aside-light .separator {
             border-color: rgba(47, 110, 234, 0.15) !important;
+        }
+
+        #kt_page_content .table thead th {
+            font-weight: 700;
+        }
+
+        #kt_page_content .guru-supervisi-table thead th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            color: #5f728d;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+
+        #kt_page_content .guru-supervisi-table tbody td {
+            padding-top: 14px;
+            padding-bottom: 14px;
+            color: var(--siguru-text);
+            font-size: 12px;
+            font-weight: 500;
+            vertical-align: middle;
+        }
+
+        #kt_page_content .guru-supervisi-table tbody td .fw-bold,
+        #kt_page_content .guru-supervisi-table tbody td .fw-semibold {
+            font-weight: 700 !important;
+        }
+
+        #kt_page_content .guru-supervisi-table tbody td .text-muted,
+        #kt_page_content .guru-supervisi-table tbody td .text-gray-700,
+        #kt_page_content .guru-supervisi-table tbody td .text-gray-800 {
+            font-size: 12px;
         }
     </style>
 </body>

@@ -3,6 +3,13 @@
         Options -MultiViews -Indexes
     </IfModule>
 
+    <IfModule php_module>
+        php_value upload_max_filesize 64M
+        php_value post_max_size 66M
+        php_value max_input_time 180
+        php_value max_execution_time 240
+    </IfModule>
+
     RewriteEngine On
 
     # Handle Authorization Header

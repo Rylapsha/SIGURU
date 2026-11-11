@@ -72,7 +72,7 @@
     </div>
     @endif
 
-    <div class="d-flex align-items-center gap-4 mb-7 mt-10">
+    <div class="d-flex align-items-center gap-4 mb-6 mt-10">
 
         <div>
             <h3 class="fw-bold text-gray-800 mb-1">
@@ -267,10 +267,10 @@
     <div class="card dashboard-panel overflow-hidden">
 
 
-        <div class="card-body pt-3">
+        <div class="card-body pt-5">
 
             <div class="table-responsive">
-                <table class="table table-row-bordered table-row-gray-300 align-middle gy-5">
+                <table class="table table-row-bordered table-row-gray-300 align-middle gy-5 guru-supervisi-table">
 
                     <thead>
                         <tr class="fw-bold text-uppercase fs-7">
@@ -352,16 +352,16 @@
                             <td class="text-end">
                                 <div class="d-flex justify-content-end gap-2 flex-wrap">
                                     <a href="{{ route('guru.supervisi.detail', $item->id) }}"
-                                        class="btn btn-sm btn-light-primary d-inline-flex align-items-center"
+                                        class="btn btn-sm btn-light-primary d-inline-flex align-items-center gap-2"
                                         title="Lihat Detail"
                                         aria-label="Lihat Detail">
                                         <i class="bi bi-eye fs-2"></i>
                                         <span class="fw-semibold">Detail</span>
                                     </a>
 
-                                    @if (!empty($item->feedback_admin) || !empty($item->tindak_lanjut))
+                                    @if (strtolower((string) $item->status) === 'selesai' && (!empty($item->feedback_admin) || !empty($item->tindak_lanjut)))
                                     <a href="{{ route('guru.supervisi.feedback', $item->id) }}"
-                                        class="btn btn-sm btn-light-success d-inline-flex align-items-center"
+                                        class="btn btn-sm btn-light-success d-inline-flex align-items-center gap-2"
                                         title="Lihat Feedback"
                                         aria-label="Lihat Feedback">
                                         <i class="bi bi-chat-dots fs-2"></i>

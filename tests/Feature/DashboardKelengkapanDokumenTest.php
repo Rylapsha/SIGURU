@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Dokumen;
 use App\Models\Guru;
+use App\Models\MataPelajaran;
 use App\Models\Supervisi;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -45,27 +46,32 @@ class DashboardKelengkapanDokumenTest extends TestCase
             'tahun_ajaran' => '2026/2027',
         ]))
             ->assertOk()
-            ->assertSee('3/4 (75%)')
+            ->assertSee('3/4')
+            ->assertSee('75%')
             ->assertSee('Modul Ajar')
             ->assertSee('TP/ATP')
             ->assertSee('Prota/Prosem')
             ->assertSee('Bank Soal')
-            ->assertSee('Semester 1')
-            ->assertSee('2026/2027');
+            ->assertSee('Tahun Ajaran Aktif')
+            ->assertSee('2026/2027')
+            ->assertSee('const completeDocuments = 3;', false)
+            ->assertSee('const incompleteDocuments = 1;', false);
 
         $this->get(route('dashboard', [
             'semester' => 2,
             'tahun_ajaran' => '2026/2027',
         ]))
             ->assertOk()
-            ->assertSee('1/4 (25%)');
+            ->assertSee('1/4')
+            ->assertSee('25%');
 
         $this->get(route('dashboard', [
             'semester' => 1,
             'tahun_ajaran' => '2025/2026',
         ]))
             ->assertOk()
-            ->assertSee('1/4 (25%)');
+            ->assertSee('1/4')
+            ->assertSee('25%');
     }
 
     public function test_dashboard_supports_zero_and_full_completion_and_excludes_legacy_documents(): void
@@ -79,7 +85,10 @@ class DashboardKelengkapanDokumenTest extends TestCase
             'tahun_ajaran' => '2026/2027',
         ]))
             ->assertOk()
-            ->assertSee('0/4 (0%)')
+            ->assertSee('0/4')
+            ->assertSee('0%')
+            ->assertSee('const completeDocuments = 0;', false)
+            ->assertSee('const incompleteDocuments = 4;', false)
             ->assertSee('Belum tersedia');
 
         foreach ([
@@ -99,7 +108,10 @@ class DashboardKelengkapanDokumenTest extends TestCase
             'tahun_ajaran' => '2026/2027',
         ]))
             ->assertOk()
-            ->assertSee('4/4 (100%)')
+            ->assertSee('4/4')
+            ->assertSee('100%')
+            ->assertSee('const completeDocuments = 4;', false)
+            ->assertSee('const incompleteDocuments = 0;', false)
             ->assertSee('Tersedia');
     }
 
@@ -132,6 +144,7 @@ class DashboardKelengkapanDokumenTest extends TestCase
     public function test_upload_requires_and_saves_the_selected_academic_year(): void
     {
         Storage::fake('public');
+        MataPelajaran::create(['nama' => 'Matematika']);
         $guru = $this->buatGuru('guru-4');
         $this->actingAs($guru);
 

@@ -1,6 +1,6 @@
 <!--begin::Aside-->
 <div id="kt_aside"
-    class="aside aside-dark aside-hoverable"
+    class="aside aside-light aside-hoverable"
     data-kt-drawer="true"
     data-kt-drawer-name="aside"
     data-kt-drawer-activate="{default: true, lg: false}"

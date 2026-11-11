@@ -755,6 +755,19 @@ $jumlahSupervisiMendatang = isset($agendaMendatang)
         transition: background 0.2s ease;
     }
 
+    .dashboard-agenda-item > .min-w-0 {
+        flex: 1 1 0;
+        overflow-wrap: anywhere;
+    }
+
+    .dashboard-agenda-item > .min-w-0 > span {
+        line-height: 1.55;
+    }
+
+    .dashboard-agenda-item .dashboard-agenda-title {
+        line-height: 1.4;
+    }
+
     .dashboard-agenda-item::before {
         content: "";
         position: absolute;
@@ -983,16 +996,8 @@ $jumlahSupervisiMendatang = isset($agendaMendatang)
         const documentCanvas = document.getElementById('dashboardDocumentChart');
 
         if (documentCanvas && typeof Chart !== 'undefined') {
-            const completeDocuments = {
-                {
-                    $jumlahDokumenLengkap
-                }
-            };
-            const incompleteDocuments = {
-                {
-                    $jumlahDokumenBelumLengkap
-                }
-            };
+            const completeDocuments = @json($jumlahDokumenLengkap);
+            const incompleteDocuments = @json($jumlahDokumenBelumLengkap);
 
             new Chart(documentCanvas, {
                 type: 'doughnut',

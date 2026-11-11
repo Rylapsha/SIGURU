@@ -11,9 +11,7 @@
             <div class="text-muted fs-6">Isi feedback, tindak lanjut, dan predikat untuk supervisi ini.</div>
         </div>
 
-        <a href="{{ route('admin.supervisi.index') }}" class="btn btn-light">
-            <i class="bi bi-arrow-left me-2"></i>Kembali
-        </a>
+        <x-back-button :fallback="route('admin.supervisi.index')" />
     </div>
 
     <div class="row g-6">

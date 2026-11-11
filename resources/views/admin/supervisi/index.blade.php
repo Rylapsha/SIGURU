@@ -158,6 +158,7 @@
                                     <span class="fw-semibold">Detail</span>
                                 </a>
 
+                                @if ($statusValue === 'selesai')
                                 <a href="{{ route('admin.supervisi.feedback', $item->id) }}"
                                     class="btn btn-sm btn-light-success d-inline-flex align-items-center gap-2"
                                     title="Feedback"
@@ -165,6 +166,17 @@
                                     <i class="bi bi-chat-dots fs-2"></i>
                                     <span class="fw-semibold">Feedback</span>
                                 </a>
+                                @else
+                                <button type="button"
+                                    class="btn btn-sm btn-secondary d-inline-flex align-items-center gap-2"
+                                    title="Feedback tersedia setelah supervisi selesai"
+                                    aria-label="Feedback belum tersedia"
+                                    aria-disabled="true"
+                                    disabled>
+                                    <i class="bi bi-chat-dots fs-2"></i>
+                                    <span class="fw-semibold">Feedback</span>
+                                </button>
+                                @endif
 
                                 <form action="{{ route('admin.supervisi.destroy', $item->id) }}" method="POST" class="inline-form delete-form">
                                     @csrf
@@ -342,7 +354,6 @@
             }
         }).then(function(result) {
             if (result.isConfirmed) {
-                select.disabled = true;
                 form.submit();
             } else {
                 select.value = oldStatus;

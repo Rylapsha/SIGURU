@@ -113,6 +113,12 @@ class SupervisiController extends Controller
         $supervisi = Supervisi::where('guru_id', $guru->id)
             ->findOrFail($id);
 
+        abort_unless(
+            strtolower((string) $supervisi->status) === 'selesai',
+            403,
+            'Feedback hanya tersedia untuk supervisi yang telah selesai.'
+        );
+
         return view('guru.feedbacksupervisi', compact('guru', 'supervisi'));
     }
 }

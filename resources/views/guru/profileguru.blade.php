@@ -199,10 +199,10 @@
         }
 
 
-        // Validasi ukuran maksimal 2 MB
-        if (file.size > 2 * 1024 * 1024) {
+        // Validasi ukuran maksimal 20 MB
+        if (file.size > 20 * 1024 * 1024) {
 
-            alert('Ukuran foto maksimal 2 MB.');
+            alert('Ukuran foto maksimal 20 MB.');
 
             event.target.value = '';
 

@@ -11,9 +11,7 @@
             </p>
         </div>
 
-        <a href="{{ route('guru.supervisi') }}" class="btn btn-light">
-            Kembali
-        </a>
+        <x-back-button :fallback="route('guru.supervisi')" />
     </div>
 
     <div class="card mb-5">

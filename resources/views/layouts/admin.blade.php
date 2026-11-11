@@ -91,13 +91,14 @@
             border-bottom: 1px solid var(--admin-border);
         }
 
-        /* Sidebar mengikuti gaya default Metronic dark */
+        /* Sidebar admin menggunakan latar putih dan teks gelap. */
         #kt_aside {
-            background-color: #1e1e2d !important;
+            background-color: #fff !important;
+            border-right: 1px solid var(--admin-border);
         }
 
         #kt_aside .aside-logo {
-            background-color: #1a1a27 !important;
+            background-color: #fff !important;
         }
 
         #kt_aside .menu-section,
@@ -105,22 +106,22 @@
         #kt_aside .menu-link,
         #kt_aside .menu-icon,
         #kt_aside .svg-icon {
-            color: #b5b5c3 !important;
+            color: #1d3557 !important;
         }
 
         #kt_aside .aside-toggle svg [fill]:not(.permanent):not(g) {
-            fill: #494b74 !important;
+            fill: #59749a !important;
         }
 
         #kt_aside .separator {
-            border-bottom-color: #282a3d !important;
+            border-bottom-color: #dfeeff !important;
         }
 
         #kt_aside .menu-item:not(.here) .menu-link:hover:not(.disabled):not(.active):not(.here),
         #kt_aside .menu-item.show>.menu-link,
         #kt_aside .menu-item.here>.menu-link,
         #kt_aside .menu-item .menu-link.active {
-            background-color: rgba(27, 27, 41, 0.8) !important;
+            background-color: rgba(47, 110, 234, 0.12) !important;
             color: #3699ff !important;
         }
 
@@ -154,6 +155,10 @@
         #kt_content .card-header {
             background-color: transparent;
             border-bottom-color: var(--admin-border);
+        }
+
+        #kt_content .table thead th {
+            font-weight: 700;
         }
 
         /* Tombol tema */

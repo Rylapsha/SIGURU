@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MataPelajaran;
+use App\Services\FileCompressionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -10,6 +11,10 @@ use Carbon\Carbon;
 
 class AdminSupervisiController extends Controller
 {
+    public function __construct(private FileCompressionService $fileCompression)
+    {
+    }
+
     private function pastikanAdmin()
     {
         if (!session()->has('admin_id')) {
@@ -93,13 +98,13 @@ class AdminSupervisiController extends Controller
                 'required',
                 'file',
                 'mimes:pdf',
-                'max:10240',
+                'max:51200',
             ],
         ], [
             'surat_pemberitahuan.required' => 'Wajib unggah surat pemberitahuan dalam format PDF.',
             'surat_pemberitahuan.file' => 'File surat pemberitahuan tidak valid.',
             'surat_pemberitahuan.mimes' => 'Format surat pemberitahuan harus PDF.',
-            'surat_pemberitahuan.max' => 'Ukuran surat pemberitahuan maksimal 10 MB.',
+            'surat_pemberitahuan.max' => 'Ukuran surat pemberitahuan maksimal 50 MB.',
         ]);
 
         unset($data['surat_pemberitahuan']);
@@ -128,7 +133,8 @@ class AdminSupervisiController extends Controller
         }
 
         $suratFile = $request->file('surat_pemberitahuan');
-        $suratPath = $suratFile->store('supervisi', 'public');
+        $storedFile = $this->fileCompression->store($suratFile, 'supervisi');
+        $suratPath = $storedFile['path'];
 
         if (!$suratPath) {
             return back()
@@ -160,9 +166,15 @@ class AdminSupervisiController extends Controller
                 ]);
         }
 
+        $message = 'Jadwal supervisi berhasil ditambahkan.';
+
+        if ($storedFile['notice']) {
+            $message .= ' ' . $storedFile['notice'];
+        }
+
         return redirect()
             ->route('admin.supervisi.index')
-            ->with('success', 'Jadwal supervisi berhasil ditambahkan.');
+            ->with('success', $message);
     }
 
     public function updateStatus(Request $request, $id)
@@ -351,6 +363,12 @@ class AdminSupervisiController extends Controller
         if (!$item) {
             abort(404);
         }
+
+        abort_unless(
+            strtolower((string) $item->status) === 'selesai',
+            403,
+            'Feedback hanya tersedia untuk supervisi yang telah selesai.'
+        );
 
         return view('admin.supervisi.feedback', compact('item'));
     }

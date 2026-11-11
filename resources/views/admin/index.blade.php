@@ -1489,17 +1489,8 @@ $jumlahJadwalMendatang = isset($jadwalMendatang)
             typeof Chart !== 'undefined'
         ) {
 
-            const completeDocuments = {
-                {
-                    $dokumenLengkap
-                }
-            };
-
-            const incompleteDocuments = {
-                {
-                    $dokumenBelumLengkap
-                }
-            };
+            const completeDocuments = @json($dokumenLengkap);
+            const incompleteDocuments = @json($dokumenBelumLengkap);
 
 
             new Chart(documentCanvas, {

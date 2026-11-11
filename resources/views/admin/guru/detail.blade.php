@@ -7,20 +7,18 @@
 <div class="container-fluid px-0">
 
     {{-- HEADER HALAMAN --}}
-    <div class="mb-5">
-        <a href="{{ route('admin.guru.index') }}"
-           class="btn btn-light mb-5">
-            <i class="bi bi-arrow-left me-2"></i>
-            Kembali
-        </a>
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-6">
+        <div>
+            <h2 class="fw-bold text-gray-900 mb-2">
+                Detail Kelengkapan Dokumen
+            </h2>
 
-        <h2 class="fw-bold text-gray-900 mb-2">
-            Detail Kelengkapan Dokumen
-        </h2>
-
-        <div class="text-muted">
-            Lihat dokumen pembelajaran yang telah diunggah oleh guru.
+            <div class="text-muted">
+                Lihat dokumen pembelajaran yang telah diunggah oleh guru.
+            </div>
         </div>
+
+        <x-back-button :fallback="route('admin.guru.index')" />
     </div>
 
     {{-- NOTIFIKASI BERHASIL --}}
