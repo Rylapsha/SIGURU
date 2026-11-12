@@ -928,7 +928,8 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        if (!window.jQuery || typeof window.jQuery.fn.daterangepicker !== 'function' || !window.moment) {
+        if (!window.jQuery || !window.initSiguruDatePicker || !window.moment) {
+            console.error('Komponen filter tanggal agenda gagal dimuat.');
             return;
         }
 
@@ -943,24 +944,9 @@
 
         const startValue = startInput.val();
         const endValue = endInput.val();
-
         const pickerOptions = {
             autoUpdateInput: false,
-            showDropdowns: true,
-            parentEl: '#agenda-filter-menu',
-            locale: {
-                format: 'DD/MM/YYYY',
-                separator: ' - ',
-                applyLabel: 'Terapkan',
-                cancelLabel: 'Batal',
-                customRangeLabel: 'Rentang Khusus',
-                daysOfWeek: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
-                monthNames: [
-                    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-                    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-                ],
-                firstDay: 1
-            }
+            parentEl: '#agenda-filter-menu'
         };
 
         if (startValue && endValue) {
@@ -977,7 +963,9 @@
             }
         }
 
-        dateRangeInput.daterangepicker(pickerOptions);
+        if (!window.initSiguruDatePicker(dateRangeInput, pickerOptions)) {
+            return;
+        }
 
         dateRangeInput.on('apply.daterangepicker', function(event, picker) {
             dateRangeInput.val(

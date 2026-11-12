@@ -1952,83 +1952,39 @@ $jumlahJadwalMendatang = isset($jadwalMendatang)
             $('#supervisiDateRange');
 
 
-        if (
-            dateRangeInput.length &&
-            typeof $.fn.daterangepicker !== 'undefined'
-        ) {
+        if (dateRangeInput.length && typeof window.initSiguruDatePicker === 'function') {
 
-            dateRangeInput.daterangepicker({
+            window.initSiguruDatePicker(dateRangeInput, {
 
                 autoUpdateInput: false,
-
-                locale: {
-
-                    format: 'DD/MM/YYYY',
-
-                    separator: ' - ',
-
-                    applyLabel: 'Terapkan',
-
-                    cancelLabel: 'Batal',
-
-                    customRangeLabel: 'Rentang Khusus',
-
-                    daysOfWeek: [
-                        'Mg',
-                        'Sn',
-                        'Sl',
-                        'Rb',
-                        'Km',
-                        'Jm',
-                        'Sb'
-                    ],
-
-                    monthNames: [
-                        'Januari',
-                        'Februari',
-                        'Maret',
-                        'April',
-                        'Mei',
-                        'Juni',
-                        'Juli',
-                        'Agustus',
-                        'September',
-                        'Oktober',
-                        'November',
-                        'Desember'
-                    ],
-
-                    firstDay: 1
-
-                },
 
                 ranges: {
 
                     'Bulan Ini': [
 
-                        moment().startOf('month'),
-                        moment().endOf('month')
+                        window.moment().startOf('month'),
+                        window.moment().endOf('month')
 
                     ],
 
                     '3 Bulan Terakhir': [
 
-                        moment().subtract(2, 'months').startOf('month'),
-                        moment().endOf('month')
+                        window.moment().subtract(2, 'months').startOf('month'),
+                        window.moment().endOf('month')
 
                     ],
 
                     '6 Bulan Terakhir': [
 
-                        moment().subtract(5, 'months').startOf('month'),
-                        moment().endOf('month')
+                        window.moment().subtract(5, 'months').startOf('month'),
+                        window.moment().endOf('month')
 
                     ],
 
                     'Tahun Ini': [
 
-                        moment().startOf('year'),
-                        moment().endOf('year')
+                        window.moment().startOf('year'),
+                        window.moment().endOf('year')
 
                     ]
 
