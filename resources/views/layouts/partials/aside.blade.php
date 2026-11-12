@@ -17,7 +17,7 @@
 
             <img
                 alt="Logo SIGURU"
-                src="{{ asset('asset/img/logos.png') }}"
+                src="{{ asset('asset/img/logos1.png') }}"
                 class="h-60px logo">
         </a>
 

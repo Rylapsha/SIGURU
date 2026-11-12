@@ -23,6 +23,7 @@
     @endif
 
     {{-- STATISTIK --}}
+    <h3 class="m-5"> Status Supervisi</h3>
     <div class="stats-grid">
         <div class="stat-card">
             <span>Terjadwal</span>
@@ -46,25 +47,90 @@
     {{-- DAFTAR SUPERVISI --}}
     <section class="supervisi-panel">
         <div class="section-heading">
-            <div>
-                <h2>Daftar Supervisi</h2>
-                <p>Kelola jadwal dan status supervisi guru.</p>
-            </div>
-
-            <div class="section-heading-tools">
-                <span class="total-badge">{{ $jadwal->count() }} jadwal</span>
-                <a
-                    href="{{ route('admin.supervisi.create') }}"
-                    class="btn btn-light-primary dashboard-action-btn fw-semibold px-5 py-3 fs-6"
-                    style="min-height: 43px;">
-                    <i class="bi bi-plus-lg me-2"></i>
-                    Tambah Jadwal
-                </a>
-            </div>
+            <h3 class="m-0">Daftar Supervisi</h3>
         </div>
 
+        <form action="{{ route('admin.supervisi.index') }}" method="GET" class="supervisi-table-toolbar">
+            <a
+                href="{{ route('admin.supervisi.create') }}"
+                class="btn btn-light-primary dashboard-action-btn fw-semibold px-5 py-3 fs-6 supervisi-add-button"
+                style="min-height: 43px;">
+                <i class="bi bi-plus-lg me-2"></i>
+                Tambah Jadwal
+            </a>
+
+            <div class="supervisi-search-filter">
+                <div class="input-group supervisi-search">
+                    <input
+                        type="search"
+                        name="cari"
+                        class="form-control form-control-solid"
+                        placeholder="Cari nama guru..."
+                        aria-label="Cari nama guru"
+                        value="{{ request('cari') }}">
+                    <button type="submit" class="btn btn-light-primary" aria-label="Cari guru" title="Cari guru">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+
+                <div class="dropdown">
+                    <button
+                        type="button"
+                        class="btn btn-light btn-icon"
+                        data-bs-toggle="dropdown"
+                        data-bs-auto-close="outside"
+                        aria-label="Filter jadwal supervisi"
+                        title="Filter jadwal supervisi">
+                        <i class="bi bi-funnel fs-4"></i>
+                    </button>
+
+                    <div class="dropdown-menu dropdown-menu-end p-4 shadow-sm supervisi-filter-menu" id="supervisi-filter-menu">
+                        <div class="fw-bold text-gray-800 mb-3">Filter Jadwal</div>
+
+                        <div class="mb-3">
+                            <label for="filter-mata-pelajaran" class="form-label fw-semibold">Mata Pelajaran</label>
+                            <select id="filter-mata-pelajaran" name="mata_pelajaran" class="form-select form-select-solid">
+                                <option value="">Semua Mata Pelajaran</option>
+                                @foreach ($daftarMataPelajaran as $mapel)
+                                <option value="{{ $mapel }}" @selected(request('mata_pelajaran')===$mapel)>
+                                    {{ $mapel }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="supervisi-filter-date-range" class="form-label fw-semibold">Tanggal Pelaksanaan</label>
+                            <div class="input-group">
+                                <input
+                                    type="text"
+                                    id="supervisi-filter-date-range"
+                                    class="form-control supervisi-date-range"
+                                    placeholder="Pilih rentang tanggal"
+                                    aria-label="Pilih rentang tanggal pelaksanaan"
+                                    autocomplete="off"
+                                    readonly>
+                                <span class="input-group-text"><i class="bi bi-calendar-range"></i></span>
+                            </div>
+                            <input type="hidden" name="tanggal_mulai" id="supervisi-filter-start" value="{{ request('tanggal_mulai') }}">
+                            <input type="hidden" name="tanggal_akhir" id="supervisi-filter-end" value="{{ request('tanggal_akhir') }}">
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <a
+                                href="{{ route('admin.supervisi.index', ['cari' => request('cari')]) }}"
+                                class="btn btn-light btn-sm flex-grow-1">
+                                Reset Filter
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-sm flex-grow-1">Terapkan</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
         <div class="table-responsive">
-            <table class="table table-row-bordered table-row-gray-300 align-middle gy-5">
+            <table class="table table-sm table-row-bordered table-row-gray-300 align-middle gy-5">
                 <thead>
                     <tr class="fw-bold text-uppercase fs-7">
                         <th class="min-w-180px">Guru & Mata Pelajaran</th>
@@ -119,22 +185,12 @@
                         </td>
 
                         <td>
-                            @php
-                            $statusValue = strtolower($item->status ?? '');
-                            $statusBadgeClass = match ($statusValue) {
-                            'terjadwal' => 'status-terjadwal',
-                            'selesai' => 'status-selesai',
-                            'dibatalkan' => 'status-dibatalkan',
-                            default => 'status-default',
-                            };
-                            @endphp
-
                             <form action="{{ route('admin.supervisi.status', $item->id) }}" method="POST" class="inline-form status-form">
                                 @csrf
                                 @method('PATCH')
 
                                 <select name="status"
-                                    class="status-select {{ $statusBadgeClass }}"
+                                    class="status-select badge {{ $badgeStatus }}"
                                     aria-label="Status supervisi"
                                     data-current-status="{{ $item->status }}"
                                     onchange="confirmStatusChange(this)">
@@ -156,7 +212,7 @@
                                     <span class="fw-semibold">Detail</span>
                                 </a>
 
-                                @if ($statusValue === 'selesai')
+                                @if ($statusRiwayat === 'selesai')
                                 <a href="{{ route('admin.supervisi.feedback', $item->id) }}"
                                     class="btn btn-sm btn-light-success d-inline-flex align-items-center gap-2"
                                     title="Feedback"
@@ -469,6 +525,71 @@
     }
 </script>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (!window.jQuery || typeof window.jQuery.fn.daterangepicker !== 'function' || !window.moment) {
+            return;
+        }
+
+        const $ = window.jQuery;
+        const dateRangeInput = $('#supervisi-filter-date-range');
+        const startInput = $('#supervisi-filter-start');
+        const endInput = $('#supervisi-filter-end');
+
+        if (!dateRangeInput.length) {
+            return;
+        }
+
+        const startValue = startInput.val();
+        const endValue = endInput.val();
+        const pickerOptions = {
+            autoUpdateInput: false,
+            showDropdowns: true,
+            parentEl: '#supervisi-filter-menu',
+            locale: {
+                format: 'DD/MM/YYYY',
+                separator: ' - ',
+                applyLabel: 'Terapkan',
+                cancelLabel: 'Batal',
+                customRangeLabel: 'Rentang Khusus',
+                daysOfWeek: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
+                monthNames: [
+                    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+                ],
+                firstDay: 1
+            }
+        };
+
+        if (startValue && endValue) {
+            const startDate = window.moment(startValue, 'YYYY-MM-DD', true);
+            const endDate = window.moment(endValue, 'YYYY-MM-DD', true);
+
+            if (startDate.isValid() && endDate.isValid()) {
+                pickerOptions.startDate = startDate;
+                pickerOptions.endDate = endDate;
+                dateRangeInput.val(startDate.format('DD/MM/YYYY') + ' - ' + endDate.format('DD/MM/YYYY'));
+            }
+        }
+
+        dateRangeInput.daterangepicker(pickerOptions);
+
+        dateRangeInput.on('apply.daterangepicker', function(event, picker) {
+            dateRangeInput.val(
+                picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY')
+            );
+            startInput.val(picker.startDate.format('YYYY-MM-DD'));
+            endInput.val(picker.endDate.format('YYYY-MM-DD'));
+        });
+
+        dateRangeInput.on('cancel.daterangepicker', function() {
+            dateRangeInput.val('');
+            startInput.val('');
+            endInput.val('');
+        });
+    });
+</script>
+
 <style>
     .admin-supervisi {
         --sup-bg: #f4f9ff;
@@ -521,8 +642,8 @@
         flex-direction: column;
         gap: 10px;
         padding: 20px;
-        background: var(--sup-bg);
-        border: 1px solid var(--sup-border);
+        background: #fff;
+        border: 1px solid var(--admin-border, #CFDCEB);
         border-radius: 12px;
         box-shadow: 0 10px 25px rgba(32, 96, 196, 0.06);
     }
@@ -549,18 +670,52 @@
     .admin-supervisi .supervisi-panel {
         margin-bottom: 22px;
         padding: 23px;
-        background: var(--sup-bg);
-        border: 1px solid var(--sup-border);
+        background: #fff;
+        border: 1px solid var(--admin-border, #CFDCEB);
         border-radius: 12px;
         box-shadow: 0 10px 25px rgba(32, 96, 196, 0.06);
     }
 
     .admin-supervisi .section-heading {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
+        flex-direction: column;
+        align-items: flex-start;
         gap: 14px;
-        margin-bottom: 22px;
+        margin-bottom: 12px;
+    }
+
+    .admin-supervisi .supervisi-table-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+
+    .admin-supervisi .supervisi-search-filter {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-left: auto;
+    }
+
+    .admin-supervisi .supervisi-search {
+        width: min(100%, 360px);
+    }
+
+    .admin-supervisi .supervisi-filter-menu {
+        width: 340px;
+        max-width: calc(100vw - 32px);
+    }
+
+    .admin-supervisi .supervisi-date-range {
+        cursor: pointer;
+        background-color: #fff;
+    }
+
+    .admin-supervisi .supervisi-add-button {
+        margin-right: auto;
     }
 
     .admin-supervisi .section-heading h2 {
@@ -568,15 +723,6 @@
         color: var(--sup-text);
         font-size: 16px;
         font-weight: 700;
-    }
-
-    .admin-supervisi .total-badge {
-        padding: 7px 10px;
-        color: #1e5cc7;
-        background: #eaf2ff;
-        border-radius: 7px;
-        font-size: 11px;
-        white-space: nowrap;
     }
 
     .admin-supervisi .form-grid {
@@ -698,61 +844,28 @@
     }
 
     .admin-supervisi .status-select {
-        min-width: 128px;
-        width: 100%;
+        min-width: 0;
+        width: auto;
         max-width: 150px;
-        min-height: 42px;
-        padding: 0.72rem 2.5rem 0.72rem 0.9rem;
-        color: var(--sup-text);
-        background-color: #fff;
-        border: 1px solid #dfeeff;
-        border-radius: 10px;
-        font-size: 12px;
-        font-weight: 600;
+        min-height: 0;
+        padding: 0.5em 1.5rem 0.5em 0.75em;
+        border: 0;
+        line-height: 1;
         cursor: pointer;
         appearance: none;
         -webkit-appearance: none;
         -moz-appearance: none;
-        background-image: linear-gradient(45deg, transparent 50%, #5b7aa7 50%), linear-gradient(135deg, #5b7aa7 50%, transparent 50%);
-        background-position: calc(100% - 18px) calc(50% - 2px), calc(100% - 12px) calc(50% - 2px);
-        background-size: 6px 6px, 6px 6px;
+        background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+        background-position: calc(100% - 10px) 50%, calc(100% - 5px) 50%;
+        background-size: 5px 5px, 5px 5px;
         background-repeat: no-repeat;
         box-shadow: none;
-        transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+        transition: box-shadow .2s ease;
     }
 
     .admin-supervisi .status-select:focus {
-        border-color: #b7d8ff;
-        box-shadow: 0 0 0 4px rgba(40, 120, 255, 0.08);
+        box-shadow: 0 0 0 3px rgba(40, 120, 255, 0.12);
         outline: none;
-    }
-
-    .admin-supervisi .status-select.status-terjadwal {
-        background-color: #eef5ff;
-        color: #1e5cc7;
-        border-color: #cfe1ff;
-        font-weight: 700;
-    }
-
-    .admin-supervisi .status-select.status-selesai {
-        background-color: #ebfaf3;
-        color: #0f8f5f;
-        border-color: #cfeee0;
-        font-weight: 700;
-    }
-
-    .admin-supervisi .status-select.status-dibatalkan {
-        background-color: #fff1f2;
-        color: #c82333;
-        border-color: #ffd7db;
-        font-weight: 700;
-    }
-
-    .admin-supervisi .status-select.status-default {
-        background-color: #f5f7fb;
-        color: #596f8d;
-        border-color: #dde6f3;
-        font-weight: 700;
     }
 
     .admin-supervisi .inline-form {
@@ -899,6 +1012,21 @@
             padding: 16px;
         }
 
+        .admin-supervisi .supervisi-table-toolbar {
+            align-items: center;
+        }
+
+        .admin-supervisi .supervisi-search-filter {
+            width: 100%;
+            margin-left: 0;
+        }
+
+        .admin-supervisi .supervisi-search {
+            flex: 1;
+            width: auto;
+            min-width: 0;
+        }
+
         .admin-supervisi .stats-grid {
             gap: 10px;
         }
@@ -982,37 +1110,25 @@
         align-items: center;
         justify-content: flex-end;
         gap: 10px;
-        margin-left: auto;
+        width: 100%;
+        margin-bottom: 18px;
+    }
+
+    .admin-supervisi .table {
+        font-family: Poppins, sans-serif;
     }
 
     .admin-supervisi .table thead th {
-        color: #5f728d;
-        font-size: 11px;
+        color: #1f3c57;
+        font-size: inherit;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.02em;
-        padding-top: 12px;
-        padding-bottom: 12px;
     }
 
     .admin-supervisi .table tbody td {
-        padding-top: 14px;
-        padding-bottom: 14px;
         color: var(--sup-text);
-        font-size: 12px;
-        font-weight: 500;
         vertical-align: middle;
-    }
-
-    .admin-supervisi .table tbody td .fw-bold,
-    .admin-supervisi .table tbody td .fw-semibold {
-        font-weight: 700 !important;
-    }
-
-    .admin-supervisi .table tbody td .text-muted,
-    .admin-supervisi .table tbody td .text-gray-700,
-    .admin-supervisi .table tbody td .text-gray-800 {
-        font-size: 12px;
     }
 </style>
 @endsection

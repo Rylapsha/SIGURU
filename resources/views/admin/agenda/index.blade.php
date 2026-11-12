@@ -1,4 +1,3 @@
-
 @extends('layouts.admin')
 
 @section('title', 'Agenda Kegiatan')
@@ -10,40 +9,35 @@
     {{-- HEADER HALAMAN --}}
     <div class="page-heading">
         <div>
-    </div>
+        </div>
 
-    {{-- NOTIFIKASI --}}
-    @if (session('success'))
+        {{-- NOTIFIKASI --}}
+        @if (session('success'))
         <div class="alert alert-success d-flex align-items-center mb-5">
             <i class="bi bi-check-circle-fill me-3 fs-2"></i>
             <div>{{ session('success') }}</div>
         </div>
-    @endif
+        @endif
 
-    @if ($errors->any())
+        @if ($errors->any())
         <div class="alert alert-danger mb-5">
             <div class="fw-bold mb-2">Periksa kembali input Anda:</div>
             <ul class="mb-0 ps-5">
                 @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
+                <li>{{ $error }}</li>
                 @endforeach
             </ul>
         </div>
-    @endif
+        @endif
 
-    {{-- DAFTAR AGENDA --}}
-    <section class="agenda-panel">
+        {{-- DAFTAR AGENDA --}}
+        <section class="agenda-panel">
 
-        <div class="section-heading">
-            <div>
-                <h2>Daftar Agenda</h2>
-                <p>Kelola kegiatan tambahan sekolah beserta waktu, lokasi, dan statusnya.</p>
-            </div>
+            <div class="section-heading">
+                <div>
+                    <h3 class="m-5">Daftar Agenda</h3>
+                </div>
 
-            <div class="section-heading-tools">
-                <span class="total-badge">
-                    {{ $agenda->count() }} agenda
-                </span>
 
                 <button
                     type="button"
@@ -55,36 +49,36 @@
                     <i class="bi bi-plus-lg me-2"></i>
                     Tambah Agenda
                 </button>
+
             </div>
-        </div>
 
-        {{-- TABEL AGENDA --}}
-        <div class="table-responsive">
-            <table class="table table-row-bordered table-row-gray-300 align-middle gy-5">
+            {{-- TABEL AGENDA --}}
+            <div class="table-responsive">
+                <table class="table table-sm table-row-bordered table-row-gray-300 align-middle gy-5">
 
-                <thead>
-                    <tr class="fw-bold text-uppercase fs-7">
-                        <th class="min-w-140px">Tanggal</th>
-                        <th class="min-w-220px">Kegiatan</th>
-                        <th class="min-w-120px">Waktu</th>
-                        <th class="min-w-150px">Lokasi</th>
-                        <th class="min-w-130px">Status</th>
-                        <th class="text-end min-w-180px">Aksi</th>
-                    </tr>
-                </thead>
+                    <thead>
+                        <tr class="fw-bold text-uppercase fs-7">
+                            <th class="min-w-140px">Tanggal</th>
+                            <th class="min-w-220px">Kegiatan</th>
+                            <th class="min-w-120px">Waktu</th>
+                            <th class="min-w-150px">Lokasi</th>
+                            <th class="min-w-130px">Status</th>
+                            <th class="text-end min-w-180px">Aksi</th>
+                        </tr>
+                    </thead>
 
-                <tbody>
-                    @forelse ($agenda as $item)
+                    <tbody>
+                        @forelse ($agenda as $item)
 
                         @php
-                            $statusValue = strtolower($item->status ?? 'terjadwal');
+                        $statusValue = strtolower($item->status ?? 'terjadwal');
 
-                            $statusBadgeClass = match ($statusValue) {
-                                'terjadwal' => 'status-terjadwal',
-                                'selesai' => 'status-selesai',
-                                'dibatalkan' => 'status-dibatalkan',
-                                default => 'status-default',
-                            };
+                        $statusBadgeClass = match ($statusValue) {
+                        'terjadwal' => 'badge-light-primary',
+                        'selesai' => 'badge-light-success',
+                        'dibatalkan' => 'badge-light-danger',
+                        default => 'badge-light-secondary',
+                        };
                         @endphp
 
                         <tr>
@@ -103,9 +97,9 @@
                                 </div>
 
                                 @if ($item->keterangan)
-                                    <div class="text-muted fs-7 mt-1">
-                                        {{ \Illuminate\Support\Str::limit($item->keterangan, 65) }}
-                                    </div>
+                                <div class="text-muted fs-7 mt-1">
+                                    {{ \Illuminate\Support\Str::limit($item->keterangan, 65) }}
+                                </div>
                                 @endif
                             </td>
 
@@ -125,8 +119,7 @@
 
                             {{-- STATUS --}}
                             <td>
-                                <span class="status-badge {{ $statusBadgeClass }}">
-                                    <span class="status-dot"></span>
+                                <span class="badge {{ $statusBadgeClass }}">
                                     {{ ucfirst($statusValue) }}
                                 </span>
                             </td>
@@ -162,7 +155,7 @@
 
                         </tr>
 
-                    @empty
+                        @empty
 
                         <tr>
                             <td colspan="6" class="text-center py-10">
@@ -178,16 +171,16 @@
                             </td>
                         </tr>
 
-                    @endforelse
-                </tbody>
+                        @endforelse
+                    </tbody>
 
-            </table>
-        </div>
+                </table>
+            </div>
 
-    </section>
+        </section>
 
-    {{-- MODAL EDIT DAN HAPUS --}}
-    @foreach ($agenda as $item)
+        {{-- MODAL EDIT DAN HAPUS --}}
+        @foreach ($agenda as $item)
 
         {{-- MODAL EDIT AGENDA --}}
         <div
@@ -438,465 +431,399 @@
             </div>
         </div>
 
-    @endforeach
+        @endforeach
 
-</div>
+    </div>
 
-{{-- MODAL TAMBAH AGENDA --}}
-<div
-    class="modal fade"
-    id="tambahAgendaModal"
-    tabindex="-1"
-    aria-hidden="true">
+    {{-- MODAL TAMBAH AGENDA --}}
+    <div
+        class="modal fade"
+        id="tambahAgendaModal"
+        tabindex="-1"
+        aria-hidden="true">
 
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
 
-            <form
-                method="POST"
-                action="{{ route('admin.agenda.store') }}">
+                <form
+                    method="POST"
+                    action="{{ route('admin.agenda.store') }}">
 
-                @csrf
+                    @csrf
 
-                <div class="modal-header">
-                    <h5 class="modal-title fw-bold">
-                        <i class="bi bi-calendar-plus text-primary me-2"></i>
-                        Tambah Agenda Kegiatan
-                    </h5>
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold">
+                            <i class="bi bi-calendar-plus text-primary me-2"></i>
+                            Tambah Agenda Kegiatan
+                        </h5>
 
-                    <button
-                        type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"
-                        aria-label="Close">
-                    </button>
-                </div>
-
-                <div class="modal-body row g-3">
-
-                    <div class="col-md-8">
-                        <label for="judul" class="form-label fw-semibold">
-                            Judul Kegiatan
-                        </label>
-
-                        <input
-                            type="text"
-                            id="judul"
-                            name="judul"
-                            class="form-control"
-                            placeholder="Contoh: Rapat Koordinasi, Evaluasi Pembelajaran"
-                            value="{{ old('judul') }}"
-                            required>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close">
+                        </button>
                     </div>
 
-                    <div class="col-md-4">
-                        <label for="status" class="form-label fw-semibold">
-                            Status
-                        </label>
+                    <div class="modal-body row g-3">
 
-                        <select
-                            id="status"
-                            name="status"
-                            class="form-select">
+                        <div class="col-md-8">
+                            <label for="judul" class="form-label fw-semibold">
+                                Judul Kegiatan
+                            </label>
 
-                            <option value="terjadwal" {{ old('status', 'terjadwal') === 'terjadwal' ? 'selected' : '' }}>
-                                Terjadwal
-                            </option>
-
-                            <option value="selesai" {{ old('status') === 'selesai' ? 'selected' : '' }}>
-                                Selesai
-                            </option>
-
-                            <option value="dibatalkan" {{ old('status') === 'dibatalkan' ? 'selected' : '' }}>
-                                Dibatalkan
-                            </option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label for="tanggal" class="form-label fw-semibold">
-                            Tanggal
-                        </label>
-
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="bi bi-calendar3"></i>
-                            </span>
                             <input
                                 type="text"
-                                id="tanggal"
-                                name="tanggal"
+                                id="judul"
+                                name="judul"
                                 class="form-control"
-                                data-date-picker="single"
-                                placeholder="YYYY-MM-DD"
-                                pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"
-                                title="Gunakan format YYYY-MM-DD"
-                                autocomplete="off"
-                                value="{{ old('tanggal') }}"
+                                placeholder="Contoh: Rapat Koordinasi, Evaluasi Pembelajaran"
+                                value="{{ old('judul') }}"
                                 required>
                         </div>
+
+                        <div class="col-md-4">
+                            <label for="status" class="form-label fw-semibold">
+                                Status
+                            </label>
+
+                            <select
+                                id="status"
+                                name="status"
+                                class="form-select">
+
+                                <option value="terjadwal" {{ old('status', 'terjadwal') === 'terjadwal' ? 'selected' : '' }}>
+                                    Terjadwal
+                                </option>
+
+                                <option value="selesai" {{ old('status') === 'selesai' ? 'selected' : '' }}>
+                                    Selesai
+                                </option>
+
+                                <option value="dibatalkan" {{ old('status') === 'dibatalkan' ? 'selected' : '' }}>
+                                    Dibatalkan
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="tanggal" class="form-label fw-semibold">
+                                Tanggal
+                            </label>
+
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-calendar3"></i>
+                                </span>
+                                <input
+                                    type="text"
+                                    id="tanggal"
+                                    name="tanggal"
+                                    class="form-control"
+                                    data-date-picker="single"
+                                    placeholder="YYYY-MM-DD"
+                                    pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"
+                                    title="Gunakan format YYYY-MM-DD"
+                                    autocomplete="off"
+                                    value="{{ old('tanggal') }}"
+                                    required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="jam" class="form-label fw-semibold">
+                                Jam
+                            </label>
+
+                            <input
+                                type="time"
+                                id="jam"
+                                name="jam"
+                                class="form-control"
+                                value="{{ old('jam') }}">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="lokasi" class="form-label fw-semibold">
+                                Lokasi
+                            </label>
+
+                            <input
+                                type="text"
+                                id="lokasi"
+                                name="lokasi"
+                                class="form-control"
+                                placeholder="Aula / ruang guru"
+                                value="{{ old('lokasi') }}">
+                        </div>
+
+                        <div class="col-12">
+                            <label for="keterangan" class="form-label fw-semibold">
+                                Keterangan
+                            </label>
+
+                            <textarea
+                                id="keterangan"
+                                name="keterangan"
+                                class="form-control"
+                                rows="3"
+                                placeholder="Tambahkan keterangan kegiatan (opsional)">{{ old('keterangan') }}</textarea>
+                        </div>
+
                     </div>
 
-                    <div class="col-md-4">
-                        <label for="jam" class="form-label fw-semibold">
-                            Jam
-                        </label>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-light"
+                            data-bs-dismiss="modal">
+                            Batal
+                        </button>
 
-                        <input
-                            type="time"
-                            id="jam"
-                            name="jam"
-                            class="form-control"
-                            value="{{ old('jam') }}">
+                        <button
+                            type="submit"
+                            class="btn btn-primary">
+
+                            <i class="bi bi-plus-lg me-1"></i>
+                            Tambahkan Agenda
+                        </button>
                     </div>
 
-                    <div class="col-md-4">
-                        <label for="lokasi" class="form-label fw-semibold">
-                            Lokasi
-                        </label>
+                </form>
 
-                        <input
-                            type="text"
-                            id="lokasi"
-                            name="lokasi"
-                            class="form-control"
-                            placeholder="Aula / ruang guru"
-                            value="{{ old('lokasi') }}">
-                    </div>
-
-                    <div class="col-12">
-                        <label for="keterangan" class="form-label fw-semibold">
-                            Keterangan
-                        </label>
-
-                        <textarea
-                            id="keterangan"
-                            name="keterangan"
-                            class="form-control"
-                            rows="3"
-                            placeholder="Tambahkan keterangan kegiatan (opsional)">{{ old('keterangan') }}</textarea>
-                    </div>
-
-                </div>
-
-                <div class="modal-footer">
-                    <button
-                        type="button"
-                        class="btn btn-light"
-                        data-bs-dismiss="modal">
-                        Batal
-                    </button>
-
-                    <button
-                        type="submit"
-                        class="btn btn-primary">
-
-                        <i class="bi bi-plus-lg me-1"></i>
-                        Tambahkan Agenda
-                    </button>
-                </div>
-
-            </form>
-
+            </div>
         </div>
     </div>
-</div>
-@endsection
+    @endsection
 
-{{-- STYLE HALAMAN AGENDA --}}
-@push('styles')
-<style>
-    .admin-agenda {
-        --agenda-bg: #f4f9ff;
-        --agenda-border: #dfeeff;
-        --agenda-text: #1d3557;
-        --agenda-muted: #59749a;
-
-        width: 100%;
-        max-width: none;
-        padding: 20px 10px;
-        color: var(--agenda-text);
-        font-family: Inter, sans-serif;
-        box-sizing: border-box;
-    }
-
-    .admin-agenda * {
-        box-sizing: border-box;
-    }
-
-    /* HEADER */
-    .admin-agenda .page-heading {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 16px;
-        width: 100%;
-        margin-bottom: 28px;
-    }
-
-    .admin-agenda .page-heading h1 {
-        margin: 0 0 9px;
-        color: var(--agenda-text);
-        font-size: 32px;
-        font-weight: 750;
-    }
-
-    .admin-agenda .page-heading p,
-    .admin-agenda .section-heading p {
-        margin: 0;
-        color: var(--agenda-muted);
-        font-size: 15px;
-        line-height: 1.7;
-    }
-
-    /* PANEL TABEL */
-    .admin-agenda .agenda-panel {
-        display: block;
-        width: 100%;
-        max-width: none;
-        margin-bottom: 26px;
-        padding: 32px;
-        background: var(--agenda-bg);
-        border: 1px solid var(--agenda-border);
-        border-radius: 15px;
-        box-shadow: 0 10px 25px rgba(32, 96, 196, 0.06);
-    }
-
-    .admin-agenda .section-heading {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 18px;
-        width: 100%;
-        margin-bottom: 28px;
-    }
-
-    .admin-agenda .section-heading h2 {
-        margin: 0 0 8px;
-        color: var(--agenda-text);
-        font-size: 22px;
-        font-weight: 700;
-    }
-
-    .admin-agenda .section-heading-tools {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        gap: 14px;
-        margin-left: auto;
-    }
-
-    .admin-agenda .total-badge {
-        padding: 10px 15px;
-        color: #1e5cc7;
-        background: #eaf2ff;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        white-space: nowrap;
-    }
-
-    /* TABEL */
-    .admin-agenda .table-responsive {
-        width: 100%;
-        overflow-x: auto;
-    }
-
-    .admin-agenda .table {
-        width: 100%;
-        min-width: 1050px;
-        margin-bottom: 0;
-    }
-
-    .admin-agenda .table thead th {
-        color: #5f728d;
-        font-size: 14px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: .02em;
-        padding: 20px 18px;
-        white-space: nowrap;
-    }
-
-    .admin-agenda .table tbody td {
-        padding: 24px 18px;
-        color: var(--agenda-text);
-        font-size: 15px;
-        font-weight: 500;
-        vertical-align: middle;
-    }
-
-    .admin-agenda .table tbody td .fw-bold {
-        font-size: 15px;
-        font-weight: 700 !important;
-    }
-
-    .admin-agenda .table tbody td .text-muted {
-        font-size: 14px;
-    }
-
-    /* BADGE STATUS */
-    .admin-agenda .status-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 9px;
-        padding: 10px 15px;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 700;
-        white-space: nowrap;
-    }
-
-    .admin-agenda .status-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: currentColor;
-    }
-
-    .admin-agenda .status-terjadwal {
-        color: #1e5cc7;
-        background: #eaf2ff;
-    }
-
-    .admin-agenda .status-selesai {
-        color: #0f8f5f;
-        background: #ebfaf3;
-    }
-
-    .admin-agenda .status-dibatalkan {
-        color: #c82333;
-        background: #fff1f2;
-    }
-
-    .admin-agenda .status-default {
-        color: #596f8d;
-        background: #f1f5f9;
-    }
-
-    /* TOMBOL */
-    .admin-agenda .btn {
-        padding: 11px 16px;
-        font-size: 14px;
-        font-weight: 600;
-        border-radius: 8px;
-    }
-
-    .admin-agenda .btn i {
-        line-height: 1;
-        font-size: 16px;
-    }
-
-    .admin-agenda .dashboard-action-btn {
-        padding: 0.75rem 1.25rem;
-        font-size: 1rem;
-        font-weight: 600;
-    }
-
-    /* MODAL */
-    .admin-agenda .modal-content {
-        overflow: hidden;
-        border: 1px solid var(--agenda-border);
-        border-radius: 16px;
-    }
-
-    .admin-agenda .modal-header {
-        padding: 26px 30px;
-        border-bottom: 1px solid #edf2f8;
-    }
-
-    .admin-agenda .modal-header .modal-title {
-        color: var(--agenda-text);
-        font-size: 20px;
-    }
-
-    .admin-agenda .modal-body {
-        padding: 30px;
-    }
-
-    .admin-agenda .modal-body .form-label {
-        color: var(--agenda-text);
-        font-size: 15px;
-        margin-bottom: 10px;
-    }
-
-    .admin-agenda .modal-body .form-control,
-    .admin-agenda .modal-body .form-select {
-        min-height: 50px;
-        padding: 13px 15px;
-        color: var(--agenda-text);
-        background-color: #fff;
-        border: 1px solid var(--agenda-border);
-        border-radius: 9px;
-        font-size: 15px;
-    }
-
-    .admin-agenda .modal-body textarea.form-control {
-        min-height: auto;
-    }
-
-    .admin-agenda .modal-body .form-control:focus,
-    .admin-agenda .modal-body .form-select:focus {
-        border-color: #438cf5;
-        box-shadow: 0 0 0 3px rgba(67, 140, 245, .1);
-    }
-
-    .admin-agenda .modal-footer {
-        padding: 22px 30px;
-        border-top: 1px solid #edf2f8;
-    }
-
-    .admin-agenda .agenda-delete-info {
-        padding: 20px;
-        background: #f4f9ff;
-        border: 1px solid var(--agenda-border);
-        border-radius: 10px;
-    }
-
-    /* RESPONSIVE */
-    @media (max-width: 768px) {
+    {{-- STYLE HALAMAN AGENDA --}}
+    @push('styles')
+    <style>
         .admin-agenda {
-            padding: 16px 0;
-        }
+            --agenda-bg: #f4f9ff;
+            --agenda-border: #dfeeff;
+            --agenda-text: #1d3557;
+            --agenda-muted: #59749a;
 
-        .admin-agenda .agenda-panel {
-            padding: 20px;
-        }
-
-        .admin-agenda .section-heading {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-
-        .admin-agenda .section-heading-tools {
             width: 100%;
+            max-width: none;
+            padding: 20px 10px;
+            color: var(--agenda-text);
+            font-family: Inter, sans-serif;
+            box-sizing: border-box;
+        }
+
+        .admin-agenda * {
+            box-sizing: border-box;
+        }
+
+        /* HEADER */
+        .admin-agenda .page-heading {
+            display: flex;
             justify-content: space-between;
-            margin-left: 0;
+            align-items: center;
+            gap: 16px;
+            width: 100%;
+            margin-bottom: 28px;
         }
 
         .admin-agenda .page-heading h1 {
-            font-size: 27px;
+            margin: 0 0 9px;
+            color: var(--agenda-text);
+            font-size: 32px;
+            font-weight: 750;
+        }
+
+        .admin-agenda .page-heading p,
+        .admin-agenda .section-heading p {
+            margin: 0;
+            color: var(--agenda-muted);
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        /* PANEL TABEL */
+        .admin-agenda .agenda-panel {
+            display: block;
+            width: 100%;
+            max-width: none;
+            margin-bottom: 26px;
+            padding: 32px;
+            background: #fff;
+            border: 1px solid var(--admin-border, #CFDCEB);
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(32, 96, 196, 0.06);
+        }
+
+        .admin-agenda .section-heading {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 18px;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        .admin-agenda .section-heading h2 {
+            margin: 0 0 8px;
+            color: var(--agenda-text);
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .admin-agenda .section-heading-tools {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 14px;
+            width: 100%;
+            margin-bottom: 18px;
+        }
+
+        /* TABEL */
+        .admin-agenda .table-responsive {
+            width: 100%;
+            overflow-x: auto;
         }
 
         .admin-agenda .table {
+            width: 100%;
             min-width: 1050px;
+            margin-bottom: 0;
+            font-family: Poppins, sans-serif;
         }
-    }
 
-    @media (max-width: 480px) {
-        .admin-agenda .section-heading-tools {
-            align-items: flex-start;
-            flex-direction: column;
+        .admin-agenda .table thead th {
+            color: #1f3c57;
+            font-size: inherit;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .02em;
+            white-space: nowrap;
+        }
+
+        .admin-agenda .table tbody td {
+            color: var(--agenda-text);
+            vertical-align: middle;
+        }
+
+        /* TOMBOL */
+        .admin-agenda .btn:not(.dashboard-action-btn) {
+            padding: 11px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 8px;
+        }
+
+        .admin-agenda .btn i {
+            line-height: 1;
+            font-size: 16px;
+        }
+
+        /* MODAL */
+        .admin-agenda .modal-content {
+            overflow: hidden;
+            border: 1px solid var(--agenda-border);
+            border-radius: 16px;
+        }
+
+        .admin-agenda .modal-header {
+            padding: 26px 30px;
+            border-bottom: 1px solid #edf2f8;
+        }
+
+        .admin-agenda .modal-header .modal-title {
+            color: var(--agenda-text);
+            font-size: 20px;
         }
 
         .admin-agenda .modal-body {
-            padding: 20px;
+            padding: 30px;
         }
 
-        .admin-agenda .modal-header,
-        .admin-agenda .modal-footer {
-            padding: 17px 20px;
+        .admin-agenda .modal-body .form-label {
+            color: var(--agenda-text);
+            font-size: 15px;
+            margin-bottom: 10px;
         }
-    }
-</style>
-@endpush
+
+        .admin-agenda .modal-body .form-control,
+        .admin-agenda .modal-body .form-select {
+            min-height: 50px;
+            padding: 13px 15px;
+            color: var(--agenda-text);
+            background-color: #fff;
+            border: 1px solid var(--agenda-border);
+            border-radius: 9px;
+            font-size: 15px;
+        }
+
+        .admin-agenda .modal-body textarea.form-control {
+            min-height: auto;
+        }
+
+        .admin-agenda .modal-body .form-control:focus,
+        .admin-agenda .modal-body .form-select:focus {
+            border-color: #438cf5;
+            box-shadow: 0 0 0 3px rgba(67, 140, 245, .1);
+        }
+
+        .admin-agenda .modal-footer {
+            padding: 22px 30px;
+            border-top: 1px solid #edf2f8;
+        }
+
+        .admin-agenda .agenda-delete-info {
+            padding: 20px;
+            background: #f4f9ff;
+            border: 1px solid var(--agenda-border);
+            border-radius: 10px;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .admin-agenda {
+                padding: 16px 0;
+            }
+
+            .admin-agenda .agenda-panel {
+                padding: 20px;
+            }
+
+            .admin-agenda .section-heading {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .admin-agenda .section-heading-tools {
+                width: 100%;
+                justify-content: space-between;
+                margin-left: 0;
+            }
+
+            .admin-agenda .page-heading h1 {
+                font-size: 27px;
+            }
+
+            .admin-agenda .table {
+                min-width: 1050px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .admin-agenda .section-heading-tools {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .admin-agenda .modal-body {
+                padding: 20px;
+            }
+
+            .admin-agenda .modal-header,
+            .admin-agenda .modal-footer {
+                padding: 17px 20px;
+            }
+        }
+    </style>
+    @endpush

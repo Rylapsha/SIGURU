@@ -78,6 +78,8 @@ License: For each use you must have a valid license purchased only from above li
         #kt_footer {
             flex: 0 0 auto;
             margin-top: auto;
+            background-color: var(--siguru-bg);
+            border-top: 1px solid #CFDCEB;
         }
 
         body.theme-transitioning,
@@ -614,7 +616,7 @@ License: For each use you must have a valid license purchased only from above li
                     @yield('content')
                 </div>
 
-                @include('layouts.partials.footer', ['footerRole' => 'guru'])
+                @include('layouts.partials.footer')
             </div>
             <!--end::Wrapper-->
         </div>

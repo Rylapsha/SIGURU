@@ -32,7 +32,12 @@ $jumlahSupervisiMendatang = isset($agendaMendatang)
             <div>
                 <h1 class="fw-lighter mt-3 mb-10 dashboard-welcome">
                     Selamat Datang <span class="fw-bolder">{{ Auth::user()->nama_lengkap ?? 'Guru' }}</span>
+                    di Sistem Informasi Direktori Guru SMP Negeri 2 Purwakarta
                 </h1>
+                <p class="dashboard-description">
+                    Sistem ini dirancang untuk memudahkan guru dalam mengelola dokumen, jadwal supervisi, dan agenda terkait pembelajaran.
+                    <br> Silakan jelajahi fitur-fitur yang tersedia untuk meningkatkan efisiensi kerja Anda.
+                </p>
             </div>
         </div>
 
@@ -750,12 +755,12 @@ $jumlahSupervisiMendatang = isset($agendaMendatang)
         transition: background 0.2s ease;
     }
 
-    .dashboard-agenda-item > .min-w-0 {
+    .dashboard-agenda-item>.min-w-0 {
         flex: 1 1 0;
         overflow-wrap: anywhere;
     }
 
-    .dashboard-agenda-item > .min-w-0 > span {
+    .dashboard-agenda-item>.min-w-0>span {
         line-height: 1.55;
     }
 

@@ -5,13 +5,15 @@
 
 @section('content')
 <div class="container-fluid px-0">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-6">
+    <div class="mb-5">
+        <x-back-button :fallback="route('admin.supervisi.index')" />
+    </div>
+
+    <div class="mb-6">
         <div>
             <h2 class="fw-bold text-gray-900 mb-1">Detail Supervisi</h2>
             <div class="text-muted fs-6">Catatan tindak lanjut dan feedback supervisor.</div>
         </div>
-
-        <x-back-button :fallback="route('admin.supervisi.index')" />
     </div>
 
     <div class="card dashboard-panel mb-6">

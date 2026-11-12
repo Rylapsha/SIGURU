@@ -17,7 +17,7 @@
 
             <img
                 alt="Logo SIGURU"
-                src="{{ asset('asset/img/logos.png') }}"
+                src="{{ asset('asset/img/logos1.png') }}"
                 class="h-60px logo">
         </a>
 
@@ -107,7 +107,7 @@
                             <i class="bi bi-people-fill fs-3"></i>
                         </span>
 
-                        <span class="menu-title">Data Guru</span>
+                        <span class="menu-title"> Data Guru</span>
                     </a>
                 </div>
 
@@ -199,14 +199,14 @@
         padding-left: 1.25rem !important;
     }
 
-    #kt_aside.admin-aside .menu-item > .menu-link {
+    #kt_aside.admin-aside .menu-item>.menu-link {
         min-height: 44px;
         margin: 2px 0.75rem;
         padding: 0.625rem 0.875rem;
         border-radius: 0.475rem;
     }
 
-    #kt_aside.admin-aside .menu-item > .menu-link .menu-icon {
+    #kt_aside.admin-aside .menu-item>.menu-link .menu-icon {
         display: inline-flex;
         width: 2rem;
         min-width: 2rem;
@@ -214,11 +214,11 @@
         margin-right: 0.5rem;
     }
 
-    #kt_aside.admin-aside .menu-item > .menu-link .menu-icon i {
+    #kt_aside.admin-aside .menu-item>.menu-link .menu-icon i {
         font-size: 1.125rem !important;
     }
 
-    #kt_aside.admin-aside .menu-item > .menu-link .menu-title {
+    #kt_aside.admin-aside .menu-item>.menu-link .menu-title {
         font-size: 0.925rem;
         font-weight: 500;
     }

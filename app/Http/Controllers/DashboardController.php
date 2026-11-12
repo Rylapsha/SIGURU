@@ -94,6 +94,7 @@ class DashboardController extends Controller
 
         $agendaKegiatan = AgendaKegiatan::query()
             ->where('status', '!=', 'dibatalkan')
+            ->where('status', '!=', 'selesai')
             ->whereDate('tanggal', '>=', now()->toDateString())
             ->orderBy('tanggal')
             ->orderBy('jam')

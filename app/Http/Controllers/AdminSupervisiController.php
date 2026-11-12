@@ -43,11 +43,18 @@ class AdminSupervisiController extends Controller
         return view('admin.supervisi.create', compact('guru', 'mataPelajaran'));
     }
 
-    public function index()
+    public function index(Request $request)
     {
         if ($redirect = $this->pastikanAdmin()) {
             return $redirect;
         }
+
+        $filters = $request->validate([
+            'cari' => ['nullable', 'string', 'max:150'],
+            'mata_pelajaran' => ['nullable', 'string', 'max:255'],
+            'tanggal_mulai' => ['nullable', 'date_format:Y-m-d'],
+            'tanggal_akhir' => ['nullable', 'date_format:Y-m-d'],
+        ]);
 
         $statistik = [
             'terjadwal' => DB::table('supervisis')
@@ -63,12 +70,38 @@ class AdminSupervisiController extends Controller
             ->orderBy('nama_lengkap')
             ->get();
 
-        $jadwal = DB::table('supervisis')
+        $daftarMataPelajaran = MataPelajaran::query()
+            ->orderBy('nama')
+            ->pluck('nama');
+
+        $jadwalQuery = DB::table('supervisis')
             ->leftJoin('gurus', 'supervisis.guru_id', '=', 'gurus.id')
             ->select(
                 'supervisis.*',
                 'gurus.nama_lengkap'
-            )
+            );
+
+        if (!empty($filters['cari'])) {
+            $jadwalQuery->where(
+                'gurus.nama_lengkap',
+                'like',
+                '%' . trim($filters['cari']) . '%'
+            );
+        }
+
+        if (!empty($filters['mata_pelajaran'])) {
+            $jadwalQuery->where('supervisis.mata_pelajaran', $filters['mata_pelajaran']);
+        }
+
+        if (!empty($filters['tanggal_mulai'])) {
+            $jadwalQuery->whereDate('supervisis.tanggal', '>=', $filters['tanggal_mulai']);
+        }
+
+        if (!empty($filters['tanggal_akhir'])) {
+            $jadwalQuery->whereDate('supervisis.tanggal', '<=', $filters['tanggal_akhir']);
+        }
+
+        $jadwal = $jadwalQuery
             ->orderByDesc('supervisis.tanggal')
             ->orderByDesc('supervisis.jam')
             ->get();
@@ -76,6 +109,7 @@ class AdminSupervisiController extends Controller
         return view('admin.supervisi.index', compact(
             'statistik',
             'guru',
+            'daftarMataPelajaran',
             'jadwal'
         ));
     }
@@ -273,6 +307,7 @@ class AdminSupervisiController extends Controller
         }
 
         $data = $request->validate([
+            'tindak_lanjut' => ['nullable', 'string', 'max:10000'],
             'predikat' => ['nullable', 'string', Rule::in(['Kurang', 'Cukup', 'Baik', 'Sangat Baik'])],
             'feedback_admin' => ['nullable', 'string', 'max:10000'],
         ]);
@@ -293,6 +328,7 @@ class AdminSupervisiController extends Controller
         DB::table('supervisis')
             ->where('id', $id)
             ->update([
+                'tindak_lanjut' => $data['tindak_lanjut'] ?? null,
                 'predikat' => $data['predikat'] ?? null,
                 'skor' => $data['predikat'] ? ($skorMap[$data['predikat']] ?? null) : null,
                 'feedback_admin' => $data['feedback_admin'] ?? null,
@@ -301,7 +337,7 @@ class AdminSupervisiController extends Controller
 
         return redirect()
             ->route('admin.supervisi.index')
-            ->with('success', 'Feedback dan penilaian supervisi berhasil disimpan.');
+            ->with('success', 'Feedback supervisi berhasil disimpan.');
     }
 
     public function destroy($id)

@@ -5,49 +5,42 @@
 
 @section('content')
 <div class="container-fluid px-0">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-6">
+    <div class="mb-5">
+        <x-back-button :fallback="route('admin.supervisi.index')" />
+    </div>
+
+    <div class="mb-6">
         <div>
             <h2 class="fw-bold text-gray-900 mb-1">Feedback Supervisi</h2>
             <div class="text-muted fs-6">Isi feedback, tindak lanjut, dan predikat untuk supervisi ini.</div>
         </div>
-
-        <x-back-button :fallback="route('admin.supervisi.index')" />
     </div>
 
-    <div class="row g-6">
-        <div class="col-xl-6">
-            <div class="card dashboard-panel h-100">
-                <div class="card-header border-0 pb-3">
-                    <h3 class="card-title fw-bold text-gray-800 mb-0">Tindak Lanjut</h3>
-                </div>
-                <div class="card-body pt-0">
-                    <form action="{{ route('admin.supervisi.hasil', $item->id) }}" method="POST">
-                        @csrf
-                        @method('PATCH')
+    <form action="{{ route('admin.supervisi.penilaian', $item->id) }}" method="POST">
+        @csrf
+        @method('PATCH')
 
+        <div class="row g-6">
+            <div class="col-xl-6">
+                <div class="card dashboard-panel h-100">
+                    <div class="card-header border-0 pb-3">
+                        <h3 class="card-title fw-bold text-gray-800 mb-0">Tindak Lanjut</h3>
+                    </div>
+                    <div class="card-body pt-0">
                         <div class="mb-4">
                             <label class="form-label fw-semibold">Catatan Tindak Lanjut</label>
                             <textarea name="tindak_lanjut" rows="8" class="form-control" placeholder="Tuliskan tindak lanjut...">{{ old('tindak_lanjut', $item->tindak_lanjut) }}</textarea>
                         </div>
-
-                        <div class="d-flex justify-content-end">
-                            <button type="submit" class="btn btn-primary">Simpan Tindak Lanjut</button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="col-xl-6">
-            <div class="card dashboard-panel h-100">
-                <div class="card-header border-0 pb-3">
-                    <h3 class="card-title fw-bold text-gray-800 mb-0">Feedback & Predikat</h3>
-                </div>
-                <div class="card-body pt-0">
-                    <form action="{{ route('admin.supervisi.penilaian', $item->id) }}" method="POST">
-                        @csrf
-                        @method('PATCH')
-
+            <div class="col-xl-6">
+                <div class="card dashboard-panel h-100">
+                    <div class="card-header border-0 pb-3">
+                        <h3 class="card-title fw-bold text-gray-800 mb-0">Feedback & Predikat</h3>
+                    </div>
+                    <div class="card-body pt-0">
                         <div class="mb-4">
                             <label class="form-label fw-semibold">Feedback & Komentar</label>
                             <textarea name="feedback_admin" rows="8" class="form-control" placeholder="Tuliskan feedback untuk guru...">{{ old('feedback_admin', $item->feedback_admin) }}</textarea>
@@ -70,14 +63,14 @@
                                 </strong>
                             </div>
                         </div>
-
-                        <div class="d-flex justify-content-end">
-                            <button type="submit" class="btn btn-primary">Simpan Feedback</button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+
+        <div class="d-flex justify-content-end mt-6">
+            <button type="submit" class="btn btn-primary">Simpan</button>
+        </div>
+    </form>
 </div>
 @endsection

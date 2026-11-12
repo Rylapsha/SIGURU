@@ -1,4 +1,3 @@
-
 <!--begin::Header-->
 <div id="kt_header" class="header align-items-stretch mb-0">
 
@@ -47,15 +46,15 @@
                                align-items-center my-1">
 
                         @if (request()->routeIs('admin.supervisi.*'))
-                            Jadwal Supervisi
+                        Jadwal Supervisi
                         @elseif (request()->routeIs('admin.guru.*'))
-                            Data Guru
+                        Data Guru
                         @elseif (request()->routeIs('admin.mata-pelajaran.*'))
-                            Mata Pelajaran
+                        Mata Pelajaran
                         @elseif (request()->routeIs('admin.agenda.*'))
-                            Agenda Kegiatan
+                        Agenda Kegiatan
                         @else
-                            @yield('page_title', 'Dashboard')
+                        @yield('page_title', 'Dashboard')
                         @endif
 
                         <span class="h-20px border-1 border-gray-200
@@ -232,7 +231,7 @@
         box-shadow: none;
     }
 
-    #kt_header > .container-fluid {
+    #kt_header>.container-fluid {
         min-height: inherit;
         padding-right: 1.5rem;
         padding-left: 1.5rem;
@@ -245,7 +244,7 @@
         letter-spacing: 0;
     }
 
-    #kt_header #kt_header_user_menu_toggle > .symbol {
+    #kt_header #kt_header_user_menu_toggle>.symbol {
         display: inline-flex;
         width: 40px;
         height: 40px;
@@ -256,7 +255,7 @@
         background-color: #eaf5fb;
     }
 
-    #kt_header #kt_header_user_menu_toggle > .symbol i {
+    #kt_header #kt_header_user_menu_toggle>.symbol i {
         font-size: 1.375rem !important;
     }
 
@@ -270,7 +269,7 @@
             min-height: 64px;
         }
 
-        #kt_header > .container-fluid {
+        #kt_header>.container-fluid {
             padding-right: 1rem;
             padding-left: 1rem;
         }

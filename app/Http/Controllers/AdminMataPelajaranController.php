@@ -8,11 +8,14 @@ use Illuminate\Support\Facades\Validator;
 
 class AdminMataPelajaranController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $this->pastikanAdmin();
 
         $mataPelajarans = MataPelajaran::query()
+            ->when($request->filled('cari'), function ($query) use ($request) {
+                $query->where('nama', 'like', '%' . trim($request->cari) . '%');
+            })
             ->orderBy('nama')
             ->paginate(10)
             ->withQueryString();
@@ -51,7 +54,12 @@ class AdminMataPelajaranController extends Controller
         $this->pastikanAdmin();
 
         $validator = Validator::make($request->all(), [
-            'nama' => ['required', 'string', 'max:100', 'unique:mata_pelajarans,nama,' . $mataPelajaran->id],
+            'nama' => [
+                'required',
+                'string',
+                'max:100',
+                'unique:mata_pelajarans,nama,' . $mataPelajaran->id,
+            ],
         ], [
             'nama.required' => 'Nama mata pelajaran wajib diisi.',
             'nama.max' => 'Nama mata pelajaran maksimal 100 karakter.',

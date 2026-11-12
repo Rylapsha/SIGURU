@@ -184,7 +184,7 @@ class AdminDashboardController extends Controller
             ? round(($dokumenBelumLengkap / $totalGuru) * 100)
             : 0;
 
-        // Maksimal lima jadwal mendatang berstatus terjadwal.
+        // Agenda mendatang yang belum selesai atau dibatalkan.
         $agendaKegiatan = DB::table('agenda_kegiatans')
             ->select(
                 'id',
@@ -196,6 +196,7 @@ class AdminDashboardController extends Controller
                 'status'
             )
             ->where('status', '!=', 'dibatalkan')
+            ->where('status', '!=', 'selesai')
             ->whereDate('tanggal', '>=', Carbon::today())
             ->orderBy('tanggal')
             ->orderBy('jam')

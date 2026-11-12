@@ -513,7 +513,7 @@
                     </div>
                 </div>
 
-                @include('layouts.partials.footer', ['footerRole' => 'admin'])
+                @include('layouts.partials.footer')
 
             </div>
         </div>

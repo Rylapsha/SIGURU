@@ -3,15 +3,13 @@
 @section('page_title', $label ?? 'Dokumen')
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid py-5">
 
-    <div class="mt-5">
-        <a href="{{ route('dokumen.index') }}" class="btn btn-light">
-            <i class="bi bi-arrow-left me-1"></i> Kembali
-        </a>
+    <div class="mb-5">
+        <x-back-button :fallback="route('dokumen.index')" />
     </div>
 
-    <div class="card mt-5 mb-7">
+    <div class="card mb-7">
         <div class="card-body py-6">
             <div class="d-flex align-items-center">
                 <div class="symbol symbol-50px me-5">

@@ -5,6 +5,9 @@
 
 @section('content')
 <div class="container-fluid px-0">
+    <div class="mb-5">
+        <x-back-button :fallback="route('admin.supervisi.index')" />
+    </div>
 
     @if ($errors->any())
     <div class="alert alert-danger mb-5">
@@ -19,16 +22,11 @@
 
     <div class="card">
         <div class="card-body p-5">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-5">
+            <div class="mb-5">
                 <div>
                     <h2 class="fw-bold text-gray-900 mb-1">Tambah Jadwal Supervisi</h2>
                     <div class="text-muted">Isi informasi jadwal supervisi yang akan dilaksanakan.</div>
                 </div>
-
-                <a href="{{ route('admin.supervisi.index') }}" class="btn btn-light">
-                    <i class="bi bi-arrow-left me-2"></i>
-                    Kembali
-                </a>
             </div>
 
             <form action="{{ route('admin.supervisi.store') }}" method="POST" enctype="multipart/form-data">
