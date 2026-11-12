@@ -49,6 +49,64 @@ class AdminAgendaValidationTest extends TestCase
             ]);
     }
 
+    public function test_agenda_index_filters_by_inclusive_activity_date_range(): void
+    {
+        foreach ([
+            ['judul' => 'Sebelum rentang', 'tanggal' => '2026-11-09'],
+            ['judul' => 'Tanggal mulai', 'tanggal' => '2026-11-10'],
+            ['judul' => 'Di dalam rentang', 'tanggal' => '2026-11-11'],
+            ['judul' => 'Tanggal akhir', 'tanggal' => '2026-11-12'],
+            ['judul' => 'Sesudah rentang', 'tanggal' => '2026-11-13'],
+        ] as $data) {
+            AgendaKegiatan::create(array_merge($data, [
+                'jam' => '09:00',
+                'lokasi' => 'Aula',
+                'keterangan' => 'Keterangan contoh',
+                'status' => 'terjadwal',
+            ]));
+        }
+
+        $this->withSession(['admin_id' => 1])
+            ->get(route('admin.agenda.index', [
+                'tanggal_mulai' => '2026-11-10',
+                'tanggal_akhir' => '2026-11-12',
+            ]))
+            ->assertOk()
+            ->assertSeeInOrder([
+                'Tanggal mulai',
+                'Di dalam rentang',
+                'Tanggal akhir',
+            ])
+            ->assertDontSee('Sebelum rentang')
+            ->assertDontSee('Sesudah rentang');
+    }
+
+    public function test_agenda_index_without_date_range_shows_all_agendas(): void
+    {
+        AgendaKegiatan::create([
+            'judul' => 'Agenda awal',
+            'tanggal' => '2026-11-09',
+            'jam' => '09:00',
+            'lokasi' => 'Aula',
+            'keterangan' => 'Keterangan contoh',
+            'status' => 'terjadwal',
+        ]);
+        AgendaKegiatan::create([
+            'judul' => 'Agenda akhir',
+            'tanggal' => '2026-11-13',
+            'jam' => '09:00',
+            'lokasi' => 'Aula',
+            'keterangan' => 'Keterangan contoh',
+            'status' => 'terjadwal',
+        ]);
+
+        $this->withSession(['admin_id' => 1])
+            ->get(route('admin.agenda.index'))
+            ->assertOk()
+            ->assertSee('Agenda awal')
+            ->assertSee('Agenda akhir');
+    }
+
     public function test_agenda_page_places_alert_above_the_panel_and_requires_all_fields(): void
     {
         AgendaKegiatan::create([

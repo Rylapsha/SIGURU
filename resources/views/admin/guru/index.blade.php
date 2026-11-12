@@ -135,18 +135,6 @@
                             <td>{{ $gurus->firstItem() + $index }}</td>
                             <td>
                                 <div class="d-flex align-items-center">
-                                    <div class="symbol symbol-40px me-3 flex-shrink-0">
-                                        @if ($guru->foto)
-                                        <img
-                                            src="{{ asset('storage/' . $guru->foto) }}"
-                                            alt="Foto {{ $guru->nama_lengkap }}"
-                                            class="object-fit-cover">
-                                        @else
-                                        <div class="symbol-label bg-light-primary text-primary fw-bold">
-                                            {{ strtoupper(substr($guru->nama_lengkap, 0, 1)) }}
-                                        </div>
-                                        @endif
-                                    </div>
                                     <div class="min-w-0">
                                         <div class="fw-semibold text-gray-900">{{ $guru->nama_lengkap }}</div>
                                         <div class="text-muted fs-7">NIP: {{ $guru->nip ?: '-' }}</div>

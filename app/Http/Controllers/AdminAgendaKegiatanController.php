@@ -8,11 +8,41 @@ use Illuminate\Support\Facades\Validator;
 
 class AdminAgendaKegiatanController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $this->pastikanAdmin();
 
-        $agenda = AgendaKegiatan::query()
+        $filters = $request->validate([
+            'tanggal_mulai' => [
+                'nullable',
+                'required_with:tanggal_akhir',
+                'date_format:Y-m-d',
+            ],
+            'tanggal_akhir' => [
+                'nullable',
+                'required_with:tanggal_mulai',
+                'date_format:Y-m-d',
+                'after_or_equal:tanggal_mulai',
+            ],
+        ], [
+            'tanggal_mulai.required_with' => 'Tanggal mulai wajib dipilih.',
+            'tanggal_mulai.date_format' => 'Format tanggal mulai tidak valid.',
+            'tanggal_akhir.required_with' => 'Tanggal akhir wajib dipilih.',
+            'tanggal_akhir.date_format' => 'Format tanggal akhir tidak valid.',
+            'tanggal_akhir.after_or_equal' => 'Tanggal akhir harus sama dengan atau setelah tanggal mulai.',
+        ]);
+
+        $query = AgendaKegiatan::query();
+
+        if (isset($filters['tanggal_mulai'])) {
+            $query->whereDate('tanggal', '>=', $filters['tanggal_mulai']);
+        }
+
+        if (isset($filters['tanggal_akhir'])) {
+            $query->whereDate('tanggal', '<=', $filters['tanggal_akhir']);
+        }
+
+        $agenda = $query
             ->orderBy('tanggal')
             ->orderBy('jam')
             ->get();
