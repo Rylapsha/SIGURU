@@ -8,6 +8,7 @@ use App\Models\MataPelajaran;
 use App\Models\Supervisi;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -54,6 +55,7 @@ class DashboardKelengkapanDokumenTest extends TestCase
             ->assertSee('Bank Soal')
             ->assertSee('Tahun Ajaran Aktif')
             ->assertSee('2026/2027')
+            ->assertSee('2026/2027 - Semester Ganjil')
             ->assertSee('const completeDocuments = 3;', false)
             ->assertSee('const incompleteDocuments = 1;', false);
 
@@ -63,7 +65,8 @@ class DashboardKelengkapanDokumenTest extends TestCase
         ]))
             ->assertOk()
             ->assertSee('1/4')
-            ->assertSee('25%');
+            ->assertSee('25%')
+            ->assertSee('2026/2027 - Semester Genap');
 
         $this->get(route('dashboard', [
             'semester' => 1,
@@ -139,6 +142,37 @@ class DashboardKelengkapanDokumenTest extends TestCase
 
         $this->buatDokumen($guru, 'Analisis Butir Soal');
         $this->assertProgress(100);
+    }
+
+    public function test_automatic_academic_period_uses_asia_jakarta_and_filters_dashboard_data(): void
+    {
+        $guru = $this->buatGuru('guru-periode-otomatis');
+        $this->actingAs($guru);
+
+        $this->buatDokumen($guru, 'Modul Ajar', semester: 1, tahunAjaran: '2026/2027');
+        $this->buatDokumen($guru, 'ATP', semester: 2, tahunAjaran: '2026/2027');
+        $this->buatDokumen($guru, 'Modul Ajar', semester: 1, tahunAjaran: '2027/2028');
+        $this->buatDokumen($guru, 'PROTA', semester: 1, tahunAjaran: '2027/2028');
+        $this->buatDokumen($guru, 'PROSEM', semester: 1, tahunAjaran: '2027/2028');
+
+        $periode = [
+            ['2026-11-12 12:00:00', '2026/2027', 'Ganjil', 25, 1],
+            ['2027-02-12 12:00:00', '2026/2027', 'Genap', 25, 1],
+            ['2027-08-12 12:00:00', '2027/2028', 'Ganjil', 50, 2],
+            ['2026-06-30 17:30:00 UTC', '2026/2027', 'Ganjil', 25, 1],
+        ];
+
+        foreach ($periode as [$tanggal, $tahunAjaran, $semester, $persentase, $lengkap]) {
+            $this->travelTo(Carbon::parse($tanggal, 'Asia/Jakarta'));
+
+            $this->get(route('dashboard'))
+                ->assertOk()
+                ->assertSee("{$tahunAjaran} - Semester {$semester}")
+                ->assertSee("{$persentase}%")
+                ->assertSee("const completeDocuments = {$lengkap};", false);
+
+            $this->travelBack();
+        }
     }
 
     public function test_upload_requires_and_saves_the_selected_academic_year(): void
@@ -271,11 +305,17 @@ class DashboardKelengkapanDokumenTest extends TestCase
 
     private function assertProgress(int $percentage): void
     {
+        $jumlahLengkap = intdiv($percentage, 25);
+        $jumlahBelumLengkap = 4 - $jumlahLengkap;
+
         $this->get(route('dashboard', [
             'semester' => 1,
             'tahun_ajaran' => '2026/2027',
         ]))
             ->assertOk()
-            ->assertSee((string) $percentage . '%');
+            ->assertSee((string) $percentage . '%')
+            ->assertSee("const completeDocuments = {$jumlahLengkap};", false)
+            ->assertSee("const incompleteDocuments = {$jumlahBelumLengkap};", false)
+            ->assertSee('data: [completeDocuments, incompleteDocuments]', false);
     }
 }

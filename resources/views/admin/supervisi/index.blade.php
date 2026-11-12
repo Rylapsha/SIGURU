@@ -22,8 +22,10 @@
         class="d-none"></div>
     @endif
 
-    {{-- STATISTIK --}}
-    <h3 class="m-5"> Status Supervisi</h3>
+    {{-- STATUS SUPERVISI --}}
+<div class="stats-container">
+    <h4 class="stats-title">Status Supervisi</h4>
+
     <div class="stats-grid">
         <div class="stat-card">
             <span>Terjadwal</span>
@@ -43,6 +45,7 @@
             <i class="ki-outline ki-cross-circle"></i>
         </div>
     </div>
+</div>
 
     {{-- DAFTAR SUPERVISI --}}
     <section class="supervisi-panel">
@@ -629,29 +632,59 @@
         line-height: 1.7;
     }
 
-    .admin-supervisi .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 16px;
-        margin-bottom: 22px;
-    }
+    /* STATISTIK SUPERVISI */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    width: 100%;
+    margin-bottom: 20px;
+}
 
-    .admin-supervisi .stat-card {
-        position: relative;
-        display: flex;
-        flex-direction: column;
+.stat-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+    min-height: 100px;
+    padding: 18px 20px;
+    background: #ffffff;
+    border: 1px solid #dce5f0;
+    border-radius: 12px;
+    box-sizing: border-box;
+}
+
+.stat-card span {
+    font-size: 12px;
+    color: #64748b;
+    margin-bottom: 8px;
+}
+
+.stat-card strong {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #17365d;
+}
+
+.stat-card i {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 26px;
+    color: #b7c9df;
+}
+
+
+/* RESPONSIVE */
+@media (max-width: 767px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
         gap: 10px;
-        padding: 20px;
-        background: #fff;
-        border: 1px solid var(--admin-border, #CFDCEB);
-        border-radius: 12px;
-        box-shadow: 0 10px 25px rgba(32, 96, 196, 0.06);
     }
-
-    .admin-supervisi .stat-card span {
-        color: var(--sup-muted);
-        font-size: 12px;
-    }
+}
 
     .admin-supervisi .stat-card strong {
         color: var(--sup-text);

@@ -6,32 +6,27 @@
 @section('content')
 <div class="admin-agenda">
 
-    {{-- HEADER HALAMAN --}}
-    <div class="page-heading">
-        <div>
-        </div>
+    {{-- NOTIFIKASI --}}
+    @if (session('success'))
+    <div class="alert alert-success d-flex align-items-center mb-5">
+        <i class="bi bi-check-circle-fill me-3 fs-2"></i>
+        <div>{{ session('success') }}</div>
+    </div>
+    @endif
 
-        {{-- NOTIFIKASI --}}
-        @if (session('success'))
-        <div class="alert alert-success d-flex align-items-center mb-5">
-            <i class="bi bi-check-circle-fill me-3 fs-2"></i>
-            <div>{{ session('success') }}</div>
-        </div>
-        @endif
+    @if ($errors->any())
+    <div class="alert alert-danger mb-5">
+        <div class="fw-bold mb-2">Periksa kembali input Anda:</div>
+        <ul class="mb-0 ps-5">
+            @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
 
-        @if ($errors->any())
-        <div class="alert alert-danger mb-5">
-            <div class="fw-bold mb-2">Periksa kembali input Anda:</div>
-            <ul class="mb-0 ps-5">
-                @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-        @endif
-
-        {{-- DAFTAR AGENDA --}}
-        <section class="agenda-panel">
+    {{-- DAFTAR AGENDA --}}
+    <section class="agenda-panel">
 
             <div class="section-heading">
                 <div>
@@ -177,7 +172,7 @@
                 </table>
             </div>
 
-        </section>
+    </section>
 
         {{-- MODAL EDIT DAN HAPUS --}}
         @foreach ($agenda as $item)
@@ -241,7 +236,8 @@
                                 <select
                                     id="edit-status-{{ $item->id }}"
                                     name="status"
-                                    class="form-select">
+                                    class="form-select"
+                                    required>
 
                                     <option value="terjadwal" {{ old('status', $item->status) === 'terjadwal' ? 'selected' : '' }}>
                                         Terjadwal
@@ -295,7 +291,8 @@
                                     id="edit-jam-{{ $item->id }}"
                                     name="jam"
                                     class="form-control"
-                                    value="{{ old('jam', $item->jam ? substr((string) $item->jam, 0, 5) : '') }}">
+                                    value="{{ old('jam', $item->jam ? substr((string) $item->jam, 0, 5) : '') }}"
+                                    required>
                             </div>
 
                             <div class="col-md-4">
@@ -311,7 +308,8 @@
                                     name="lokasi"
                                     class="form-control"
                                     value="{{ old('lokasi', $item->lokasi) }}"
-                                    placeholder="Ruang 1 / Aula">
+                                    placeholder="Ruang 1 / Aula"
+                                    required>
                             </div>
 
                             <div class="col-12">
@@ -326,7 +324,8 @@
                                     name="keterangan"
                                     class="form-control"
                                     rows="3"
-                                    placeholder="Tambahkan keterangan kegiatan (opsional)">{{ old('keterangan', $item->keterangan) }}</textarea>
+                                    placeholder="Tambahkan keterangan kegiatan"
+                                    required>{{ old('keterangan', $item->keterangan) }}</textarea>
                             </div>
 
                         </div>
@@ -433,8 +432,6 @@
 
         @endforeach
 
-    </div>
-
     {{-- MODAL TAMBAH AGENDA --}}
     <div
         class="modal fade"
@@ -490,7 +487,8 @@
                             <select
                                 id="status"
                                 name="status"
-                                class="form-select">
+                                class="form-select"
+                                required>
 
                                 <option value="terjadwal" {{ old('status', 'terjadwal') === 'terjadwal' ? 'selected' : '' }}>
                                     Terjadwal
@@ -540,7 +538,8 @@
                                 id="jam"
                                 name="jam"
                                 class="form-control"
-                                value="{{ old('jam') }}">
+                                value="{{ old('jam') }}"
+                                required>
                         </div>
 
                         <div class="col-md-4">
@@ -554,7 +553,8 @@
                                 name="lokasi"
                                 class="form-control"
                                 placeholder="Aula / ruang guru"
-                                value="{{ old('lokasi') }}">
+                                value="{{ old('lokasi') }}"
+                                required>
                         </div>
 
                         <div class="col-12">
@@ -567,7 +567,8 @@
                                 name="keterangan"
                                 class="form-control"
                                 rows="3"
-                                placeholder="Tambahkan keterangan kegiatan (opsional)">{{ old('keterangan') }}</textarea>
+                                placeholder="Tambahkan keterangan kegiatan"
+                                required>{{ old('keterangan') }}</textarea>
                         </div>
 
                     </div>
@@ -594,6 +595,7 @@
             </div>
         </div>
     </div>
+        </div>
     @endsection
 
     {{-- STYLE HALAMAN AGENDA --}}
@@ -611,6 +613,21 @@
             color: var(--agenda-text);
             font-family: Inter, sans-serif;
             box-sizing: border-box;
+        }
+
+        #kt_page_content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #kt_page_content > .container-fluid {
+            display: flex;
+            flex: 1 0 auto;
+            flex-direction: column;
+        }
+
+        .admin-agenda {
+            flex: 1 0 auto;
         }
 
         .admin-agenda * {

@@ -7,6 +7,7 @@ use App\Models\Dokumen;
 use App\Models\Guru;
 use App\Models\Supervisi;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 
 class DashboardController extends Controller
@@ -32,9 +33,11 @@ class DashboardController extends Controller
             ],
         ]);
 
-        $tahunAjaranAktif = $this->tahunAjaranAktif();
+        $waktuJakarta = Carbon::now('Asia/Jakarta');
+        $tahunAjaranAktif = $this->tahunAjaranAktif($waktuJakarta);
+        $semesterAktif = $waktuJakarta->month >= 7 ? '1' : '2';
         $semesterTerpilih = $validated['semester']
-            ?? (now()->month >= 7 ? '1' : '2');
+            ?? $semesterAktif;
         $tahunAjaranTerpilih = $validated['tahun_ajaran'] ?? $tahunAjaranAktif;
 
         $jenisDokumen = Dokumen::where('guru_id', $guru->id)
@@ -69,6 +72,8 @@ class DashboardController extends Controller
         $jumlahKategoriLengkap = collect($kategoriDokumen)
             ->filter()
             ->count();
+        $totalKategoriDokumen = count($kategoriDokumen);
+        $jumlahKategoriBelumLengkap = $totalKategoriDokumen - $jumlahKategoriLengkap;
         $persentaseKelengkapan = $jumlahKategoriLengkap * 25;
 
         $tahunAjaranOptions = Dokumen::where('guru_id', $guru->id)
@@ -114,6 +119,8 @@ class DashboardController extends Controller
         return view('dashboard', compact(
             'kategoriDokumen',
             'jumlahKategoriLengkap',
+            'jumlahKategoriBelumLengkap',
+            'totalKategoriDokumen',
             'persentaseKelengkapan',
             'semesterTerpilih',
             'tahunAjaranTerpilih',
@@ -122,10 +129,10 @@ class DashboardController extends Controller
         ));
     }
 
-    private function tahunAjaranAktif(): string
+    private function tahunAjaranAktif(Carbon $waktuJakarta): string
     {
-        $tahun = now()->year;
-        $tahunMulai = now()->month >= 7 ? $tahun : $tahun - 1;
+        $tahun = $waktuJakarta->year;
+        $tahunMulai = $waktuJakarta->month >= 7 ? $tahun : $tahun - 1;
 
         return $tahunMulai . '/' . ($tahunMulai + 1);
     }

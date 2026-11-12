@@ -27,18 +27,22 @@ class AdminAgendaKegiatanController extends Controller
         $validator = Validator::make($request->all(), [
             'judul' => ['required', 'string', 'max:255'],
             'tanggal' => ['required', 'date'],
-            'jam' => ['nullable', 'date_format:H:i'],
-            'lokasi' => ['nullable', 'string', 'max:255'],
-            'keterangan' => ['nullable', 'string', 'max:1000'],
-            'status' => ['nullable', 'string', 'max:50'],
+            'jam' => ['required', 'date_format:H:i'],
+            'lokasi' => ['required', 'string', 'max:255'],
+            'keterangan' => ['required', 'string', 'max:1000'],
+            'status' => ['required', 'string', 'max:50'],
         ], [
             'judul.required' => 'Judul kegiatan wajib diisi.',
             'judul.max' => 'Judul kegiatan maksimal 255 karakter.',
             'tanggal.required' => 'Tanggal kegiatan wajib diisi.',
             'tanggal.date' => 'Format tanggal tidak valid.',
+            'jam.required' => 'Jam kegiatan wajib diisi.',
             'jam.date_format' => 'Format jam harus HH:MM.',
+            'lokasi.required' => 'Lokasi kegiatan wajib diisi.',
             'lokasi.max' => 'Lokasi maksimal 255 karakter.',
+            'keterangan.required' => 'Keterangan kegiatan wajib diisi.',
             'keterangan.max' => 'Keterangan maksimal 1000 karakter.',
+            'status.required' => 'Status kegiatan wajib diisi.',
         ]);
 
         if ($validator->fails()) {
@@ -67,18 +71,22 @@ class AdminAgendaKegiatanController extends Controller
         $validator = Validator::make($request->all(), [
             'judul' => ['required', 'string', 'max:255'],
             'tanggal' => ['required', 'date'],
-            'jam' => ['nullable', 'date_format:H:i'],
-            'lokasi' => ['nullable', 'string', 'max:255'],
-            'keterangan' => ['nullable', 'string', 'max:1000'],
-            'status' => ['nullable', 'string', 'max:50'],
+            'jam' => ['required', 'date_format:H:i'],
+            'lokasi' => ['required', 'string', 'max:255'],
+            'keterangan' => ['required', 'string', 'max:1000'],
+            'status' => ['required', 'string', 'max:50'],
         ], [
             'judul.required' => 'Judul kegiatan wajib diisi.',
             'judul.max' => 'Judul kegiatan maksimal 255 karakter.',
             'tanggal.required' => 'Tanggal kegiatan wajib diisi.',
             'tanggal.date' => 'Format tanggal tidak valid.',
+            'jam.required' => 'Jam kegiatan wajib diisi.',
             'jam.date_format' => 'Format jam harus HH:MM.',
+            'lokasi.required' => 'Lokasi kegiatan wajib diisi.',
             'lokasi.max' => 'Lokasi maksimal 255 karakter.',
+            'keterangan.required' => 'Keterangan kegiatan wajib diisi.',
             'keterangan.max' => 'Keterangan maksimal 1000 karakter.',
+            'status.required' => 'Status kegiatan wajib diisi.',
         ]);
 
         if ($validator->fails()) {

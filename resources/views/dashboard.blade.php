@@ -6,19 +6,6 @@
 @section('content')
 
 @php
-$totalKategoriDokumen = count($kategoriDokumen ?? []);
-$jumlahDokumenLengkap = (int) ($jumlahKategoriLengkap ?? 0);
-$jumlahDokumenBelumLengkap = max(
-0,
-$totalKategoriDokumen - $jumlahDokumenLengkap
-);
-
-$persentaseDokumen = $totalKategoriDokumen > 0
-? (int) round(
-($jumlahDokumenLengkap / $totalKategoriDokumen) * 100
-)
-: 0;
-
 $jumlahSupervisiMendatang = isset($agendaMendatang)
 ? $agendaMendatang->count()
 : 0;
@@ -44,21 +31,6 @@ $jumlahSupervisiMendatang = isset($agendaMendatang)
 
         {{-- Ringkasan Tahun Ajaran dan Semester --}}
         @php
-        $tanggalSekarang = \Carbon\Carbon::now();
-        $bulanSekarang = (int) $tanggalSekarang->format('n');
-        $tahunSekarang = (int) $tanggalSekarang->format('Y');
-
-        $tahunMulaiAjaran = $bulanSekarang >= 7
-        ? $tahunSekarang
-        : $tahunSekarang - 1;
-
-        $tahunAjaranAktif = $tahunMulaiAjaran . '/'
-        . ($tahunMulaiAjaran + 1);
-
-        $semesterAktif = $bulanSekarang >= 7
-        ? 'Ganjil'
-        : 'Genap';
-
         $jumlahSupervisiTerjadwal =
         (isset($jadwalGanjil) && $jadwalGanjil ? 1 : 0)
         + (isset($jadwalGenap) && $jadwalGenap ? 1 : 0);
@@ -80,7 +52,7 @@ $jumlahSupervisiMendatang = isset($agendaMendatang)
                         </h3>
 
                         <span class="dashboard-muted fs-7">
-                            {{ $tahunAjaranAktif }} - Semester {{ $semesterAktif }}
+                            {{ $tahunAjaranTerpilih }} - Semester {{ $semesterTerpilih === '1' ? 'Ganjil' : 'Genap' }}
                         </span>
                     </div>
                 </div>
@@ -153,11 +125,11 @@ $jumlahSupervisiMendatang = isset($agendaMendatang)
 
                                 <div class="dashboard-donut-center">
                                     <span class="dashboard-donut-percentage">
-                                        {{ $persentaseDokumen }}%
+                                        {{ $persentaseKelengkapan }}%
                                     </span>
 
                                     <span class="dashboard-muted fs-7">
-                                        {{ $jumlahDokumenLengkap }} dari {{ $totalKategoriDokumen }} kategori
+                                        {{ $jumlahKategoriLengkap }} dari {{ $totalKategoriDokumen }} kategori
                                     </span>
                                 </div>
                             </div>
@@ -178,7 +150,7 @@ $jumlahSupervisiMendatang = isset($agendaMendatang)
 
                                     <div class="d-flex align-items-center gap-2">
                                         <span class="badge badge-light-primary">
-                                            {{ $jumlahDokumenLengkap }}/{{ $totalKategoriDokumen }}
+                                            {{ $jumlahKategoriLengkap }}/{{ $totalKategoriDokumen }}
                                         </span>
 
                                         <a href="{{ route('dokumen.index') }}"
@@ -996,8 +968,8 @@ $jumlahSupervisiMendatang = isset($agendaMendatang)
         const documentCanvas = document.getElementById('dashboardDocumentChart');
 
         if (documentCanvas && typeof Chart !== 'undefined') {
-            const completeDocuments = @json($jumlahDokumenLengkap);
-            const incompleteDocuments = @json($jumlahDokumenBelumLengkap);
+            const completeDocuments = @json($jumlahKategoriLengkap);
+            const incompleteDocuments = @json($jumlahKategoriBelumLengkap);
 
             new Chart(documentCanvas, {
                 type: 'doughnut',
