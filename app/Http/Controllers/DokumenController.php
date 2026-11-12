@@ -104,13 +104,23 @@ class DokumenController extends Controller
      */
     public function store(Request $request, string $jenis)
     {
-        $jenisLabel = $this->jenisDariSlug($jenis);
+        $jenisLabel = match ($jenis) {
+            'prota-prosem' => $request->validate([
+                'jenis_program' => ['required', Rule::in(['PROTA', 'PROSEM'])],
+            ], [
+                'jenis_program.required' => 'Pilih jenis dokumen PROTA atau PROSEM.',
+            ])['jenis_program'],
+            'prota' => 'PROTA',
+            'prosem' => 'PROSEM',
+            default => $this->jenisDariSlug($jenis),
+        };
 
         $isKelasRequired = !in_array(
             $jenis,
             ['prota-prosem', 'prota', 'prosem'],
             true
         );
+        $isSemesterRequired = $jenisLabel !== 'PROTA';
 
         $validated = $request->validate([
             'file' => [
@@ -130,7 +140,7 @@ class DokumenController extends Controller
                 Rule::exists('mata_pelajarans', 'nama'),
             ],
             'semester' => [
-                'required',
+                $isSemesterRequired ? 'required' : 'nullable',
                 Rule::in(['1', '2']),
             ],
             'tahun_ajaran' => [
@@ -156,6 +166,8 @@ class DokumenController extends Controller
                 'Pilih mata pelajaran dokumen terlebih dahulu.',
             'mata_pelajaran.exists' =>
                 'Mata pelajaran dokumen tidak valid.',
+            'semester.required' =>
+                'Pilih semester untuk dokumen ini terlebih dahulu.',
             'tahun_ajaran.required' => 'Pilih tahun ajaran dokumen terlebih dahulu.',
             'tahun_ajaran.regex' => 'Format tahun ajaran harus seperti 2026/2027.',
         ]);
@@ -180,7 +192,9 @@ class DokumenController extends Controller
                     ? $validated['kelas']
                     : null,
                 'mata_pelajaran' => $validated['mata_pelajaran'],
-                'semester' => $validated['semester'],
+                'semester' => $isSemesterRequired
+                    ? $validated['semester']
+                    : null,
                 'tahun_ajaran' => $validated['tahun_ajaran'],
                 'nama_file' => $file->getClientOriginalName(),
                 'file_path' => $path,
@@ -305,25 +319,66 @@ class DokumenController extends Controller
             'analisis-butir-soal' => 'Analisis Butir Soal',
         };
 
-        $query = Dokumen::where('guru_id', Auth::id())
-            ->whereIn('jenis_dokumen', $map[$jenis]);
+        $isProgramDokumen = in_array($jenis, ['prota-prosem', 'prota', 'prosem'], true);
+        $programDocuments = [];
 
-        if (request()->filled('mata_pelajaran')) {
-            $query->where('mata_pelajaran', request('mata_pelajaran'));
+        if ($isProgramDokumen) {
+            foreach ($map[$jenis] as $programType) {
+                $programQuery = Dokumen::where('guru_id', Auth::id())
+                    ->where('jenis_dokumen', $programType);
+
+                if (request()->filled('mata_pelajaran')) {
+                    $programQuery->where('mata_pelajaran', request('mata_pelajaran'));
+                }
+
+                // PROTA tidak lagi bergantung pada semester; filter semester berlaku untuk PROSEM.
+                if ($programType === 'PROSEM' && request()->filled('semester')) {
+                    $programQuery->where('semester', request('semester'));
+                }
+
+                if (request()->filled('tahun_ajaran')) {
+                    $programQuery->where('tahun_ajaran', request('tahun_ajaran'));
+                }
+
+                $pageName = $programType === 'PROTA' ? 'prota_page' : 'prosem_page';
+                $programDocuments[$programType] = $programQuery
+                    ->latest()
+                    ->paginate(5, ['*'], $pageName)
+                    ->withQueryString();
+            }
+
+            $totalDokumen = array_sum(array_map(
+                fn ($paginator) => $paginator->total(),
+                $programDocuments
+            ));
+
+            $dokumenIds = collect($programDocuments)
+                ->flatMap(fn ($paginator) => $paginator->getCollection()->pluck('id'));
+            $dokumens = null;
+        } else {
+            $query = Dokumen::where('guru_id', Auth::id())
+                ->whereIn('jenis_dokumen', $map[$jenis]);
+
+            if (request()->filled('mata_pelajaran')) {
+                $query->where('mata_pelajaran', request('mata_pelajaran'));
+            }
+
+            if (request()->filled('semester')) {
+                $query->where('semester', request('semester'));
+            }
+
+            if (request()->filled('tahun_ajaran')) {
+                $query->where('tahun_ajaran', request('tahun_ajaran'));
+            }
+
+            $dokumens = $query
+                ->latest()
+                ->paginate(5)
+                ->withQueryString();
+            $totalDokumen = $dokumens->total();
+            $dokumenIds = $dokumens->getCollection()->pluck('id');
         }
 
-        if (request()->filled('semester')) {
-            $query->where('semester', request('semester'));
-        }
-
-        if (request()->filled('tahun_ajaran')) {
-            $query->where('tahun_ajaran', request('tahun_ajaran'));
-        }
-
-        $dokumens = $query
-            ->latest()
-            ->paginate(5)
-            ->withQueryString();
         $tahunAjaranAktif = $this->tahunAjaranAktif();
         $mataPelajaranList = MataPelajaran::query()
             ->orderBy('nama')
@@ -342,7 +397,7 @@ class DokumenController extends Controller
         // Komentar hanya diambil untuk dokumen pada kategori yang sedang dibuka.
         $komentarPerDokumen = KomentarDokumen::whereIn(
             'dokumen_id',
-            $dokumens->pluck('id')
+            $dokumenIds
         )
             ->latest()
             ->get()
@@ -350,6 +405,9 @@ class DokumenController extends Controller
 
         return view('guru.dokumen-kategori', compact(
             'dokumens',
+            'programDocuments',
+            'isProgramDokumen',
+            'totalDokumen',
             'label',
             'jenis',
             'komentarPerDokumen',

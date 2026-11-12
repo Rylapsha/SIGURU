@@ -6,25 +6,6 @@
 @section('content')
 <div class="container-fluid px-0">
 
-    {{-- Notifikasi --}}
-    @if (session('success'))
-    <div class="alert alert-success d-flex align-items-center mb-5">
-        <i class="bi bi-check-circle-fill me-2"></i>
-        {{ session('success') }}
-    </div>
-    @endif
-
-    @if ($errors->any())
-    <div class="alert alert-danger mb-5">
-        <div class="fw-semibold mb-2">Periksa kembali input Anda:</div>
-        <ul class="mb-0 ps-3">
-            @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-    @endif
-
     {{-- Card Daftar Mata Pelajaran --}}
     <div class="card dashboard-panel overflow-hidden">
         <div class="card-body p-5">
@@ -81,8 +62,8 @@
                     <thead>
                         <tr class="fw-bold text-uppercase fs-7">
                             <th class="min-w-100px text-start">No</th>
-                            <th class="min-w-250px text-center">Nama Mata Pelajaran</th>
-                            <th class="min-w-150px text-center">Aksi</th>
+                            <th class="min-w-250px text-start">Nama Mata Pelajaran</th>
+                            <th class="min-w-150px text-start">Aksi</th>
                         </tr>
                     </thead>
 
@@ -93,14 +74,14 @@
                                 {{ $mataPelajarans->firstItem() + $index }}
                             </td>
 
-                            <td class="text-center">
+                            <td class="text-start">
                                 <span class="fw-semibold text-gray-800">
                                     {{ $mapel->nama }}
                                 </span>
                             </td>
 
-                            <td class="text-center">
-                                <div class="d-flex justify-content-center gap-2">
+                            <td class="text-start">
+                                <div class="d-flex justify-content-start gap-2">
 
                                     {{-- Tombol Edit --}}
                                     <button
@@ -153,25 +134,12 @@
                 </table>
             </div>
 
+            {{-- Pagination --}}
+            <div class="mt-6">
+                @include('partials.table-pagination', ['paginator' => $mataPelajarans])
+            </div>
         </div>
     </div>
-
-    {{-- Pagination --}}
-    @if ($mataPelajarans->hasPages())
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mt-6">
-
-        <div class="text-muted fs-7">
-            Menampilkan
-            {{ $mataPelajarans->firstItem() }}–{{ $mataPelajarans->lastItem() }}
-            dari {{ $mataPelajarans->total() }} data
-        </div>
-
-        <div>
-            {{ $mataPelajarans->links() }}
-        </div>
-
-    </div>
-    @endif
 
 </div>
 

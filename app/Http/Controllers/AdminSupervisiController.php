@@ -104,7 +104,8 @@ class AdminSupervisiController extends Controller
         $jadwal = $jadwalQuery
             ->orderByDesc('supervisis.tanggal')
             ->orderByDesc('supervisis.jam')
-            ->get();
+            ->paginate(5)
+            ->withQueryString();
 
         return view('admin.supervisi.index', compact(
             'statistik',

@@ -125,43 +125,11 @@
 
                         <div class="separator my-2"></div>
 
-                        {{-- Dashboard --}}
+                        {{-- Profil Saya --}}
                         <div class="menu-item px-5">
-                            <a href="{{ route('admin.dashboard') }}"
+                            <a href="{{ route('admin.profil') }}"
                                 class="menu-link px-5">
-                                Dashboard
-                            </a>
-                        </div>
-
-                        {{-- Data Guru --}}
-                        <div class="menu-item px-5">
-                            <a href="{{ route('admin.guru.index') }}"
-                                class="menu-link px-5">
-                                Data Guru
-                            </a>
-                        </div>
-
-                        {{-- Mata Pelajaran --}}
-                        <div class="menu-item px-5">
-                            <a href="{{ route('admin.mata-pelajaran.index') }}"
-                                class="menu-link px-5">
-                                Mata Pelajaran
-                            </a>
-                        </div>
-
-                        {{-- Jadwal Supervisi --}}
-                        <div class="menu-item px-5">
-                            <a href="{{ route('admin.supervisi.index') }}"
-                                class="menu-link px-5">
-                                Jadwal Supervisi
-                            </a>
-                        </div>
-
-                        {{-- Agenda Kegiatan --}}
-                        <div class="menu-item px-5">
-                            <a href="{{ route('admin.agenda.index') }}"
-                                class="menu-link px-5">
-                                Agenda Kegiatan
+                                Profil Saya
                             </a>
                         </div>
 
@@ -242,21 +210,6 @@
         font-family: Poppins, sans-serif;
         font-size: 1.125rem !important;
         letter-spacing: 0;
-    }
-
-    #kt_header #kt_header_user_menu_toggle>.symbol {
-        display: inline-flex;
-        width: 40px;
-        height: 40px;
-        align-items: center;
-        justify-content: center;
-        border-radius: 0.475rem;
-        color: #1d3557;
-        background-color: #eaf5fb;
-    }
-
-    #kt_header #kt_header_user_menu_toggle>.symbol i {
-        font-size: 1.375rem !important;
     }
 
     #kt_header .menu-sub-dropdown .menu-link {

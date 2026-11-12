@@ -866,7 +866,8 @@ $jumlahJadwalMendatang = isset($jadwalMendatang)
 
     .dashboard-welcome {
         color: var(--bs-gray-900, #181c32) !important;
-        font-size: 1.35rem;
+        font-size: clamp(1.5rem, 2vw, 2rem);
+        letter-spacing: -0.5px;
         line-height: 1.5;
     }
 
@@ -1375,7 +1376,7 @@ $jumlahJadwalMendatang = isset($jadwalMendatang)
 
 
         .dashboard-welcome {
-            font-size: 1.15rem;
+            font-size: 1.4rem;
             margin-bottom: 1.5rem !important;
         }
 

@@ -35,14 +35,11 @@ class AdminGuruController extends Controller
                 'Modul Ajar',
             ],
 
-            'ATP' => [
+            'ATP & AP' => [
                 'ATP',
+                'AP',
                 'Alur Pembelajaran',
                 'Tujuan Pembelajaran',
-            ],
-
-            'AP' => [
-                'AP',
             ],
 
             'Prota' => [
@@ -99,10 +96,10 @@ class AdminGuruController extends Controller
             );
         }
 
-        // Pagination 9 guru per halaman.
+        // Pagination 5 guru per halaman.
         $gurus = $query
             ->orderBy('nama_lengkap')
-            ->paginate(9)
+            ->paginate(5)
             ->withQueryString();
 
         // Ambil dokumen milik guru pada halaman aktif.

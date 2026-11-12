@@ -15,16 +15,45 @@ class SupervisiController extends Controller
 
         abort_unless($guru instanceof Guru, 403, 'Akun guru tidak ditemukan.');
 
+        $filters = $request->validate([
+            'cari' => ['nullable', 'string', 'max:150'],
+            'mata_pelajaran' => ['nullable', 'string', 'max:150'],
+            'semester' => ['nullable', 'string', 'max:50'],
+            'tanggal_mulai' => ['nullable', 'date_format:Y-m-d'],
+            'tanggal_akhir' => ['nullable', 'date_format:Y-m-d'],
+        ]);
+
         $query = Supervisi::where('guru_id', $guru->id);
 
-        if ($request->filled('semester')) {
-            $query->where('semester', $request->semester);
+        if (!empty($filters['cari'])) {
+            $kataKunci = trim($filters['cari']);
+            $query->where(function ($subQuery) use ($kataKunci) {
+                $subQuery->where('mata_pelajaran', 'like', '%' . $kataKunci . '%')
+                    ->orWhere('nama_supervisor', 'like', '%' . $kataKunci . '%');
+            });
+        }
+
+        if (!empty($filters['mata_pelajaran'])) {
+            $query->where('mata_pelajaran', $filters['mata_pelajaran']);
+        }
+
+        if (!empty($filters['semester'])) {
+            $query->where('semester', $filters['semester']);
+        }
+
+        if (!empty($filters['tanggal_mulai'])) {
+            $query->whereDate('tanggal', '>=', $filters['tanggal_mulai']);
+        }
+
+        if (!empty($filters['tanggal_akhir'])) {
+            $query->whereDate('tanggal', '<=', $filters['tanggal_akhir']);
         }
 
         $supervisis = (clone $query)
             ->orderByDesc('tanggal')
             ->orderByDesc('jam')
-            ->get();
+            ->paginate(5)
+            ->withQueryString();
 
         $today = now()->startOfDay();
 
@@ -53,6 +82,13 @@ class SupervisiController extends Controller
             ->orderBy('semester')
             ->pluck('semester');
 
+        $daftarMataPelajaran = Supervisi::where('guru_id', $guru->id)
+            ->whereNotNull('mata_pelajaran')
+            ->where('mata_pelajaran', '!=', '')
+            ->distinct()
+            ->orderBy('mata_pelajaran')
+            ->pluck('mata_pelajaran');
+
         $statusLabels = [
             'terjadwal' => 'Terjadwal',
             'selesai' => 'Selesai',
@@ -67,6 +103,7 @@ class SupervisiController extends Controller
             'riwayatSupervisi',
             'jadwalMendatang',
             'semesters',
+            'daftarMataPelajaran',
             'statusLabels'
         ));
     }

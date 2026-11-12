@@ -30,26 +30,16 @@
         </div>
     </div>
 
-    @if(session('success'))
-    <div id="success-message" data-message="{{ session('success') }}" class="d-none"></div>
-    @endif
-
-    @if($errors->any())
-    <div class="alert alert-danger mb-5">
-        <strong>Periksa kembali input kamu:</strong>
-        <ul class="mb-0 mt-2">
-            @foreach($errors->all() as $error)
-            <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-    @endif
-
     @php
     $isKelasRequired = !in_array(
     $jenis,
     ['prota-prosem', 'prota', 'prosem'],
     true
+    );
+    $isCombinedProgram = $jenis === 'prota-prosem';
+    $isProtaOnly = $jenis === 'prota';
+    $showSemesterField = !$isProtaOnly && (
+    !$isCombinedProgram || old('jenis_program') === 'PROSEM'
     );
 
     $kelasList = ['10', '11', '12'];
@@ -67,9 +57,9 @@
                 @csrf
 
                 <div class="row g-4 align-items-end">
-                    <h3>
-                        Unggah Dokumen {{ $label }}
-                    </h3>
+                    <div class="col-12">
+                        <h3 class="mb-0">Unggah Dokumen {{ $label }}</h3>
+                    </div>
 
                     @if($isKelasRequired)
                     <div class="col-md-6 col-xl-3">
@@ -104,7 +94,21 @@
                     </div>
                     @endif
 
+                    @if($isCombinedProgram)
                     <div class="col-md-6 col-xl-3">
+                        <label for="jenis-program" class="form-label fw-semibold">
+                            Jenis Program
+                        </label>
+                        <select name="jenis_program" id="jenis-program" class="form-select" required>
+                            <option value="" {{ old('jenis_program') ? '' : 'selected' }} disabled>Pilih jenis dokumen</option>
+                            <option value="PROTA" {{ old('jenis_program') === 'PROTA' ? 'selected' : '' }}>PROTA</option>
+                            <option value="PROSEM" {{ old('jenis_program') === 'PROSEM' ? 'selected' : '' }}>PROSEM</option>
+                        </select>
+
+                    </div>
+                    @endif
+
+                    <div class="col-md-6 col-xl-3 {{ $showSemesterField ? '' : 'd-none' }}" id="semester-field">
                         <label for="semester" class="form-label fw-semibold">
                             Semester
                         </label>
@@ -227,7 +231,7 @@
             <h3 class="card-title fw-bold mb-0">
                 Daftar {{ $label }}
                 <span class="badge badge-light-primary ms-2">
-                    {{ $dokumens->total() }}
+                    {{ $totalDokumen }}
                 </span>
             </h3>
 
@@ -534,6 +538,34 @@
             </div>
             @endforeach
 
+            @elseif($isProgramDokumen)
+
+            @foreach($programDocuments as $programType => $programDokumens)
+            <section class="mb-7">
+                <h4 class="fw-bold text-gray-800 mb-4">
+                    Daftar {{ $programType }}
+                    <span class="badge badge-light-primary ms-2">{{ $programDokumens->total() }}</span>
+                </h4>
+
+                @if($programDokumens->isEmpty())
+                <div class="border rounded p-5 text-center text-muted">
+                    Belum ada dokumen {{ $programType }}.
+                </div>
+                @else
+                @foreach($programDokumens as $dokumen)
+                @include('guru.partials.dokumen-card', [
+                'dokumen' => $dokumen,
+                'komentarPerDokumen' => $komentarPerDokumen,
+                ])
+                @endforeach
+                @endif
+
+                <div class="mt-4">
+                    @include('partials.table-pagination', ['paginator' => $programDokumens])
+                </div>
+            </section>
+            @endforeach
+
             @else
 
             @if($dokumens->isEmpty())
@@ -670,11 +702,9 @@
 
         </div>
 
-        @if($dokumens->hasPages())
+        @if(!$isProgramDokumen)
         <div class="card-footer border-0 bg-transparent pb-5 pt-0">
-            <div class="d-flex justify-content-center">
-                {{ $dokumens->links('pagination::bootstrap-5') }}
-            </div>
+            @include('partials.table-pagination', ['paginator' => $dokumens])
         </div>
         @endif
     </div>
@@ -688,20 +718,6 @@
     document.addEventListener('DOMContentLoaded', function() {
         const requiresKelas = @json($isKelasRequired);
         const labelDokumen = @json($label);
-        const successMessage = document.getElementById('success-message');
-
-        if (successMessage && successMessage.dataset.message) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Berhasil',
-                text: successMessage.dataset.message,
-                confirmButtonText: 'OK',
-                timer: 2500,
-                timerProgressBar: true,
-                showConfirmButton: false,
-                allowOutsideClick: false
-            });
-        }
 
         // ==========================================
         // FORM UPLOAD
@@ -711,7 +727,26 @@
         const fileInput = document.getElementById('file-dokumen');
         const kelasInput = document.getElementById('kelas');
         const semesterInput = document.getElementById('semester');
+        const semesterField = document.getElementById('semester-field');
+        const programTypeInput = document.getElementById('jenis-program');
         const mataPelajaranInput = document.getElementById('mata_pelajaran');
+
+        function getJenisDokumen() {
+            return programTypeInput ? programTypeInput.value : labelDokumen;
+        }
+
+        function needsSemester() {
+            return getJenisDokumen() !== 'PROTA';
+        }
+
+        if (programTypeInput && semesterField) {
+            const updateSemesterVisibility = function() {
+                semesterField.classList.toggle('d-none', programTypeInput.value !== 'PROSEM');
+            };
+
+            programTypeInput.addEventListener('change', updateSemesterVisibility);
+            updateSemesterVisibility();
+        }
 
         if (formUpload && fileInput && mataPelajaranInput) {
             let uploadConfirmed = false;
@@ -740,11 +775,15 @@
                 const semester = semesterInput ? semesterInput.value : '';
                 const mataPelajaran = getMataPelajaran();
 
+                if (programTypeInput && !programTypeInput.value) {
+                    return 'Pilih PROTA atau PROSEM terlebih dahulu.';
+                }
+
                 if (requiresKelas && !kelas) {
                     return 'Pilih kelas terlebih dahulu.';
                 }
 
-                if (!semester) {
+                if (needsSemester() && !semester) {
                     return 'Pilih semester terlebih dahulu.';
                 }
 
@@ -791,10 +830,15 @@
                 const kelas = kelasInput ? kelasInput.value : '';
                 const semester = semesterInput ? semesterInput.value : '';
                 const mataPelajaran = getMataPelajaran();
+                const jenisDokumen = getJenisDokumen();
 
                 const detailKelas = requiresKelas ?
                     '<p class="mb-2"><strong>Kelas:</strong> ' +
                     escapeHtml(kelas) + '</p>' :
+                    '';
+                const detailSemester = needsSemester() ?
+                    '<p class="mb-2"><strong>Semester:</strong> ' +
+                    escapeHtml(semester) + '</p>' :
                     '';
 
                 try {
@@ -804,10 +848,9 @@
                             '<p class="mb-1"><strong>Nama file:</strong></p>' +
                             '<p class="mb-3 text-break">' + escapeHtml(file.name) + '</p>' +
                             '<p class="mb-2"><strong>Jenis dokumen:</strong> ' +
-                            escapeHtml(labelDokumen) + '</p>' +
+                            escapeHtml(jenisDokumen) + '</p>' +
                             detailKelas +
-                            '<p class="mb-2"><strong>Semester:</strong> ' +
-                            escapeHtml(semester) + '</p>' +
+                            detailSemester +
                             '<p class="mb-2"><strong>Mata pelajaran:</strong> ' +
                             escapeHtml(mataPelajaran) + '</p>' +
                             '<p class="mb-0 text-muted">Ukuran: ' +

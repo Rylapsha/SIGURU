@@ -6,24 +6,6 @@
 @section('content')
 <div class="container-fluid px-0">
 
-    @if (session('success'))
-    <div class="alert alert-success d-flex align-items-center mb-5">
-        <i class="bi bi-check-circle-fill me-2"></i>
-        {{ session('success') }}
-    </div>
-    @endif
-
-    @if ($errors->any())
-    <div class="alert alert-danger mb-5">
-        <div class="fw-semibold mb-2">Periksa kembali input Anda:</div>
-        <ul class="mb-0 ps-3">
-            @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-    @endif
-
     <div class="card dashboard-panel overflow-hidden">
         <div class="card-body p-5">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-5">
@@ -126,10 +108,14 @@
                     <tbody>
                         @forelse ($gurus as $index => $guru)
                         @php
-                        $jumlahLengkap = collect($guru->kelengkapanDokumen)
+                        $kelengkapanDokumen = collect($guru->kelengkapanDokumen);
+                        $jumlahKategori = $kelengkapanDokumen->count();
+                        $jumlahLengkap = $kelengkapanDokumen
                         ->filter(fn ($item) => $item['status'])
                         ->count();
-                        $persentase = ($jumlahLengkap / 6) * 100;
+                        $persentase = $jumlahKategori > 0
+                            ? ($jumlahLengkap / $jumlahKategori) * 100
+                            : 0;
                         @endphp
                         <tr>
                             <td>{{ $gurus->firstItem() + $index }}</td>
@@ -146,7 +132,7 @@
                             <td>
                                 <div class="d-flex justify-content-between mb-2">
                                     <span class="text-muted fs-7">Kategori tersedia</span>
-                                    <span class="fw-semibold text-gray-800">{{ $jumlahLengkap }}/6</span>
+                                    <span class="fw-semibold text-gray-800">{{ $jumlahLengkap }}/{{ $jumlahKategori }}</span>
                                 </div>
                                 <div
                                     class="progress h-6px"
@@ -154,7 +140,7 @@
                                     aria-label="Kelengkapan dokumen {{ $guru->nama_lengkap }}"
                                     aria-valuenow="{{ $jumlahLengkap }}"
                                     aria-valuemin="0"
-                                    aria-valuemax="6">
+                                    aria-valuemax="{{ $jumlahKategori }}">
                                     <div class="progress-bar bg-primary" style="width: {{ $persentase }}%"></div>
                                 </div>
                             </td>
@@ -199,6 +185,10 @@
                         @endforelse
                     </tbody>
                 </table>
+            </div>
+
+            <div class="mt-6">
+                @include('partials.table-pagination', ['paginator' => $gurus])
             </div>
         </div>
     </div>
@@ -270,21 +260,6 @@
         </div>
     </div>
     @endforeach
-
-    @if ($gurus->hasPages())
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mt-6">
-
-        <div class="text-muted fs-7">
-            Menampilkan {{ $gurus->firstItem() }}–{{ $gurus->lastItem() }}
-            dari {{ $gurus->total() }} guru
-        </div>
-
-        <div>
-            {{ $gurus->links() }}
-        </div>
-
-    </div>
-    @endif
 
 </div>
 

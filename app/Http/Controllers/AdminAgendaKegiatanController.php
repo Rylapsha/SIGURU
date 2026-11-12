@@ -45,7 +45,8 @@ class AdminAgendaKegiatanController extends Controller
         $agenda = $query
             ->orderBy('tanggal')
             ->orderBy('jam')
-            ->get();
+            ->paginate(5)
+            ->withQueryString();
 
         return view('admin.agenda.index', compact('agenda'));
     }

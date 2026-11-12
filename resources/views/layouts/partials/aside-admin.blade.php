@@ -95,6 +95,30 @@
 
                 <div class="menu-content p-5">
                     <span class="menu-section text-muted text-uppercase fs-8 ls-1">
+                        DATA SAYA
+                    </span>
+                </div>
+
+                <div class="menu-item">
+                    <a href="{{ route('admin.profil') }}"
+                        class="menu-link {{ request()->routeIs('admin.profil') ? 'active' : '' }}">
+
+                        <span class="menu-icon">
+                            <i class="bi bi-person-vcard-fill fs-3"></i>
+                        </span>
+
+                        <span class="menu-title">Profil Saya</span>
+                    </a>
+                </div>
+
+                <div class="menu-item">
+                    <div class="menu-content">
+                        <div class="separator mx-1 my-4"></div>
+                    </div>
+                </div>
+
+                <div class="menu-content p-5">
+                    <span class="menu-section text-muted text-uppercase fs-8 ls-1">
                         DATA SEKOLAH
                     </span>
                 </div>

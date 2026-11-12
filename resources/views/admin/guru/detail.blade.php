@@ -33,29 +33,6 @@
 
     </div>
 
-    {{-- NOTIFIKASI BERHASIL --}}
-    @if (session('success'))
-        <div class="alert alert-success d-flex align-items-center mb-5">
-            <i class="bi bi-check-circle-fill me-3 fs-2"></i>
-            <div>{{ session('success') }}</div>
-        </div>
-    @endif
-
-    {{-- NOTIFIKASI VALIDASI --}}
-    @if ($errors->any())
-        <div class="alert alert-danger mb-5">
-            <div class="fw-bold mb-2">
-                Komentar gagal dikirim:
-            </div>
-
-            <ul class="mb-0 ps-5">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
     {{-- IDENTITAS GURU --}}
     <div class="card mb-6">
         <div class="card-body p-6">

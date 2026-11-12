@@ -53,25 +53,6 @@
     ];
     @endphp
 
-    {{-- Notifikasi --}}
-    @if (session('success'))
-    <div class="alert alert-success d-flex align-items-center p-5 mb-5">
-        <i class="bi bi-check-circle fs-2x me-4"></i>
-        <div class="fw-semibold">
-            {{ session('success') }}
-        </div>
-    </div>
-    @endif
-
-    @if (session('error'))
-    <div class="alert alert-danger d-flex align-items-center p-5 mb-5">
-        <i class="bi bi-exclamation-triangle fs-2x me-4"></i>
-        <div class="fw-semibold">
-            {{ session('error') }}
-        </div>
-    </div>
-    @endif
-
     <div class="d-flex align-items-center gap-4 mb-6 mt-10">
 
         <div>
@@ -256,18 +237,93 @@
     </div>
 
     {{-- RIWAYAT SUPERVISI --}}
-    <div class="d-flex align-items-center gap-4 mb-7 mt-10">
-
-        <div>
-            <h3 class="fw-bold text-gray-800 mb-1">
+    <div class="card dashboard-panel mt-10">
+        <div class="card-header border-0 pt-5 d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <h3 class="card-title fw-bold text-gray-800 mb-0">
                 Riwayat Supervisi
             </h3>
+
+            <form action="{{ route('guru.supervisi') }}" method="GET" class="d-flex align-items-center gap-2 flex-wrap">
+                <div class="input-group" style="width: min(320px, 70vw);">
+                    <input
+                        type="search"
+                        name="cari"
+                        class="form-control form-control-solid"
+                        placeholder="Cari mata pelajaran atau supervisor..."
+                        aria-label="Cari mata pelajaran atau supervisor"
+                        value="{{ request('cari') }}">
+                    <button type="submit" class="btn btn-light-primary" aria-label="Cari riwayat supervisi" title="Cari">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+
+                <div class="dropdown">
+                    <button
+                        type="button"
+                        class="btn btn-light-primary btn-sm d-flex align-items-center gap-2"
+                        data-bs-toggle="dropdown"
+                        data-bs-auto-close="outside"
+                        aria-label="Filter riwayat supervisi"
+                        title="Filter riwayat supervisi">
+                        <i class="bi bi-funnel"></i>
+                        <span>Filter</span>
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
+
+                    <div class="dropdown-menu dropdown-menu-end p-4 shadow-sm" id="guru-supervisi-filter-menu" style="width: 300px; max-width: calc(100vw - 40px);">
+                        <div class="fw-bold text-gray-800 mb-3">Filter Riwayat</div>
+
+                        <div class="mb-3">
+                            <label for="guru-filter-mata-pelajaran" class="form-label fw-semibold">Mata Pelajaran</label>
+                            <select id="guru-filter-mata-pelajaran" name="mata_pelajaran" class="form-select form-select-solid">
+                                <option value="">Semua Mata Pelajaran</option>
+                                @foreach ($daftarMataPelajaran as $mapel)
+                                <option value="{{ $mapel }}" @selected(request('mata_pelajaran') === $mapel)>
+                                    {{ $mapel }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="guru-filter-semester" class="form-label fw-semibold">Semester</label>
+                            <select id="guru-filter-semester" name="semester" class="form-select form-select-solid">
+                                <option value="">Semua Semester</option>
+                                @foreach ($semesters as $semester)
+                                <option value="{{ $semester }}" @selected(request('semester') === $semester)>
+                                    {{ $semester }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="guru-supervisi-date-range" class="form-label fw-semibold">Tanggal Pelaksanaan</label>
+                            <div class="input-group">
+                                <input
+                                    type="text"
+                                    id="guru-supervisi-date-range"
+                                    class="form-control"
+                                    placeholder="Pilih rentang tanggal"
+                                    aria-label="Pilih rentang tanggal pelaksanaan"
+                                    autocomplete="off"
+                                    readonly>
+                                <span class="input-group-text"><i class="bi bi-calendar-range"></i></span>
+                            </div>
+                            <input type="hidden" name="tanggal_mulai" id="guru-supervisi-date-start" value="{{ request('tanggal_mulai') }}">
+                            <input type="hidden" name="tanggal_akhir" id="guru-supervisi-date-end" value="{{ request('tanggal_akhir') }}">
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('guru.supervisi') }}" class="btn btn-light btn-sm flex-grow-1">Reset</a>
+                            <button type="submit" class="btn btn-primary btn-sm flex-grow-1">Terapkan</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
-    </div>
-    <div class="card dashboard-panel overflow-hidden">
 
-
-        <div class="card-body pt-5">
+        <div class="card-body pt-3">
 
             <div class="table-responsive">
                 <table class="table table-row-bordered table-row-gray-300 align-middle gy-5 guru-supervisi-table">
@@ -380,7 +436,11 @@
                                 <i class="bi bi-inbox fs-3x text-muted mb-4 d-block"></i>
 
                                 <div class="text-muted fs-7">
+                                    @if (request()->filled('cari') || request()->filled('mata_pelajaran') || request()->filled('semester') || request()->filled('tanggal_mulai') || request()->filled('tanggal_akhir'))
+                                    Tidak ada riwayat supervisi yang sesuai dengan pencarian atau filter.
+                                    @else
                                     Belum Ada Riwayat Supervisi
+                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -392,12 +452,10 @@
                 </table>
             </div>
 
-            @if (method_exists($supervisis, 'links'))
-            <div class="mt-5">
-                {{ $supervisis->links() }}
-            </div>
-            @endif
+        </div>
 
+        <div class="card-footer border-0 bg-transparent pb-5 pt-0">
+            @include('partials.table-pagination', ['paginator' => $supervisis])
         </div>
     </div>
 
@@ -405,4 +463,56 @@
 @endsection
 
 @section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (!window.jQuery || !window.initSiguruDatePicker || !window.moment) {
+            return;
+        }
+
+        const $ = window.jQuery;
+        const dateRangeInput = $('#guru-supervisi-date-range');
+        const startInput = $('#guru-supervisi-date-start');
+        const endInput = $('#guru-supervisi-date-end');
+
+        if (!dateRangeInput.length) {
+            return;
+        }
+
+        const startValue = startInput.val();
+        const endValue = endInput.val();
+        const pickerOptions = {
+            autoUpdateInput: false,
+            parentEl: '#guru-supervisi-filter-menu'
+        };
+
+        if (startValue && endValue) {
+            const startDate = window.moment(startValue, 'YYYY-MM-DD', true);
+            const endDate = window.moment(endValue, 'YYYY-MM-DD', true);
+
+            if (startDate.isValid() && endDate.isValid()) {
+                pickerOptions.startDate = startDate;
+                pickerOptions.endDate = endDate;
+                dateRangeInput.val(startDate.format('DD/MM/YYYY') + ' - ' + endDate.format('DD/MM/YYYY'));
+            }
+        }
+
+        if (!window.initSiguruDatePicker(dateRangeInput, pickerOptions)) {
+            return;
+        }
+
+        dateRangeInput.on('apply.daterangepicker', function(event, picker) {
+            dateRangeInput.val(
+                picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY')
+            );
+            startInput.val(picker.startDate.format('YYYY-MM-DD'));
+            endInput.val(picker.endDate.format('YYYY-MM-DD'));
+        });
+
+        dateRangeInput.on('cancel.daterangepicker', function() {
+            dateRangeInput.val('');
+            startInput.val('');
+            endInput.val('');
+        });
+    });
+</script>
 @endsection

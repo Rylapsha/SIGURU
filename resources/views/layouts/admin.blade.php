@@ -140,7 +140,12 @@
         }
 
         #kt_aside .aside-logo {
-            background-color: #fff !important;
+            background-color: #2f6eea !important;
+            border-bottom: 1px solid #2459c4;
+        }
+
+        #kt_aside .aside-logo .aside-toggle {
+            color: #fff !important;
         }
 
         #kt_aside .menu-section,
@@ -152,7 +157,7 @@
         }
 
         #kt_aside .aside-toggle svg [fill]:not(.permanent):not(g) {
-            fill: #59749a !important;
+            fill: #fff !important;
         }
 
         #kt_aside .separator {
@@ -526,6 +531,7 @@
 
     {{-- SweetAlert2 untuk konfirmasi logout --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @include('layouts.partials.flash-alerts')
 
     {{-- Pengaturan tema admin: satu pengendali tema --}}
     <script>

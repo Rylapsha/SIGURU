@@ -9,17 +9,6 @@
         <x-back-button :fallback="route('admin.supervisi.index')" />
     </div>
 
-    @if ($errors->any())
-    <div class="alert alert-danger mb-5">
-        <div class="fw-semibold mb-2">Periksa kembali input Anda:</div>
-        <ul class="mb-0 ps-3">
-            @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-    @endif
-
     <div class="card">
         <div class="card-body p-5">
             <div class="mb-5">

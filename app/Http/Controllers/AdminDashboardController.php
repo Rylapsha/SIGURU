@@ -43,129 +43,112 @@ class AdminDashboardController extends Controller
             return $item;
         });
 
-        /*
-         * Grafik kelengkapan dokumen.
-         *
-         * PROTA dan PROSEM tidak menggunakan kelas.
-         * Enam jenis dokumen lainnya harus tersedia
-         * untuk tahun ajaran, mapel, semester, dan kelas yang sama.
-         */
-        $jenisWajib = [
-            'Modul Ajar',
-            'ATP',
-            'AP',
-            'PROTA',
-            'PROSEM',
-            'Kisi-Kisi',
-            'Naskah Soal',
-            'Analisis Butir Soal',
-        ];
+        // Hitung kelengkapan guru pada tahun ajaran dan semester aktif.
+        $waktuJakarta = Carbon::now('Asia/Jakarta');
+        $tahun = $waktuJakarta->year;
+        $tahunMulaiAjaran = $waktuJakarta->month >= 7 ? $tahun : $tahun - 1;
+        $tahunAjaranAktif = $tahunMulaiAjaran . '/' . ($tahunMulaiAjaran + 1);
+        $semesterAktif = $waktuJakarta->month >= 7 ? '1' : '2';
 
-        $jenisTanpaKelas = ['PROTA', 'PROSEM'];
-
-        $guruIds = DB::table('gurus')->pluck('id');
-
-        $dokumen = DB::table('dokumens')
-            ->select(
-                'guru_id',
-                'jenis_dokumen',
-                'tahun_ajaran',
-                'mata_pelajaran',
-                'semester',
-                'kelas'
-            )
-            ->whereIn('guru_id', $guruIds)
+        $dokumenAktif = DB::table('dokumens')
+            ->select('guru_id', 'jenis_dokumen', 'mata_pelajaran', 'semester', 'kelas')
+            ->where('tahun_ajaran', $tahunAjaranAktif)
             ->get();
 
-        // Menyimpan jenis dokumen PROTA/PROSEM per kombinasi
-        // guru, tahun ajaran, mapel, dan semester.
-        $dokumenTanpaKelas = [];
+        $jenisTpAtp = [
+            'ATP',
+            'AP',
+            'TP',
+            'TP/ATP',
+            'ALUR PEMBELAJARAN',
+            'TUJUAN PEMBELAJARAN',
+        ];
+        $jenisBankSoal = [
+            'KISI-KISI',
+            'NASKAH SOAL',
+            'ANALISIS BUTIR SOAL',
+        ];
+        $jenisWajibDenganKelas = array_merge(
+            ['MODUL AJAR'],
+            $jenisBankSoal,
+            $jenisTpAtp
+        );
+        $protaTersedia = [];
+        $prosemTersedia = [];
+        $kombinasiDokumen = [];
 
-        foreach ($dokumen as $item) {
-            $jenis = trim($item->jenis_dokumen);
+        foreach ($dokumenAktif as $item) {
+            $jenis = mb_strtoupper(trim($item->jenis_dokumen));
+            $mataPelajaran = mb_strtolower(trim((string) $item->mata_pelajaran));
 
-            if (!in_array($jenis, $jenisTanpaKelas, true)) {
+            if ($mataPelajaran === '') {
                 continue;
             }
 
-            $kunci = json_encode([
+            $kunciTahunan = json_encode([$item->guru_id, $mataPelajaran]);
+
+            // PROTA berlaku untuk satu tahun ajaran, tanpa semester atau kelas.
+            if (in_array($jenis, ['PROTA', 'PROTA & PROSEM'], true)) {
+                $protaTersedia[$kunciTahunan] = true;
+            }
+
+            if ((string) $item->semester !== $semesterAktif) {
+                continue;
+            }
+
+            // PROSEM mengikuti semester aktif, tetapi tidak menggunakan kelas.
+            if (in_array($jenis, ['PROSEM', 'PROTA & PROSEM'], true)) {
+                $kunciSemester = json_encode([
+                    $item->guru_id,
+                    $mataPelajaran,
+                    $semesterAktif,
+                ]);
+                $prosemTersedia[$kunciSemester] = true;
+            }
+
+            if (!in_array($jenis, $jenisWajibDenganKelas, true)) {
+                continue;
+            }
+
+            if ($item->kelas === null || trim((string) $item->kelas) === '') {
+                continue;
+            }
+
+            $kunciKombinasi = json_encode([
                 $item->guru_id,
-                $item->tahun_ajaran,
-                $item->mata_pelajaran,
-                $item->semester,
+                $mataPelajaran,
+                $semesterAktif,
+                trim((string) $item->kelas),
             ]);
 
-            $dokumenTanpaKelas[$kunci][$jenis] = true;
+            $kombinasiDokumen[$kunciKombinasi] ??= [
+                'guru_id' => $item->guru_id,
+                'kunci_tahunan' => $kunciTahunan,
+                'kunci_semester' => json_encode([
+                    $item->guru_id,
+                    $mataPelajaran,
+                    $semesterAktif,
+                ]),
+                'jenis' => [],
+            ];
+
+            $kombinasiDokumen[$kunciKombinasi]['jenis'][$jenis] = true;
         }
 
-        // Mengelompokkan enam jenis dokumen berdasarkan
-        // guru, tahun ajaran, mapel, semester, dan kelas.
-        $kombinasi = [];
-
-        foreach ($dokumen as $item) {
-            $jenis = trim($item->jenis_dokumen);
-
-            if (in_array($jenis, $jenisTanpaKelas, true)) {
-                continue;
-            }
-
-            // Jenis dokumen lain harus mempunyai kelas.
-            if ($item->kelas === null || $item->kelas === '') {
-                continue;
-            }
-
-            $kunci = json_encode([
-                $item->guru_id,
-                $item->tahun_ajaran,
-                $item->mata_pelajaran,
-                $item->semester,
-                $item->kelas,
-            ]);
-
-            $kunciTahunan = json_encode([
-                $item->guru_id,
-                $item->tahun_ajaran,
-                $item->mata_pelajaran,
-                $item->semester,
-            ]);
-
-            if (!isset($kombinasi[$kunci])) {
-                $kombinasi[$kunci] = [
-                    'guru_id' => $item->guru_id,
-                    'jenis' => [],
-                    'jenis_tahunan' => $kunciTahunan,
-                ];
-            }
-
-            $kombinasi[$kunci]['jenis'][$jenis] = true;
-        }
-
-        // Satu guru dihitung lengkap apabila setidaknya ada
-        // satu kombinasi yang memenuhi seluruh 8 jenis dokumen.
         $guruLengkap = [];
 
-        foreach ($kombinasi as $data) {
-            $jenisTersedia = $data['jenis'];
+        foreach ($kombinasiDokumen as $kombinasi) {
+            $jenisTersedia = $kombinasi['jenis'];
+            $memilikiTpAtp = collect($jenisTpAtp)->contains(
+                fn ($jenis) => isset($jenisTersedia[$jenis])
+            );
+            $memilikiDokumenKelas = collect(array_merge(['MODUL AJAR'], $jenisBankSoal))
+                ->every(fn ($jenis) => isset($jenisTersedia[$jenis]));
+            $memilikiProta = isset($protaTersedia[$kombinasi['kunci_tahunan']]);
+            $memilikiProsem = isset($prosemTersedia[$kombinasi['kunci_semester']]);
 
-            $jenisTahunan = $dokumenTanpaKelas[$data['jenis_tahunan']] ?? [];
-
-            foreach ($jenisTanpaKelas as $jenis) {
-                if (isset($jenisTahunan[$jenis])) {
-                    $jenisTersedia[$jenis] = true;
-                }
-            }
-
-            $lengkap = true;
-
-            foreach ($jenisWajib as $jenis) {
-                if (!isset($jenisTersedia[$jenis])) {
-                    $lengkap = false;
-                    break;
-                }
-            }
-
-            if ($lengkap) {
-                $guruLengkap[$data['guru_id']] = true;
+            if ($memilikiTpAtp && $memilikiDokumenKelas && $memilikiProta && $memilikiProsem) {
+                $guruLengkap[$kombinasi['guru_id']] = true;
             }
         }
 

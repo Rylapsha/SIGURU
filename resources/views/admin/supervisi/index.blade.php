@@ -9,19 +9,6 @@
 
     </div>
 
-    {{-- Pesan SweetAlert --}}
-    @if(session('success'))
-    <div id="supervisi-success-message"
-        data-message="{{ session('success') }}"
-        class="d-none"></div>
-    @endif
-
-    @if($errors->any())
-    <div id="supervisi-error-message"
-        data-message="{{ $errors->first() }}"
-        class="d-none"></div>
-    @endif
-
     {{-- STATUS SUPERVISI --}}
 <div class="stats-container">
     <h4 class="stats-title">Status Supervisi</h4>
@@ -265,6 +252,10 @@
                 </tbody>
             </table>
         </div>
+
+        <div class="mt-4">
+            @include('partials.table-pagination', ['paginator' => $jadwal])
+        </div>
     </section>
 
 </div>
@@ -334,46 +325,13 @@
         }
 
         // Jika validasi gagal, buka kembali formulir.
-        const errorMessage = document.getElementById(
-            'supervisi-error-message'
-        );
+        const adaErrorValidasi = @json($errors->any());
 
-        if (errorMessage && errorMessage.dataset.message) {
+        if (adaErrorValidasi && formTambah && btnTambahJadwal) {
             formTambah.style.display = 'block';
 
             btnTambahJadwal.innerHTML =
                 '<i class="ki-outline ki-minus"></i> Tutup Formulir';
-
-            Swal.fire({
-                icon: 'error',
-                title: 'Data belum valid',
-                text: errorMessage.dataset.message,
-                confirmButtonText: 'Periksa kembali',
-                buttonsStyling: false,
-                customClass: {
-                    confirmButton: 'swal-confirm-btn',
-                    popup: 'supervisi-swal-popup'
-                }
-            });
-        }
-
-        // Notifikasi berhasil.
-        const successMessage = document.getElementById(
-            'supervisi-success-message'
-        );
-
-        if (successMessage && successMessage.dataset.message) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Berhasil!',
-                text: successMessage.dataset.message,
-                confirmButtonText: 'Oke',
-                buttonsStyling: false,
-                customClass: {
-                    confirmButton: 'swal-confirm-btn',
-                    popup: 'supervisi-swal-popup'
-                }
-            });
         }
     });
 

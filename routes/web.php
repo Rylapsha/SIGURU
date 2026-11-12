@@ -12,6 +12,7 @@ use App\Http\Controllers\AdminGuruController;
 use App\Http\Controllers\AdminKomentarDokumenController;
 use App\Http\Controllers\AdminMataPelajaranController;
 use App\Http\Controllers\AdminAgendaKegiatanController;
+use App\Http\Controllers\AdminProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -125,6 +126,10 @@ Route::prefix('admin')
         // Dashboard Admin
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])
             ->name('dashboard');
+
+        // Profil Admin
+        Route::get('/profil', [AdminProfileController::class, 'index'])
+            ->name('profil');
 
         // Data Guru
         Route::get('/guru', [AdminGuruController::class, 'index'])

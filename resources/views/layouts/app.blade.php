@@ -671,6 +671,7 @@ License: For each use you must have a valid license purchased only from above li
 
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @include('layouts.partials.flash-alerts')
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -819,8 +820,17 @@ License: For each use you must have a valid license purchased only from above li
     border-right: 1px solid #CFDCEB;
 }
 
-#kt_aside .aside-logo {
-    background-color: #ffffff !important;
+#kt_aside.aside-light .aside-logo {
+    background-color: #2f6eea !important;
+    border-bottom: 1px solid #2459c4;
+}
+
+#kt_aside .aside-logo .aside-toggle {
+    color: #fff !important;
+}
+
+#kt_aside .aside-logo .aside-toggle svg [fill]:not(.permanent):not(g) {
+    fill: #fff !important;
 }
 
 /* Jarak kiri dan kanan seluruh menu */
@@ -849,7 +859,7 @@ License: For each use you must have a valid license purchased only from above li
 
 /* Menu saat diarahkan */
 #kt_aside .menu-item .menu-link:hover {
-    background-color: rgba(47, 110, 234, 0.08) !important;
+    background-color: rgba(47, 110, 234, 0.12) !important;
     border-radius: 8px !important;
 }
 

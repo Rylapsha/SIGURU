@@ -17,7 +17,7 @@ class AdminMataPelajaranController extends Controller
                 $query->where('nama', 'like', '%' . trim($request->cari) . '%');
             })
             ->orderBy('nama')
-            ->paginate(10)
+            ->paginate(5)
             ->withQueryString();
 
         return view('admin.mata-pelajaran.index', compact('mataPelajarans'));

@@ -5,13 +5,6 @@
 @section('content')
 <div class="container-fluid">
 
-    {{-- Notifikasi --}}
-    @if(session('success'))
-    <div class="alert alert-success mb-5">
-        {{ session('success') }}
-    </div>
-    @endif
-
     {{-- Dokumen Pembelajaran --}}
     <div class="mb-7 mt-10">
         <h3 class="fw-bold text-gray-800 mb-4">

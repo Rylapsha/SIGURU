@@ -52,7 +52,7 @@ $jumlahSupervisiMendatang = isset($agendaMendatang)
                         </h3>
 
                         <span class="dashboard-muted fs-7">
-                            {{ $tahunAjaranTerpilih }} - Semester {{ $semesterTerpilih === '1' ? 'Ganjil' : 'Genap' }}
+                            {{ $tahunAjaranAktif }} - Semester {{ $semesterAktif === '1' ? 'Ganjil' : 'Genap' }}
                         </span>
                     </div>
                 </div>
