@@ -496,6 +496,10 @@
             box-shadow: 0 12px 32px rgba(16, 24, 40, 0.12);
         }
 
+        .swal2-popup .swal2-select {
+            display: none !important;
+        }
+
         .custom-select-option {
             display: flex;
             align-items: center;
