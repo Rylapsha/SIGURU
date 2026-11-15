@@ -937,6 +937,16 @@
                 }
 
                 uploadConfirmed = false;
+
+                Swal.fire({
+                    title: 'Mengunggah file',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showConfirmButton: false,
+                    didOpen: function() {
+                        Swal.showLoading();
+                    }
+                });
             });
         }
 

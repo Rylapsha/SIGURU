@@ -14,6 +14,8 @@ class FileCompressionService
 {
     private const TARGET_BYTES = 5 * 1024 * 1024;
 
+    private const PDF_COMPRESSION_THRESHOLD_BYTES = 2 * 1024 * 1024;
+
     private const MAX_IMAGE_PIXELS = 20_000_000;
 
     /**
@@ -21,6 +23,10 @@ class FileCompressionService
      */
     public function store(UploadedFile $file, string $directory): array
     {
+        if ($file->getMimeType() === 'application/pdf') {
+            return $this->storePdf($file, $directory);
+        }
+
         $optimization = $this->optimize($file);
         $extension = $this->extensionFor($file);
 
@@ -45,6 +51,92 @@ class FileCompressionService
     }
 
     /**
+     * @return array{path: string|false, notice: string|null}
+     */
+    public function storePdf(UploadedFile $file, string $directory): array
+    {
+        if ($file->getSize() <= self::PDF_COMPRESSION_THRESHOLD_BYTES) {
+            try {
+                return [
+                    'path' => $file->store($directory, 'public') ?: false,
+                    'notice' => null,
+                ];
+            } catch (\Throwable $exception) {
+                Log::error('Could not store an uploaded PDF.', [
+                    'exception' => $exception::class,
+                ]);
+
+                return [
+                    'path' => false,
+                    'notice' => 'PDF gagal disimpan. Silakan coba kembali.',
+                ];
+            }
+        }
+
+        try {
+            $optimization = $this->compressPdf($file);
+        } catch (\Throwable $exception) {
+            Log::error('PDF compression failed before storage.', [
+                'exception' => $exception::class,
+            ]);
+
+            return [
+                'path' => false,
+                'notice' => 'PDF gagal dikompres; file tidak disimpan.',
+            ];
+        }
+
+        $compressedPath = $optimization['path'];
+
+        if (! $compressedPath || ! is_file($compressedPath)) {
+            return [
+                'path' => false,
+                'notice' => $optimization['notice']
+                    ?? 'PDF tidak dapat dikompres; file tidak disimpan.',
+            ];
+        }
+
+        try {
+            $compressedSize = filesize($compressedPath);
+
+            if (
+                $compressedSize === false
+                || $compressedSize >= $file->getSize()
+                || ! $this->isPdf($compressedPath)
+            ) {
+                return [
+                    'path' => false,
+                    'notice' => 'PDF hasil kompresi tidak valid atau tidak lebih kecil; file tidak disimpan.',
+                ];
+            }
+
+            $storedPath = Storage::disk('public')->putFileAs(
+                $directory,
+                new \Illuminate\Http\File($compressedPath),
+                bin2hex(random_bytes(16)).'.pdf'
+            ) ?: false;
+        } catch (\Throwable $exception) {
+            Log::error('Could not store the compressed PDF.', [
+                'exception' => $exception::class,
+            ]);
+
+            return [
+                'path' => false,
+                'notice' => 'PDF hasil kompresi gagal disimpan; file tidak disimpan.',
+            ];
+        } finally {
+            if (is_file($compressedPath)) {
+                unlink($compressedPath);
+            }
+        }
+
+        return [
+            'path' => $storedPath,
+            'notice' => $optimization['notice'],
+        ];
+    }
+
+    /**
      * @return array{path: string|null, notice: string|null}
      */
     private function optimize(UploadedFile $file): array
@@ -54,7 +146,6 @@ class FileCompressionService
         }
 
         return match ($file->getMimeType()) {
-            'application/pdf' => $this->compressPdf($file),
             'image/jpeg', 'image/png', 'image/webp' => $this->compressImage($file),
             default => ['path' => null, 'notice' => null],
         };
@@ -65,81 +156,211 @@ class FileCompressionService
      */
     private function compressPdf(UploadedFile $file): array
     {
-        $binary = config('uploads.ghostscript_binary');
-        $executable = (new ExecutableFinder)->find($binary);
+        $executable = $this->findGhostscriptExecutable();
 
         if (! $executable) {
             Log::warning('PDF compression skipped because Ghostscript is unavailable.');
 
             return [
                 'path' => null,
-                'notice' => 'Kompresi PDF tidak tersedia pada server; file asli disimpan.',
+                'notice' => 'Kompresi PDF tidak tersedia pada server. File tidak disimpan.',
             ];
         }
 
         $bestPath = null;
         $bestSize = $file->getSize();
+        $outputPath = null;
+        $validPdfProduced = false;
+        $processFailed = false;
+        $invalidOutput = false;
 
-        foreach (['/printer', '/ebook'] as $setting) {
-            $outputPath = tempnam(sys_get_temp_dir(), 'siguru-pdf-');
+        try {
+            foreach (['/printer', '/ebook'] as $setting) {
+                $outputPath = tempnam(sys_get_temp_dir(), 'siguru-pdf-');
 
-            if ($outputPath === false) {
-                throw new \RuntimeException('Tidak dapat membuat file sementara untuk kompresi PDF.');
-            }
-
-            $process = new Process([
-                $executable,
-                '-dSAFER',
-                '-dBATCH',
-                '-dNOPAUSE',
-                '-dQUIET',
-                '-sDEVICE=pdfwrite',
-                '-dCompatibilityLevel=1.5',
-                '-dPDFSETTINGS='.$setting,
-                '-sOutputFile='.$outputPath,
-                $file->getPathname(),
-            ]);
-            $process->setTimeout(180);
-
-            try {
-                $process->run();
-            } catch (ProcessTimedOutException $exception) {
-                Log::warning('PDF compression timed out.', ['setting' => $setting]);
-                unlink($outputPath);
-
-                continue;
-            }
-
-            if (
-                ! $process->isSuccessful()
-                || ! is_file($outputPath)
-                || filesize($outputPath) >= $bestSize
-                || ! $this->isPdf($outputPath)
-            ) {
-                if (! $process->isSuccessful()) {
-                    Log::warning('Ghostscript could not compress an uploaded PDF.', [
-                        'exit_code' => $process->getExitCode(),
-                    ]);
+                if ($outputPath === false) {
+                    $outputPath = null;
+                    throw new \RuntimeException('Tidak dapat membuat file sementara untuk kompresi PDF.');
                 }
 
-                unlink($outputPath);
+                $process = new Process([
+                    $executable,
+                    '-dSAFER',
+                    '-dBATCH',
+                    '-dNOPAUSE',
+                    '-dQUIET',
+                    '-sDEVICE=pdfwrite',
+                    '-dCompatibilityLevel=1.5',
+                    '-dPDFSETTINGS='.$setting,
+                    '-sOutputFile='.$outputPath,
+                    $file->getPathname(),
+                ], null, $this->ghostscriptEnvironment(dirname($outputPath)));
+                $process->setTimeout(180);
 
-                continue;
+                try {
+                    $process->run();
+                } catch (ProcessTimedOutException $exception) {
+                    Log::warning('PDF compression timed out.', ['setting' => $setting]);
+                    $processFailed = true;
+                    unlink($outputPath);
+                    $outputPath = null;
+
+                    continue;
+                } catch (\Throwable $exception) {
+                    Log::warning('Ghostscript could not start for an uploaded PDF.', [
+                        'exception' => $exception::class,
+                    ]);
+                    $processFailed = true;
+                    unlink($outputPath);
+                    $outputPath = null;
+
+                    continue;
+                }
+
+                $outputSize = is_file($outputPath) ? filesize($outputPath) : false;
+
+                if (
+                    ! $process->isSuccessful()
+                    || $outputSize === false
+                    || ! $this->isPdf($outputPath)
+                ) {
+                    if (! $process->isSuccessful()) {
+                        $processFailed = true;
+                        Log::warning('Ghostscript could not compress an uploaded PDF.', [
+                            'exit_code' => $process->getExitCode(),
+                            'error_output' => mb_substr(trim($process->getErrorOutput()), 0, 1000),
+                        ]);
+                    } else {
+                        $invalidOutput = true;
+                        Log::warning('Ghostscript produced an invalid PDF output.');
+                    }
+
+                    unlink($outputPath);
+                    $outputPath = null;
+
+                    continue;
+                }
+
+                $validPdfProduced = true;
+
+                if ($outputSize >= $bestSize) {
+                    unlink($outputPath);
+                    $outputPath = null;
+
+                    continue;
+                }
+
+                if ($bestPath && is_file($bestPath)) {
+                    unlink($bestPath);
+                }
+
+                $bestPath = $outputPath;
+                $outputPath = null;
+                $bestSize = $outputSize;
+
+                if ($bestSize <= self::TARGET_BYTES) {
+                    break;
+                }
+            }
+
+            if (! $bestPath) {
+                $notice = match (true) {
+                    $validPdfProduced => 'PDF tidak dapat diperkecil lebih lanjut; file tidak disimpan.',
+                    $processFailed => 'PDF gagal diproses. Pastikan file tidak rusak atau terkunci; file tidak disimpan.',
+                    $invalidOutput => 'Ghostscript tidak menghasilkan PDF yang valid; file tidak disimpan.',
+                    default => 'PDF tidak berhasil dikompres menjadi lebih kecil; file tidak disimpan.',
+                };
+
+                Log::warning('PDF compression did not produce a smaller valid output.', [
+                    'valid_pdf_produced' => $validPdfProduced,
+                    'process_failed' => $processFailed,
+                    'invalid_output' => $invalidOutput,
+                ]);
+
+                $result = ['path' => null, 'notice' => $notice];
+            } else {
+                $result = $this->compressionResult($bestPath, $file->getSize(), $bestSize);
+            }
+
+            // Transfer ownership of the successful temporary PDF to storePdf().
+            $bestPath = null;
+
+            return $result;
+        } finally {
+            if ($outputPath && is_file($outputPath)) {
+                unlink($outputPath);
             }
 
             if ($bestPath && is_file($bestPath)) {
                 unlink($bestPath);
             }
+        }
+    }
 
-            $bestPath = $outputPath;
-            $bestSize = filesize($outputPath);
+    private function findGhostscriptExecutable(): ?string
+    {
+        $finder = new ExecutableFinder;
+        $binary = config('uploads.ghostscript_binary');
+        $executable = $finder->find($binary);
 
-            if ($bestSize <= self::TARGET_BYTES) {
-                break;
+        if ($executable || PHP_OS_FAMILY !== 'Windows') {
+            return $executable;
+        }
+
+        $programFilesDirectories = array_unique(array_filter([
+            getenv('ProgramFiles') ?: null,
+            getenv('ProgramFiles(x86)') ?: null,
+            'C:\\Program Files',
+            'C:\\Program Files (x86)',
+        ]));
+        $candidates = [];
+
+        foreach ($programFilesDirectories as $directory) {
+            foreach (['gswin64c.exe', 'gswin32c.exe'] as $filename) {
+                $matches = glob($directory.'\\gs\\gs*\\bin\\'.$filename);
+
+                if ($matches !== false) {
+                    $candidates = array_merge($candidates, $matches);
+                }
             }
         }
 
-        return $this->compressionResult($bestPath, $file->getSize(), $bestSize);
+        usort($candidates, static fn (string $a, string $b): int => strnatcasecmp($b, $a));
+
+        foreach ($candidates as $candidate) {
+            if (is_file($candidate)) {
+                return $candidate;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Keep the application environment while giving Ghostscript a writable
+     * temporary directory for its own scratch files.
+     *
+     * @return array<string, string|false>
+     */
+    private function ghostscriptEnvironment(string $temporaryDirectory): array
+    {
+        $environment = getenv();
+
+        if (! is_array($environment)) {
+            $environment = [];
+        }
+
+        foreach (array_keys($environment) as $name) {
+            if (in_array(strtoupper($name), ['TMPDIR', 'TEMP', 'TMP'], true)) {
+                unset($environment[$name]);
+            }
+        }
+
+        $environment['TMPDIR'] = $temporaryDirectory;
+        $environment['TEMP'] = $temporaryDirectory;
+        $environment['TMP'] = $temporaryDirectory;
+
+        return $environment;
     }
 
     /**
@@ -251,7 +472,7 @@ class FileCompressionService
 
             return [
                 'path' => null,
-                'notice' => 'Ukuran file tidak dapat dikurangi dengan aman; file asli disimpan.',
+                'notice' => 'PDF tidak berhasil dikompres menjadi lebih kecil; file tidak disimpan.',
             ];
         }
 

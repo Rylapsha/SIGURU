@@ -98,7 +98,7 @@ $headerSearchEnabled = ! in_array($headerSearchValue, ['false', '0', 'off', 'no'
 
                         @if (auth()->user()->foto)
                         <img
-                            src="{{ asset('storage/' . auth()->user()->foto) }}"
+                            src="{{ route('profil.foto.show') }}"
                             alt="Foto profil"
                             class="rounded-circle"
                             style="width: 40px; height: 40px; object-fit: cover;">

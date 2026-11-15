@@ -18,7 +18,7 @@
                 </div>
             </div>
 
-            <form action="{{ route('admin.supervisi.store') }}" method="POST" enctype="multipart/form-data">
+            <form id="form-create-supervisi" action="{{ route('admin.supervisi.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
                 <div class="row g-5">
@@ -541,6 +541,34 @@
             const selectedGuruOption = guruPicker.querySelector('.custom-select-option.selected');
             renderSubjectOptions(parseMapels(selectedGuruOption ? selectedGuruOption.dataset.mapels : ''));
         }
+    });
+</script>
+@endsection
+
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('form-create-supervisi');
+
+        if (!form) {
+            return;
+        }
+
+        form.addEventListener('submit', function() {
+            if (typeof Swal === 'undefined') {
+                return;
+            }
+
+            Swal.fire({
+                title: 'Mengunggah file',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                didOpen: function() {
+                    Swal.showLoading();
+                }
+            });
+        });
     });
 </script>
 @endsection

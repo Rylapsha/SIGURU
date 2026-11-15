@@ -29,7 +29,7 @@
                                 @if($guru->foto)
 
                                 <img
-                                    src="{{ asset('storage/' . $guru->foto) }}"
+                                    src="{{ route('profil.foto.show') }}"
                                     alt="Foto Profil"
                                     id="profilePreview"
                                     style="
@@ -248,6 +248,18 @@
 
 
         // Upload otomatis
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Mengubah foto profil',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                didOpen: function() {
+                    Swal.showLoading();
+                }
+            });
+        }
+
         document.getElementById('fotoForm').submit();
 
     });

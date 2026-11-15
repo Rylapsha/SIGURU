@@ -15,6 +15,7 @@ class Admin extends Model
         'nip',
         'golongan',
         'mata_pelajaran',
+        'foto',
     ];
 
     protected $hidden = [

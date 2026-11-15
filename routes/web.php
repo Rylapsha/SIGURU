@@ -52,6 +52,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/profil', [GuruProfileController::class, 'index'])
         ->name('profil');
 
+    Route::get('/profil/foto', [GuruProfileController::class, 'showFoto'])
+        ->name('profil.foto.show');
+
     Route::put('/profil/foto', [GuruProfileController::class, 'updateFoto'])
         ->name('profil.foto.update');
 
@@ -130,6 +133,12 @@ Route::prefix('admin')
         // Profil Admin
         Route::get('/profil', [AdminProfileController::class, 'index'])
             ->name('profil');
+
+        Route::get('/profil/foto', [AdminProfileController::class, 'showFoto'])
+            ->name('profil.foto.show');
+
+        Route::put('/profil/foto', [AdminProfileController::class, 'updateFoto'])
+            ->name('profil.foto.update');
 
         // Data Guru
         Route::get('/guru', [AdminGuruController::class, 'index'])

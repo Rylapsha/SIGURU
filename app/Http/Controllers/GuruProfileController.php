@@ -20,6 +20,23 @@ class GuruProfileController extends Controller
         return view('guru.profileguru', compact('guru'));
     }
 
+    public function showFoto()
+    {
+        $path = Auth::user()?->foto;
+
+        abort_unless(
+            $path && Storage::disk('public')->exists($path),
+            404,
+            'Foto profil tidak ditemukan.'
+        );
+
+        return Storage::disk('public')->response($path, null, [
+            'Cache-Control' => 'private, no-store, no-cache, must-revalidate',
+            'Pragma' => 'no-cache',
+            'Expires' => '0',
+        ], 'inline');
+    }
+
     public function updateFoto(Request $request)
     {
         $request->validate([

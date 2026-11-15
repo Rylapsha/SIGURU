@@ -99,8 +99,16 @@
                         data-kt-menu-placement="bottom-end"
                         aria-label="Menu profil admin">
 
+                        @if (session('admin_foto'))
+                        <img
+                            src="{{ route('admin.profil.foto.show') }}"
+                            alt="Foto profil admin"
+                            class="rounded-circle"
+                            style="width: 40px; height: 40px; object-fit: cover;">
+                        @else
                         <i class="bi bi-person-circle"
                             style="font-size: 30px;"></i>
+                        @endif
                     </div>
 
                     {{-- Dropdown profil admin --}}

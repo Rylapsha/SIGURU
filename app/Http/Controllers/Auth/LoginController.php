@@ -38,6 +38,7 @@ class LoginController extends Controller
             $request->session()->forget([
                 'admin_id',
                 'admin_username',
+                'admin_foto',
             ]);
 
             $request->session()->regenerate();
@@ -45,6 +46,7 @@ class LoginController extends Controller
             $request->session()->put([
                 'admin_id' => $admin->id,
                 'admin_username' => $admin->username,
+                'admin_foto' => $admin->foto,
             ]);
 
             return redirect()->route('admin.dashboard');
@@ -59,6 +61,7 @@ class LoginController extends Controller
             $request->session()->forget([
                 'admin_id',
                 'admin_username',
+                'admin_foto',
             ]);
 
             $request->session()->regenerate();
@@ -80,6 +83,7 @@ class LoginController extends Controller
         $request->session()->forget([
             'admin_id',
             'admin_username',
+            'admin_foto',
         ]);
 
         $request->session()->invalidate();

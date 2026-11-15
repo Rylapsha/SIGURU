@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Dokumen;
 use App\Models\KomentarDokumen;
 use App\Models\MataPelajaran;
+use App\Services\FileCompressionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -12,6 +13,10 @@ use Illuminate\Validation\Rule;
 
 class DokumenController extends Controller
 {
+    public function __construct(private FileCompressionService $fileCompression)
+    {
+    }
+
     /**
      * Daftar kategori dokumen.
      */
@@ -173,14 +178,15 @@ class DokumenController extends Controller
         ]);
 
         $file = $request->file('file');
-
-        $path = $file->store('dokumen', 'public');
+        $storedFile = $this->fileCompression->storePdf($file, 'dokumen');
+        $path = $storedFile['path'];
 
         if (!$path) {
             return back()
                 ->withInput()
                 ->withErrors([
-                    'file' => 'File gagal disimpan. Silakan coba kembali.',
+                    'file' => $storedFile['notice']
+                        ?? 'File gagal disimpan. Silakan coba kembali.',
                 ]);
         }
 

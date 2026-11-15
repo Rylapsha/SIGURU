@@ -10,11 +10,45 @@
             <div class="card-body pt-9 pb-0">
                 <div class="d-flex flex-wrap flex-sm-nowrap">
                     <div class="me-7 mb-4">
-                        <div class="symbol symbol-150px symbol-circle" style="overflow: hidden;">
-                            <div class="symbol-label fs-1 fw-bold bg-light-primary text-primary"
-                                style="width: 150px; height: 150px;">
-                                {{ strtoupper(substr($admin->nama_lengkap ?: $admin->username, 0, 1)) }}
+                        <div class="position-relative" style="width: 150px; height: 150px;">
+                            <div class="symbol symbol-150px symbol-circle" style="overflow: hidden;">
+                                @if ($admin->foto)
+                                <img
+                                    src="{{ route('admin.profil.foto.show') }}"
+                                    alt="Foto profil admin"
+                                    id="adminProfilePreview"
+                                    style="width: 150px; height: 150px; object-fit: cover;">
+                                @else
+                                <div class="symbol-label fs-1 fw-bold bg-light-primary text-primary"
+                                    id="adminProfilePreview"
+                                    style="width: 150px; height: 150px;">
+                                    {{ strtoupper(substr($admin->nama_lengkap ?: $admin->username, 0, 1)) }}
+                                </div>
+                                @endif
                             </div>
+
+                            <form
+                                action="{{ route('admin.profil.foto.update') }}"
+                                method="POST"
+                                enctype="multipart/form-data"
+                                id="adminFotoForm">
+                                @csrf
+                                @method('PUT')
+
+                                <label
+                                    for="adminFoto"
+                                    class="position-absolute d-flex align-items-center justify-content-center"
+                                    style="width: 38px; height: 38px; bottom: 5px; right: 5px; cursor: pointer; border: 3px solid #fff; border-radius: 50%; background: #52a8f8; box-shadow: 0 2px 6px rgba(0,0,0,0.15);"
+                                    title="Ganti Foto">
+                                    <i class="bi bi-camera-fill fs-5 text-dark"></i>
+                                </label>
+                                <input
+                                    type="file"
+                                    name="foto"
+                                    id="adminFoto"
+                                    accept="image/jpeg,image/png,image/jpg,image/webp"
+                                    style="display: none;">
+                            </form>
                         </div>
                     </div>
 
@@ -76,4 +110,49 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('adminFotoForm');
+        const input = document.getElementById('adminFoto');
+
+        if (!form || !input) {
+            return;
+        }
+
+        input.addEventListener('change', function() {
+            const file = input.files && input.files[0];
+
+            if (!file) {
+                return;
+            }
+
+            if (file.size > 20 * 1024 * 1024) {
+                input.value = '';
+                Swal.fire({
+                    title: 'Data belum valid',
+                    text: 'Ukuran foto maksimal 20 MB.',
+                    icon: 'warning',
+                    confirmButtonText: 'Mengerti'
+                });
+
+                return;
+            }
+
+            Swal.fire({
+                title: 'Mengubah foto profil',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                didOpen: function() {
+                    Swal.showLoading();
+                }
+            });
+
+            form.submit();
+        });
+    });
+</script>
 @endsection
