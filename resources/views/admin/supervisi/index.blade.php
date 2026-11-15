@@ -372,6 +372,7 @@
                 form.submit();
             } else {
                 select.value = oldStatus;
+                select.dispatchEvent(new Event('change', { bubbles: true }));
             }
         });
     }

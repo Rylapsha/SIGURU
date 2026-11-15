@@ -283,7 +283,14 @@
                     </div>
                     <div class="mb-3">
                         <label for="golongan" class="form-label">Golongan</label>
-                        <input type="text" id="golongan" name="golongan" class="form-control" value="{{ old('golongan') }}" required>
+                        <select id="golongan" name="golongan" class="form-select" required>
+                            <option value="">Pilih golongan</option>
+                            @foreach ($daftarGolongan as $golongan)
+                            <option value="{{ $golongan }}" @selected(old('golongan') === $golongan)>
+                                {{ $golongan }}
+                            </option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="mb-3">
                         <label for="mata_pelajaran" class="form-label">Mata Pelajaran</label>

@@ -13,6 +13,26 @@ use Illuminate\Validation\Rule;
 
 class AdminGuruController extends Controller
 {
+    private const DAFTAR_GOLONGAN = [
+        'I/a – Juru Muda',
+        'I/b – Juru Muda Tingkat I',
+        'I/c – Juru',
+        'I/d – Juru Tingkat I',
+        'II/a – Pengatur Muda',
+        'II/b – Pengatur Muda Tingkat I',
+        'II/c – Pengatur',
+        'II/d – Pengatur Tingkat I',
+        'III/a – Penata Muda',
+        'III/b – Penata Muda Tingkat I',
+        'III/c – Penata',
+        'III/d – Penata Tingkat I',
+        'IV/a – Pembina',
+        'IV/b – Pembina Tingkat I',
+        'IV/c – Pembina Utama Muda',
+        'IV/d – Pembina Utama Madya',
+        'IV/e – Pembina Utama',
+    ];
+
     /**
      * Memastikan pengguna yang mengakses adalah admin.
      */
@@ -75,6 +95,7 @@ class AdminGuruController extends Controller
             ->orderBy('nama')
             ->pluck('nama')
             ->values();
+        $daftarGolongan = self::DAFTAR_GOLONGAN;
 
         // Query data guru.
         $query = Guru::query();
@@ -145,7 +166,8 @@ class AdminGuruController extends Controller
 
         return view('admin.guru.index', compact(
             'gurus',
-            'daftarMataPelajaran'
+            'daftarMataPelajaran',
+            'daftarGolongan'
         ));
     }
 
@@ -156,13 +178,14 @@ class AdminGuruController extends Controller
         $validated = $request->validate([
             'nip' => ['required', 'string', 'max:30', 'unique:gurus,nip'],
             'nama_lengkap' => ['required', 'string', 'max:150'],
-            'golongan' => ['required', 'string', 'max:50'],
+            'golongan' => ['required', 'string', Rule::in(self::DAFTAR_GOLONGAN)],
             'mata_pelajaran' => ['required', 'string', 'max:100', Rule::exists('mata_pelajarans', 'nama')],
         ], [
             'nip.required' => 'NIP guru wajib diisi.',
             'nip.unique' => 'NIP guru sudah terdaftar.',
             'nama_lengkap.required' => 'Nama lengkap guru wajib diisi.',
             'golongan.required' => 'Golongan guru wajib diisi.',
+            'golongan.in' => 'Golongan yang dipilih tidak valid.',
             'mata_pelajaran.required' => 'Mata pelajaran wajib dipilih.',
             'mata_pelajaran.exists' => 'Mata pelajaran tidak valid.',
         ]);
