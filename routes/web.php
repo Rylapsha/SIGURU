@@ -1,18 +1,18 @@
 <?php
 
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\GuruProfileController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DokumenController;
-use App\Http\Controllers\SupervisiController;
+use App\Http\Controllers\AdminAgendaKegiatanController;
 use App\Http\Controllers\AdminDashboardController;
-use App\Http\Controllers\AdminSupervisiController;
 use App\Http\Controllers\AdminGuruController;
 use App\Http\Controllers\AdminKomentarDokumenController;
 use App\Http\Controllers\AdminMataPelajaranController;
-use App\Http\Controllers\AdminAgendaKegiatanController;
 use App\Http\Controllers\AdminProfileController;
+use App\Http\Controllers\AdminSupervisiController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DokumenController;
+use App\Http\Controllers\GuruProfileController;
+use App\Http\Controllers\SupervisiController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,10 +43,10 @@ Route::get('/', function () {
 */
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware('auth')
+    ->middleware('teacher')
     ->name('dashboard');
 
-Route::middleware('auth')->group(function () {
+Route::middleware('teacher')->group(function () {
 
     // Profil Guru
     Route::get('/profil', [GuruProfileController::class, 'index'])
@@ -124,6 +124,7 @@ Route::middleware('auth')->group(function () {
 
 Route::prefix('admin')
     ->name('admin.')
+    ->middleware('admin')
     ->group(function () {
 
         // Dashboard Admin

@@ -6,11 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class Admin extends Model
 {
+    public const ROLES = [
+        'kepala_sekolah',
+        'kurikulum',
+    ];
+
     protected $table = 'admins';
 
     protected $fillable = [
         'username',
         'password',
+        'role',
         'nama_lengkap',
         'nip',
         'golongan',
@@ -21,4 +27,18 @@ class Admin extends Model
     protected $hidden = [
         'password',
     ];
+
+    public function getNamaTanpaGelarAttribute(): string
+    {
+        $nama = trim((string) $this->nama_lengkap);
+
+        if ($nama === '') {
+            return 'Admin';
+        }
+
+        $nama = preg_split('/\s*[,;]\s*/u', $nama, 2)[0] ?? $nama;
+        $nama = preg_replace('/^(?:(?:Hj|H|Drs|Dra|Dr|Prof|Ir)\.?\s+)/iu', '', $nama) ?? $nama;
+
+        return trim($nama) !== '' ? trim($nama) : 'Admin';
+    }
 }

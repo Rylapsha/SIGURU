@@ -71,7 +71,7 @@ $jumlahJadwalMendatang = isset($jadwalMendatang)
 
                     Selamat Datang
                     <span class="fw-bolder">
-                        {{ Auth::user()->nama_lengkap ?? 'Admin' }}
+                        {{ session('admin_display_name', 'Admin') }}
                     </span>
 
                     di Sistem Informasi Direktori Guru SMP Negeri 2 Purwakarta

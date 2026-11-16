@@ -111,6 +111,28 @@
                     </a>
                 </div>
 
+                @if (session('admin_role') === 'kurikulum')
+                <div class="menu-item">
+                    <a href="{{ route('dokumen.index') }}"
+                        class="menu-link {{ request()->routeIs('dokumen.*') ? 'active' : '' }}">
+                        <span class="menu-icon">
+                            <i class="bi bi-folder-fill fs-3"></i>
+                        </span>
+                        <span class="menu-title">Dokumen</span>
+                    </a>
+                </div>
+
+                <div class="menu-item">
+                    <a href="{{ route('guru.supervisi') }}"
+                        class="menu-link {{ request()->routeIs('guru.supervisi*') ? 'active' : '' }}">
+                        <span class="menu-icon">
+                            <i class="bi bi-clipboard2-check-fill fs-3"></i>
+                        </span>
+                        <span class="menu-title">Supervisi</span>
+                    </a>
+                </div>
+                @endif
+
                 <div class="menu-item">
                     <div class="menu-content">
                         <div class="separator mx-1 my-4"></div>

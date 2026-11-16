@@ -765,10 +765,18 @@ License: For each use you must have a valid license purchased only from above li
     <div class="d-flex flex-column flex-root">
         <!--begin::Page-->
         <div class="page d-flex flex-row flex-column-fluid">
+            @if (session('admin_id') && session('admin_role') === 'kurikulum')
+            @include('layouts.partials.aside-admin')
+            @else
             @include('layouts.partials.aside')
+            @endif
             <!--begin::Wrapper-->
             <div class="wrapper d-flex flex-column flex-row-fluid" id="kt_wrapper">
+                @if (session('admin_id') && session('admin_role') === 'kurikulum')
+                @include('layouts.partials.header-admin')
+                @else
                 @include('layouts.partials.header')
+                @endif
 
                 <div class="flex-column-fluid" id="kt_page_content">
                     @yield('content')
@@ -834,14 +842,20 @@ License: For each use you must have a valid license purchased only from above li
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const logoutButton = document.getElementById('logout-button');
-            const logoutForm = document.getElementById('logout-form');
+            const adminLogoutButton = document.getElementById('admin-logout-button');
+            const adminLogoutForm = document.getElementById('admin-logout-form');
+            const logoutButton = adminLogoutButton || document.getElementById('logout-button');
+            const logoutForm = adminLogoutForm || document.getElementById('logout-form');
 
             if (logoutButton && logoutForm) {
                 logoutButton.addEventListener('click', function() {
+                    const isAdminLogout = Boolean(adminLogoutButton);
+
                     Swal.fire({
                         title: 'Yakin ingin logout?',
-                        text: 'Kamu akan keluar dari sesi saat ini.',
+                        text: isAdminLogout
+                            ? 'Kamu akan keluar dari sesi admin.'
+                            : 'Kamu akan keluar dari sesi saat ini.',
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#d33',

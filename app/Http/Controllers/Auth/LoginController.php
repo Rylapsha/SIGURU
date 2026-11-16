@@ -24,9 +24,18 @@ class LoginController extends Controller
         $admin = Admin::where('username', $username)->first();
 
         if ($admin) {
-            if (!Hash::check($password, $admin->password)) {
+            if (! Hash::check($password, $admin->password)) {
                 return back()->withErrors([
                     'nip' => 'Username atau password Admin salah.',
+                ])->onlyInput('nip');
+            }
+
+            // Akun admin lama yang belum memiliki nilai role dianggap sebagai Kepala Sekolah.
+            $adminRole = $admin->role ?? 'kepala_sekolah';
+
+            if (! in_array($adminRole, Admin::ROLES, true)) {
+                return back()->withErrors([
+                    'nip' => 'Akun administrator tidak memiliki role yang valid.',
                 ])->onlyInput('nip');
             }
 
@@ -39,6 +48,8 @@ class LoginController extends Controller
                 'admin_id',
                 'admin_username',
                 'admin_foto',
+                'admin_role',
+                'admin_display_name',
             ]);
 
             $request->session()->regenerate();
@@ -47,6 +58,8 @@ class LoginController extends Controller
                 'admin_id' => $admin->id,
                 'admin_username' => $admin->username,
                 'admin_foto' => $admin->foto,
+                'admin_role' => $adminRole,
+                'admin_display_name' => $admin->nama_tanpa_gelar,
             ]);
 
             return redirect()->route('admin.dashboard');
@@ -62,6 +75,8 @@ class LoginController extends Controller
                 'admin_id',
                 'admin_username',
                 'admin_foto',
+                'admin_role',
+                'admin_display_name',
             ]);
 
             $request->session()->regenerate();
@@ -84,6 +99,8 @@ class LoginController extends Controller
             'admin_id',
             'admin_username',
             'admin_foto',
+            'admin_role',
+            'admin_display_name',
         ]);
 
         $request->session()->invalidate();

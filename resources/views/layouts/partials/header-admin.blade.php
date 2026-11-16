@@ -122,7 +122,7 @@
                             <div class="menu-content d-flex flex-column px-5 py-3">
 
                                 <span class="fw-bolder fs-5">
-                                    {{ session('admin_username', 'Admin') }}
+                                    {{ session('admin_display_name', 'Admin') }}
                                 </span>
 
                                 <span class="text-muted fs-7 mt-1">
