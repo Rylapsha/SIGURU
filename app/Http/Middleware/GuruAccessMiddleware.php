@@ -3,7 +3,6 @@
 namespace App\Http\Middleware;
 
 use App\Models\Admin;
-use App\Models\Guru;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -38,7 +37,7 @@ class GuruAccessMiddleware
             'Fitur mengajar hanya tersedia untuk Wakasek Kurikulum.'
         );
 
-        $guru = Guru::where('nip', $admin->nip)->first();
+        $guru = $admin->guru()->first();
 
         abort_unless(
             $guru,

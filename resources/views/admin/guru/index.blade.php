@@ -296,6 +296,9 @@
                         <label for="mata_pelajaran" class="form-label">Mata Pelajaran</label>
                         <select id="mata_pelajaran" name="mata_pelajaran" class="form-select" required>
                             <option value="">Pilih mata pelajaran</option>
+                            <option value="Tidak ada" @selected(old('mata_pelajaran') === 'Tidak ada')>
+                                Tidak ada
+                            </option>
                             @foreach ($daftarMataPelajaran as $mapel)
                             <option value="{{ $mapel }}" @selected(old('mata_pelajaran')===$mapel)>
                                 {{ $mapel }}

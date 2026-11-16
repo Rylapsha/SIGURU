@@ -14,6 +14,7 @@ use Illuminate\Validation\Rule;
 class AdminGuruController extends Controller
 {
     private const DAFTAR_GOLONGAN = [
+        'Tidak ada',
         'I/a – Juru Muda',
         'I/b – Juru Muda Tingkat I',
         'I/c – Juru',
@@ -179,7 +180,15 @@ class AdminGuruController extends Controller
             'nip' => ['required', 'string', 'max:30', 'unique:gurus,nip'],
             'nama_lengkap' => ['required', 'string', 'max:150'],
             'golongan' => ['required', 'string', Rule::in(self::DAFTAR_GOLONGAN)],
-            'mata_pelajaran' => ['required', 'string', 'max:100', Rule::exists('mata_pelajarans', 'nama')],
+            'mata_pelajaran' => [
+                'required',
+                'string',
+                'max:100',
+                Rule::when(
+                    $request->input('mata_pelajaran') !== 'Tidak ada',
+                    Rule::exists('mata_pelajarans', 'nama')
+                ),
+            ],
         ], [
             'nip.required' => 'NIP guru wajib diisi.',
             'nip.unique' => 'NIP guru sudah terdaftar.',
@@ -212,7 +221,15 @@ class AdminGuruController extends Controller
             'nip' => ['required', 'string', 'max:30', Rule::unique('gurus', 'nip')->ignore($guru->id)],
             'nama_lengkap' => ['required', 'string', 'max:150'],
             'golongan' => ['required', 'string', 'max:50'],
-            'mata_pelajaran' => ['required', 'string', 'max:100', Rule::exists('mata_pelajarans', 'nama')],
+            'mata_pelajaran' => [
+                'required',
+                'string',
+                'max:100',
+                Rule::when(
+                    $request->input('mata_pelajaran') !== 'Tidak ada',
+                    Rule::exists('mata_pelajarans', 'nama')
+                ),
+            ],
         ], [
             'nip.required' => 'NIP guru wajib diisi.',
             'nip.unique' => 'NIP guru sudah terdaftar.',

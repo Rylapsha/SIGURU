@@ -16,6 +16,7 @@ class AdminProfileController extends Controller
         }
 
         $admin = Admin::findOrFail(session('admin_id'));
+        $admin->load('guru');
 
         return view('admin.profil', compact('admin'));
     }

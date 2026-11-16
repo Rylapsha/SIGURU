@@ -68,7 +68,7 @@
                                                 <i class="bi bi-person-vcard fs-5 text-gray me-2"></i>
                                                 Nama Lengkap
                                             </td>
-                                            <td class="text-gray-800">{{ $admin->nama_lengkap ?: $admin->username }}</td>
+                                            <td class="text-gray-800">{{ $admin->guru?->nama_lengkap ?: ($admin->nama_lengkap ?: $admin->username) }}</td>
                                         </tr>
                                         <tr>
                                             <td class="text-muted">
@@ -82,14 +82,14 @@
                                                 <i class="bi bi-award fs-5 text-gray me-2"></i>
                                                 Golongan
                                             </td>
-                                            <td>{{ $admin->golongan }}</td>
+                                            <td>{{ $admin->guru?->golongan ?: ($admin->golongan ?: 'Tidak ada') }}</td>
                                         </tr>
                                         <tr>
                                             <td class="text-muted">
                                                 <i class="bi bi-book fs-5 text-gray me-2"></i>
                                                 Mata Pelajaran
                                             </td>
-                                            <td>{{ $admin->mata_pelajaran }}</td>
+                                            <td>{{ $admin->guru?->mata_pelajaran ?: ($admin->mata_pelajaran ?: 'Tidak ada') }}</td>
                                         </tr>
                                         <tr>
                                             <td class="text-muted">

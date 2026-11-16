@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Admin extends Model
 {
@@ -27,6 +28,11 @@ class Admin extends Model
     protected $hidden = [
         'password',
     ];
+
+    public function guru(): HasOne
+    {
+        return $this->hasOne(Guru::class, 'nip', 'nip');
+    }
 
     public function getNamaTanpaGelarAttribute(): string
     {
