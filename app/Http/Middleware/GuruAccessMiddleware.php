@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\Admin;
+use App\Models\Guru;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;

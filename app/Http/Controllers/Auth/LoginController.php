@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
+use App\Models\Guru;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -65,10 +66,19 @@ class LoginController extends Controller
             return redirect()->route('admin.dashboard');
         }
 
-        // 2. Login Guru menggunakan NIP dan password
+        // 2. Login Guru menggunakan NIP dan password.
+        $guru = Guru::where('nip', $username)->first();
+
+        if ($guru && ! $guru->is_active) {
+            return back()->withErrors([
+                'nip' => 'Akun guru belum aktif. Silakan gunakan menu Aktivasi Akun.',
+            ])->onlyInput('nip');
+        }
+
         if (Auth::attempt([
             'nip' => $username,
             'password' => $password,
+            'is_active' => true,
         ], $request->boolean('remember'))) {
 
             $request->session()->forget([

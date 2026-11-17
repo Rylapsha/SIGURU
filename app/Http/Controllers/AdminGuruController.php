@@ -9,6 +9,7 @@ use App\Models\MataPelajaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class AdminGuruController extends Controller
@@ -204,8 +205,9 @@ class AdminGuruController extends Controller
             'nama_lengkap' => trim($validated['nama_lengkap']),
             'golongan' => trim($validated['golongan']),
             'mata_pelajaran' => trim($validated['mata_pelajaran']),
-            'password' => Hash::make('123456'),
+            'password' => Hash::make(Str::random(48)),
             'foto' => null,
+            'is_active' => false,
         ]);
 
         return redirect()

@@ -56,6 +56,7 @@ class AdministratorRolesAuthenticationTest extends TestCase
             'golongan' => 'III/b',
             'mata_pelajaran' => 'Matematika',
             'password' => Hash::make('password123'),
+            'is_active' => true,
         ]);
 
         $this->post(route('login.process'), [

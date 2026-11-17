@@ -158,6 +158,16 @@
                 </div>
 
                 <div class="menu-item">
+                    <a href="{{ route('admin.aktivasi-guru.index') }}"
+                        class="menu-link {{ request()->routeIs('admin.aktivasi-guru.*') ? 'active' : '' }}">
+                        <span class="menu-icon">
+                            <i class="bi bi-person-lock fs-3"></i>
+                        </span>
+                        <span class="menu-title">Aktivasi Akun Guru</span>
+                    </a>
+                </div>
+
+                <div class="menu-item">
                     <a href="{{ route('admin.mata-pelajaran.index') }}"
                         class="menu-link {{ request()->routeIs('admin.mata-pelajaran.*') ? 'active' : '' }}">
 

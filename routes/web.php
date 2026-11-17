@@ -2,11 +2,13 @@
 
 use App\Http\Controllers\AdminAgendaKegiatanController;
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\AdminGuruActivationController;
 use App\Http\Controllers\AdminGuruController;
 use App\Http\Controllers\AdminKomentarDokumenController;
 use App\Http\Controllers\AdminMataPelajaranController;
 use App\Http\Controllers\AdminProfileController;
 use App\Http\Controllers\AdminSupervisiController;
+use App\Http\Controllers\Auth\GuruActivationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DokumenController;
@@ -19,6 +21,13 @@ use Illuminate\Support\Facades\Route;
 | Login
 |--------------------------------------------------------------------------
 */
+
+Route::get('/aktivasi-akun', [GuruActivationController::class, 'create'])
+    ->name('guru.activation.create');
+
+Route::post('/aktivasi-akun', [GuruActivationController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('guru.activation.store');
 
 Route::get('/login', function () {
     return view('auth.login');
@@ -144,6 +153,17 @@ Route::prefix('admin')
         // Data Guru
         Route::get('/guru', [AdminGuruController::class, 'index'])
             ->name('guru.index');
+
+        // Aktivasi akun guru
+        Route::get('/aktivasi-guru', [AdminGuruActivationController::class, 'index'])
+            ->name('aktivasi-guru.index');
+
+        Route::post('/aktivasi-guru/ekspor', [AdminGuruActivationController::class, 'exportAll'])
+            ->name('aktivasi-guru.export');
+
+        Route::post('/aktivasi-guru/{guru}/ekspor', [AdminGuruActivationController::class, 'exportOne'])
+            ->whereNumber('guru')
+            ->name('aktivasi-guru.export-one');
 
         Route::post('/guru', [AdminGuruController::class, 'store'])
             ->name('guru.store');

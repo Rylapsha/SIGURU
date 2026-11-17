@@ -505,6 +505,19 @@
                 </div>
                 @endif
 
+                @if (session('activation_success'))
+                <div style="
+        background: #f0fdf4;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin-bottom: 20px;
+        font-size: 13px;">
+                    {{ session('activation_success') }}
+                </div>
+                @endif
+
                 <!--
                     Tahap ini hanya tampilan frontend.
                     Backend login belum dibuat.
@@ -585,6 +598,11 @@
                     </button>
 
                 </form>
+
+                <p style="text-align: center; margin-top: 18px; font-size: 13px; color: #64748b;">
+                    Belum memiliki akun?
+                    <a href="{{ route('guru.activation.create') }}" class="forgot-password">Aktivasi Akun</a>
+                </p>
 
                 <p class="footer-text">
                     © {{ date('Y') }} SMP Negeri 2 Purwakarta
