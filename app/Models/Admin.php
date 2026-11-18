@@ -20,6 +20,7 @@ class Admin extends Model
         'role',
         'nama_lengkap',
         'nip',
+        'tanggal_lahir',
         'golongan',
         'mata_pelajaran',
         'foto',
@@ -28,6 +29,13 @@ class Admin extends Model
     protected $hidden = [
         'password',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'tanggal_lahir' => 'date',
+        ];
+    }
 
     public function guru(): HasOne
     {

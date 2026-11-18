@@ -112,16 +112,21 @@
 
         <section class="form-panel">
             <div class="form-wrapper">
-                <h2 class="form-title">Aktivasi Akun</h2>
-                <p class="form-description">Masukkan NIP dan kode aktivasi 5 karakter dari admin, lalu buat password baru.</p>
+                @if ($step === 'verify')
+                <h2 class="form-title">Verifikasi Akun</h2>
+                <p class="form-description">Masukkan NIP dan kode aktivasi 5 karakter dari admin. Jika benar, Anda akan diarahkan untuk membuat password.</p>
+                @else
+                <h2 class="form-title">Buat Password Baru</h2>
+                <p class="form-description">Kode berhasil diverifikasi untuk {{ $guru->nama_lengkap }} (NIP {{ $guru->nip }}). Buat password untuk akun Anda.</p>
+                @endif
 
                 @if ($errors->any())
                 <div class="message message-error" role="alert">{{ $errors->first() }}</div>
                 @endif
 
+                @if ($step === 'verify')
                 <form method="POST" action="{{ route('guru.activation.store') }}" autocomplete="off">
                     @csrf
-
                     <div class="form-group">
                         <label for="nip" class="form-label">NIP</label>
                         <input type="text" id="nip" name="nip" class="form-input" value="{{ old('nip') }}" autocomplete="username" inputmode="numeric" required>
@@ -132,6 +137,11 @@
                         <input type="text" id="kode_aktivasi" name="kode_aktivasi" class="form-input" value="" autocomplete="one-time-code" autocapitalize="characters" minlength="5" maxlength="5" pattern="[A-Za-z0-9]{5}" title="Masukkan tepat 5 huruf atau angka" required>
                     </div>
 
+                    <button type="submit" class="login-button">Verifikasi Kode</button>
+                </form>
+                @else
+                <form method="POST" action="{{ route('guru.activation.complete') }}" autocomplete="off">
+                    @csrf
                     <div class="form-group">
                         <label for="password" class="form-label">Password Baru</label>
                         <input type="password" id="password" name="password" class="form-input" autocomplete="new-password" minlength="8" required>
@@ -142,8 +152,9 @@
                         <input type="password" id="password_confirmation" name="password_confirmation" class="form-input" autocomplete="new-password" minlength="8" required>
                     </div>
 
-                    <button type="submit" class="login-button">Aktifkan Akun</button>
+                    <button type="submit" class="login-button">Simpan Password & Aktifkan</button>
                 </form>
+                @endif
 
                 <a href="{{ route('login') }}" class="login-link">Kembali ke halaman login</a>
                 <p class="message-footer">&copy; {{ date('Y') }} SMP Negeri 2 Purwakarta</p>

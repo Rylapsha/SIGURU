@@ -14,6 +14,7 @@ class Guru extends Authenticatable
 
     protected $fillable = [
         'nip',
+        'tanggal_lahir',
         'nama_lengkap',
         'golongan',
         'mata_pelajaran',
@@ -31,6 +32,7 @@ class Guru extends Authenticatable
     {
         return [
             'is_active' => 'boolean',
+            'tanggal_lahir' => 'date',
         ];
     }
 

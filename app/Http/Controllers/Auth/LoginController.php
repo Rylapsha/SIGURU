@@ -51,6 +51,11 @@ class LoginController extends Controller
                 'admin_foto',
                 'admin_role',
                 'admin_display_name',
+                'guru_activation_pending_id',
+                'guru_activation_pending_fingerprint',
+                'guru_activation_pending_expires_at',
+                'guru_activation_completed_id',
+                'guru_activation_completed_expires_at',
             ]);
 
             $request->session()->regenerate();
@@ -75,11 +80,10 @@ class LoginController extends Controller
             ])->onlyInput('nip');
         }
 
-        if (Auth::attempt([
-            'nip' => $username,
-            'password' => $password,
-            'is_active' => true,
-        ], $request->boolean('remember'))) {
+        if ($guru && $guru->is_active && Hash::check($password, $guru->password)) {
+            if (Auth::check()) {
+                Auth::logout();
+            }
 
             $request->session()->forget([
                 'admin_id',
@@ -87,8 +91,14 @@ class LoginController extends Controller
                 'admin_foto',
                 'admin_role',
                 'admin_display_name',
+                'guru_activation_pending_id',
+                'guru_activation_pending_fingerprint',
+                'guru_activation_pending_expires_at',
+                'guru_activation_completed_id',
+                'guru_activation_completed_expires_at',
             ]);
 
+            Auth::login($guru, $request->boolean('remember'));
             $request->session()->regenerate();
 
             return redirect()->route('dashboard');
@@ -111,6 +121,11 @@ class LoginController extends Controller
             'admin_foto',
             'admin_role',
             'admin_display_name',
+            'guru_activation_pending_id',
+            'guru_activation_pending_fingerprint',
+            'guru_activation_pending_expires_at',
+            'guru_activation_completed_id',
+            'guru_activation_completed_expires_at',
         ]);
 
         $request->session()->invalidate();

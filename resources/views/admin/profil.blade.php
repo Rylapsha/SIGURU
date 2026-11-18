@@ -79,6 +79,15 @@
                                         </tr>
                                         <tr>
                                             <td class="text-muted">
+                                                <i class="bi bi-calendar-event fs-5 text-gray me-2"></i>
+                                                Tanggal Lahir
+                                            </td>
+                                            <td>
+                                                {{ ($admin->guru?->tanggal_lahir ?: $admin->tanggal_lahir)?->format('d/m/Y') ?? 'Belum diisi' }}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">
                                                 <i class="bi bi-award fs-5 text-gray me-2"></i>
                                                 Golongan
                                             </td>

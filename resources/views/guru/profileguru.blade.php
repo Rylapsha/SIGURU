@@ -137,6 +137,17 @@
                                             </td>
                                         </tr>
 
+                                        {{-- Tanggal Lahir --}}
+                                        <tr>
+                                            <td class="text-muted">
+                                                <i class="bi bi-calendar-event fs-5 text-gray me-2"></i>
+                                                Tanggal Lahir
+                                            </td>
+                                            <td class="text-gray-800">
+                                                {{ $guru->tanggal_lahir?->format('d/m/Y') ?? 'Belum diisi' }}
+                                            </td>
+                                        </tr>
+
                                         {{-- Golongan --}}
                                         <tr>
                                             <td class="text-muted">

@@ -17,6 +17,20 @@ class GuruAccessMiddleware
         $user = $guard->user();
 
         if ($user instanceof Guru) {
+            $guru = Guru::find($user->getAuthIdentifier());
+
+            if (! $guru || ! $guru->is_active) {
+                $guard->logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return redirect()->route('login')->withErrors([
+                    'nip' => 'Akun guru sedang nonaktif. Silakan hubungi admin sekolah.',
+                ]);
+            }
+
+            $guard->setUser($guru);
+
             return $next($request);
         }
 

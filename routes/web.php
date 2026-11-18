@@ -29,6 +29,13 @@ Route::post('/aktivasi-akun', [GuruActivationController::class, 'store'])
     ->middleware('throttle:5,1')
     ->name('guru.activation.store');
 
+Route::get('/aktivasi-akun/password', [GuruActivationController::class, 'password'])
+    ->name('guru.activation.password');
+
+Route::post('/aktivasi-akun/password', [GuruActivationController::class, 'complete'])
+    ->middleware('throttle:10,1')
+    ->name('guru.activation.complete');
+
 Route::get('/login', function () {
     return view('auth.login');
 })->name('login');
@@ -164,6 +171,10 @@ Route::prefix('admin')
         Route::post('/aktivasi-guru/{guru}/ekspor', [AdminGuruActivationController::class, 'exportOne'])
             ->whereNumber('guru')
             ->name('aktivasi-guru.export-one');
+
+        Route::post('/aktivasi-guru/{guru}/nonaktifkan', [AdminGuruActivationController::class, 'deactivate'])
+            ->whereNumber('guru')
+            ->name('aktivasi-guru.deactivate');
 
         Route::post('/guru', [AdminGuruController::class, 'store'])
             ->name('guru.store');

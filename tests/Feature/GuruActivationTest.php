@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Admin;
+use App\Models\Dokumen;
 use App\Models\Guru;
 use App\Models\GuruActivation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -25,8 +26,8 @@ class GuruActivationTest extends TestCase
             ->assertOk()
             ->assertSee('name="nip"', false)
             ->assertSee('name="kode_aktivasi"', false)
-            ->assertSee('name="password"', false)
-            ->assertSee('name="password_confirmation"', false);
+            ->assertDontSee('name="password"', false)
+            ->assertSee('Verifikasi Kode');
     }
 
     public function test_admin_export_contains_ice_matuah_and_only_hashes_the_activation_code(): void
@@ -208,8 +209,6 @@ class GuruActivationTest extends TestCase
         $this->post(route('guru.activation.store'), [
             'nip' => $guru->nip,
             'kode_aktivasi' => $code.'A',
-            'password' => 'IceMatuah2026!',
-            'password_confirmation' => 'IceMatuah2026!',
         ])->assertSessionHasErrors('kode_aktivasi');
 
         $this->assertSame(0, GuruActivation::where('guru_id', $guru->id)->value('attempts'));
@@ -217,11 +216,32 @@ class GuruActivationTest extends TestCase
         $this->post(route('guru.activation.store'), [
             'nip' => $guru->nip,
             'kode_aktivasi' => $code,
+        ])
+            ->assertRedirect(route('guru.activation.password'));
+
+        $this->assertFalse($guru->fresh()->is_active);
+        $this->assertTrue(Hash::check('password-lama', $guru->fresh()->password));
+
+        $this->get(route('guru.activation.password'))
+            ->assertOk()
+            ->assertSee('name="password"', false)
+            ->assertSee('name="password_confirmation"', false)
+            ->assertDontSee('name="kode_aktivasi"', false);
+
+        $this->post(route('guru.activation.complete'), [
             'password' => 'IceMatuah2026!',
             'password_confirmation' => 'IceMatuah2026!',
         ])
             ->assertRedirect(route('login'))
             ->assertSessionHas('activation_success');
+
+        $this->post(route('guru.activation.complete'), [
+            'password' => 'IceMatuah2026!',
+            'password_confirmation' => 'IceMatuah2026!',
+        ])
+            ->assertRedirect(route('login'))
+            ->assertSessionHas('activation_success')
+            ->assertSessionMissing('errors');
 
         $this->assertTrue($guru->fresh()->is_active);
         $this->assertTrue(Hash::check('IceMatuah2026!', $guru->fresh()->password));
@@ -230,8 +250,6 @@ class GuruActivationTest extends TestCase
         $this->post(route('guru.activation.store'), [
             'nip' => $guru->nip,
             'kode_aktivasi' => $code,
-            'password' => 'IceMatuah2027!',
-            'password_confirmation' => 'IceMatuah2027!',
         ])->assertSessionHasErrors('kode_aktivasi');
 
         $this->post(route('login.process'), [
@@ -256,12 +274,36 @@ class GuruActivationTest extends TestCase
         $this->post(route('guru.activation.store'), [
             'nip' => $guru->nip,
             'kode_aktivasi' => $code,
-            'password' => 'IceMatuah2026!',
-            'password_confirmation' => 'IceMatuah2026!',
         ])->assertSessionHasErrors('kode_aktivasi');
 
         $this->assertDatabaseMissing('guru_activations', ['guru_id' => $guru->id]);
         $this->assertFalse($guru->fresh()->is_active);
+    }
+
+    public function test_admin_can_reset_an_expired_activation_code(): void
+    {
+        $guru = $this->makeIceMatuah();
+        $admin = $this->makeAdmin();
+        $this->withSession($this->adminSession($admin));
+
+        $oldCode = $this->readCodeFromWorkbook(
+            $this->post(route('admin.aktivasi-guru.export-one', $guru))->getContent()
+        );
+        GuruActivation::where('guru_id', $guru->id)->update([
+            'expires_at' => now()->subMinute(),
+        ]);
+
+        $this->get(route('admin.aktivasi-guru.index'))
+            ->assertOk()
+            ->assertSee('Reset Kode & Ekspor', false);
+
+        $newCode = $this->readCodeFromWorkbook(
+            $this->post(route('admin.aktivasi-guru.export-one', $guru))->getContent()
+        );
+
+        $this->assertNotSame($oldCode, $newCode);
+        $this->assertTrue(GuruActivation::where('guru_id', $guru->id)->value('expires_at')->isFuture());
+        $this->assertSame(0, GuruActivation::where('guru_id', $guru->id)->value('attempts'));
     }
 
     public function test_invalid_code_consumes_attempts_and_revokes_after_five_tries(): void
@@ -278,13 +320,89 @@ class GuruActivationTest extends TestCase
             $this->post(route('guru.activation.store'), [
                 'nip' => $guru->nip,
                 'kode_aktivasi' => $invalidCode,
-                'password' => 'IceMatuah2026!',
-                'password_confirmation' => 'IceMatuah2026!',
             ])->assertSessionHasErrors('kode_aktivasi');
         }
 
         $this->assertDatabaseMissing('guru_activations', ['guru_id' => $guru->id]);
         $this->assertFalse($guru->fresh()->is_active);
+    }
+
+    public function test_admin_can_deactivate_teacher_without_deleting_documents_and_login_is_blocked(): void
+    {
+        $guru = Guru::create([
+            'nip' => '198501012010011004',
+            'nama_lengkap' => 'Guru Aktif',
+            'golongan' => 'III/b',
+            'mata_pelajaran' => 'Matematika',
+            'password' => Hash::make('password-lama'),
+            'is_active' => true,
+        ]);
+        $document = Dokumen::create([
+            'guru_id' => $guru->id,
+            'jenis_dokumen' => 'Modul Ajar',
+            'kelas' => 'VII',
+            'mata_pelajaran' => 'Matematika',
+            'semester' => 1,
+            'tahun_ajaran' => '2026/2027',
+            'nama_file' => 'modul.pdf',
+            'file_path' => 'dokumen/modul.pdf',
+        ]);
+        $admin = $this->makeAdmin();
+
+        $this->withSession($this->adminSession($admin))
+            ->post(route('admin.aktivasi-guru.deactivate', $guru))
+            ->assertSessionHas('success');
+
+        $this->assertFalse($guru->fresh()->is_active);
+        $this->assertDatabaseHas('dokumens', ['id' => $document->id, 'guru_id' => $guru->id]);
+
+        $this->post(route('login.process'), [
+            'nip' => $guru->nip,
+            'password' => 'password-lama',
+        ])->assertSessionHasErrors('nip');
+    }
+
+    public function test_admin_linked_teacher_account_is_shown_activated_and_cannot_be_deactivated(): void
+    {
+        $guru = $this->makeIceMatuah();
+        $admin = Admin::create([
+            'username' => $guru->nip,
+            'nip' => $guru->nip,
+            'nama_lengkap' => 'Rahmi Nur Salamah',
+            'role' => 'kurikulum',
+            'password' => Hash::make('admin-password'),
+        ]);
+
+        $this->withSession($this->adminSession($admin))
+            ->get(route('admin.aktivasi-guru.index'))
+            ->assertOk()
+            ->assertSee('badge-light-primary">Akun Admin', false);
+
+        $this->post(route('admin.aktivasi-guru.deactivate', $guru))
+            ->assertNotFound();
+    }
+
+    public function test_deactivated_teacher_is_logged_out_on_the_next_teacher_request(): void
+    {
+        $guru = Guru::create([
+            'nip' => '198501012010011005',
+            'nama_lengkap' => 'Guru Aktif',
+            'golongan' => 'III/b',
+            'mata_pelajaran' => 'Matematika',
+            'password' => Hash::make('password-lama'),
+            'is_active' => true,
+        ]);
+
+        $this->post(route('login.process'), [
+            'nip' => $guru->nip,
+            'password' => 'password-lama',
+        ])->assertRedirect(route('dashboard'));
+
+        Guru::whereKey($guru->id)->update(['is_active' => false]);
+
+        $this->get(route('dashboard'))
+            ->assertRedirect(route('login'))
+            ->assertSessionHasErrors('nip');
     }
 
     private function makeIceMatuah(): Guru

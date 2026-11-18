@@ -63,21 +63,32 @@
                 </thead>
                 <tbody class="fw-semibold text-gray-700">
                     @foreach ($gurus as $guru)
+                    @php
+                        $adminRole = $adminRoleByNip[$guru->nip] ?? null;
+                    @endphp
                     <tr>
                         <td>{{ $guru->nama_lengkap }}</td>
                         <td>{{ $guru->nip }}</td>
                         <td>
-                            @if ($guru->is_active)
+                            @if ($adminRole)
+                            <span class="badge badge-light-primary">Akun Admin</span>
+                            @elseif ($guru->is_active)
                             <span class="badge badge-light-success">Sudah diaktivasi</span>
                             @else
                             <span class="badge badge-light-warning">Belum diaktivasi</span>
                             @endif
                         </td>
                         <td>
-                            @if ($guru->activation)
+                            @if ($adminRole)
+                            <span class="text-muted">—</span>
+                            @elseif ($guru->activation)
                             <span class="badge badge-light-success">Sudah dibuat</span>
                             <div class="text-muted fs-7 mt-1">
+                                @if ($guru->activation->expires_at->isPast())
+                                Kode kedaluwarsa
+                                @else
                                 Berlaku sampai {{ $guru->activation->expires_at->timezone('Asia/Jakarta')->format('d/m/Y H:i') }}
+                                @endif
                                 &middot; Percobaan {{ $guru->activation->attempts }}/5
                             </div>
                             @elseif ($guru->is_active)
@@ -87,17 +98,31 @@
                             @endif
                         </td>
                         <td class="text-end">
-                            @unless ($guru->is_active)
+                            @if ($adminRole)
+                            <span class="text-muted">—</span>
+                            @elseif ($guru->is_active)
+                            <form method="POST" action="{{ route('admin.aktivasi-guru.deactivate', $guru) }}"
+                                class="d-inline" data-deactivate-guru-form>
+                                @csrf
+                                <button type="button" class="btn btn-sm btn-light-danger" data-deactivate-guru-button>
+                                    <i class="bi bi-person-x me-1"></i>Nonaktifkan Akun
+                                </button>
+                            </form>
+                            @else
                             <form method="POST" action="{{ route('admin.aktivasi-guru.export-one', $guru) }}">
                                 @csrf
                                 <button type="submit" class="btn btn-sm btn-light-primary">
                                     <i class="bi bi-download me-1"></i>
-                                    {{ $guru->activation ? 'Buat Ulang & Ekspor' : 'Buat Kode & Ekspor' }}
+                                    @if ($guru->activation && $guru->activation->expires_at->isPast())
+                                    Reset Kode & Ekspor
+                                    @elseif ($guru->activation)
+                                    Buat Ulang & Ekspor
+                                    @else
+                                    Buat Kode & Ekspor
+                                    @endif
                                 </button>
                             </form>
-                            @else
-                            <span class="text-muted">—</span>
-                            @endunless
+                            @endif
                         </td>
                     </tr>
                     @endforeach
@@ -106,12 +131,38 @@
         </div>
 
         <div class="d-flex flex-column align-items-center mt-5">
-            {{ $gurus->onEachSide(1)->links('pagination::bootstrap-5') }}
-            <div class="text-muted fs-7 mt-2">
-                Showing {{ $gurus->firstItem() ?? 0 }} to {{ $gurus->lastItem() ?? 0 }} of {{ $gurus->total() }} results
-            </div>
+            @include('partials.table-pagination', ['paginator' => $gurus])
         </div>
         @endif
     </div>
 </section>
 @endsection
+
+@push('scripts')
+<script>
+    document.querySelectorAll('[data-deactivate-guru-button]').forEach((button) => {
+        button.addEventListener('click', () => {
+            const form = button.closest('[data-deactivate-guru-form]');
+
+            if (typeof window.Swal === 'undefined') {
+                form.submit();
+                return;
+            }
+
+            window.Swal.fire({
+                title: 'Nonaktifkan akun guru?',
+                text: 'Guru tidak dapat login sampai akun diaktifkan kembali. Dokumen dan data guru tetap tersimpan.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, nonaktifkan',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+</script>
+@endpush
